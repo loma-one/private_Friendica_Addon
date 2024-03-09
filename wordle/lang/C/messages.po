@@ -1,0 +1,52 @@
+# ADDON wordle
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica wordle addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 14:26+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: wordle.php:22
+msgid "Game: Wordle"
+msgstr ""
+
+#: wordle.php:29
+msgid "Save Settings"
+msgstr ""
+
+#: wordle.php:32
+msgid "wordle Base URL"
+msgstr ""
+
+#: wordle.php:34
+msgid ""
+"Page your users will create an wordle game. For example, you could use "
+"https://swilliamsio.itch.io/valyrian-wordle."
+msgstr ""
+
+#: wordle.php:65
+msgid "Wordle Game"
+msgstr ""
+
+#: wordle.php:66
+msgid ""
+"Valyrian Wordle is a re-implementation of the modern classic Wordle game "
+"into the constructed language of High Valyrian"
+msgstr ""
+
+#: wordle.php:68
+msgid ""
+"Please contact your Friendica administrator to remind them to configure the "
+"wordle addon."
+msgstr ""
