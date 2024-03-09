@@ -1,0 +1,52 @@
+# ADDON tux
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica tux addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 14:24+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: tux.php:22
+msgid "Game: Super Tux"
+msgstr ""
+
+#: tux.php:29
+msgid "Save Settings"
+msgstr ""
+
+#: tux.php:32
+msgid "tux Base URL"
+msgstr ""
+
+#: tux.php:34
+msgid ""
+"Page your users will create an tux game. For example, you could use https://"
+"alzter-s.itch.io/supertux-classic."
+msgstr ""
+
+#: tux.php:65
+msgid "Super Tux Game"
+msgstr ""
+
+#: tux.php:66
+msgid ""
+"SuperTux Classic is a 2D platformer game where where you play as a penguin "
+"in Antarctica!"
+msgstr ""
+
+#: tux.php:68
+msgid ""
+"Please contact your Friendica administrator to remind them to configure the "
+"tux addon."
+msgstr ""
