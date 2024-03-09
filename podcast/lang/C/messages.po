@@ -1,0 +1,52 @@
+# ADDON podcast
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica podcast addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 14:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: podcast.php:22
+msgid "podcast Podcast"
+msgstr ""
+
+#: podcast.php:29
+msgid "Save Settings"
+msgstr ""
+
+#: podcast.php:32
+msgid "podcast Base URL"
+msgstr ""
+
+#: podcast.php:34
+msgid ""
+"Page your users will create an Podcast Website. For example you could use "
+"https://podcast.fm or https://podcastaddict.com."
+msgstr ""
+
+#: podcast.php:64
+msgid "Podcast"
+msgstr ""
+
+#: podcast.php:65
+msgid ""
+"podcast is a tool for listening to podcasts. Select the podcast that suits "
+"you best."
+msgstr ""
+
+#: podcast.php:67
+msgid ""
+"Please contact your Friendica administrator to remind them to configure the "
+"podcast addon."
+msgstr ""
