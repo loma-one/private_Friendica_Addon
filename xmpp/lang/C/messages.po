@@ -1,0 +1,48 @@
+# ADDON xmpp
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica xmpp addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 14:40+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: xmpp.php:22 xmpp.php:65
+msgid "XMPP Chat"
+msgstr ""
+
+#: xmpp.php:29
+msgid "Save Settings"
+msgstr ""
+
+#: xmpp.php:32
+msgid "xmpp Base URL"
+msgstr ""
+
+#: xmpp.php:34
+msgid ""
+"Page your users will create an XMPP chat. For example, you could use https://"
+"conversejs.org/fullscreen.html."
+msgstr ""
+
+#: xmpp.php:66
+msgid ""
+"XMPP is an Chat tool. Connect your account to XMPP and Chat with other "
+"People. "
+msgstr ""
+
+#: xmpp.php:68
+msgid ""
+"Please contact your Friendica administrator to remind them to configure the "
+"xmpp addon."
+msgstr ""
