@@ -1,0 +1,53 @@
+# ADDON nodulus
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica nodulus addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 14:26+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: nodulus.php:22
+msgid "Game: Nodulus"
+msgstr ""
+
+#: nodulus.php:29
+msgid "Save Settings"
+msgstr ""
+
+#: nodulus.php:32
+msgid "nodulus Base URL"
+msgstr ""
+
+#: nodulus.php:34
+msgid ""
+"Page your users will create an Nodulus game. For example, you could use "
+"https://hyperparticle.itch.io/nodulus."
+msgstr ""
+
+#: nodulus.php:65
+msgid "Nodulus Game"
+msgstr ""
+
+#: nodulus.php:66
+msgid ""
+"Nodulus is a puzzle game with a clever twist. Based on the mathematical "
+"theory behind plank puzzles, consists of a grid of cubes and rods which can "
+"be rotated with a swipe."
+msgstr ""
+
+#: nodulus.php:68
+msgid ""
+"Please contact your Friendica administrator to remind them to configure the "
+"nodulus addon."
+msgstr ""
