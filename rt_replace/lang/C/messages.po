@@ -1,1 +1,51 @@
+# ADDON rt_replace
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica rt_replace addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-09 14:23+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 
+#: rt_replace.php:57
+msgid "Nitter server"
+msgstr ""
+
+#: rt_replace.php:59
+msgid "Specify the URL with protocol. The default is https://nitter.net."
+msgstr ""
+
+#: rt_replace.php:65
+msgid "Instagram server"
+msgstr ""
+
+#: rt_replace.php:67
+msgid ""
+"Specify the URL with protocol. The default is https://proxigram.lunar.icu."
+msgstr ""
+
+#: rt_replace.php:73
+msgid "Sites which are accessed through 12ft.io"
+msgstr ""
+
+#: rt_replace.php:75
+msgid "Specify the URLs with protocol, one per line."
+msgstr ""
+
+#: rt_replace.php:79
+msgid "Save settings"
+msgstr ""
+
+#: rt_replace.php:127
+msgid "(URL replace addon enabled for X, Instagram and some news sites.)"
+msgstr ""
