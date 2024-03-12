@@ -1,4 +1,4 @@
-Friendica Addon
+Friendica Addon on loma.ml
 
 ============
 
