@@ -1,4 +1,4 @@
-# URL replace
+# replace URL
 
 This addon will replace all occurrences of specified URLs with the address of
 alternative servers in all displayed postings on a Friendica node.
