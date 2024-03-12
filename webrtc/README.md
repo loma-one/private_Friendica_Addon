@@ -20,3 +20,5 @@ would like to use and place it in the config window and save. Now when you
 open the app it will load the webrtc instance for you to use.
 
 [1]: https://en.wikipedia.org/wiki/WebRTC
+
+The add-on is opened in a separate window, allowing the security settings of the respective browser to take effect. It may be necessary to allow the opening of pop-up windows in the browser.
