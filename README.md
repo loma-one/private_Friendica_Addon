@@ -1,6 +1,5 @@
 Friendica Addon on loma.ml
-
-============
+=============
 
 Friendica has an addon system with which extensions can be created easily and simply. Read the documentation here https://github.com/friendica/friendica/blob/stable/doc/Addons.md
 
