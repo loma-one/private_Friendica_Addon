@@ -1,0 +1,58 @@
+# ADDON piped
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica piped addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-27 08:25+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: piped.php:40
+#, php-format
+msgid ""
+"Which Piped server shall be used for the replacements in the post bodies? "
+"Use the URL with servername and protocol. See %s for a list of available "
+"public Piped servers."
+msgstr ""
+
+#: piped.php:41 piped.php:58
+msgid "Piped server"
+msgstr ""
+
+#: piped.php:41 piped.php:58
+#, php-format
+msgid "See %s for a list of available Piped servers."
+msgstr ""
+
+#: piped.php:42
+msgid "Save Settings"
+msgstr ""
+
+#: piped.php:57
+msgid "Replace Youtube links with links to an Piped server"
+msgstr ""
+
+#: piped.php:57
+msgid ""
+"If enabled, Youtube links are replaced with the links to the specified Piped "
+"server."
+msgstr ""
+
+#: piped.php:63
+msgid "Piped Settings"
+msgstr ""
+
+#: piped.php:104
+#, php-format
+msgid "(Piped addon enabled: YouTube links via %s)"
+msgstr ""
