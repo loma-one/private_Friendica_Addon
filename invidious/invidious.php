@@ -2,7 +2,7 @@
 /*
  * Name: invidious
  * Description: Replaces links to youtube.com to an invidious instance in all displays of postings on a node.
- * Version: 0.5
+ * Version: 0.7
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
  * Status:
@@ -26,7 +26,11 @@ function invidious_install()
  */
 function invidious_addon_admin_post()
 {
-	DI::config()->set('invidious', 'server', trim($_POST['invidiousserver'], " \n\r\t\v\x00/"));
+	// Sanitize and validate the input as a valid URL
+	$url = filter_var(trim($_POST['invidiousserver'], " \n\r\t\v\x00/"), FILTER_VALIDATE_URL);
+	if ($url !== false) {
+		DI::config()->set('invidious', 'server', $url);
+	}
 }
 
 /* Hook into the admin settings to let the admin choose an
@@ -74,8 +78,10 @@ function invidious_settings_post(array &$b)
 	DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'invidious', 'enabled', (bool)$_POST['enabled']);
 
 	$server = trim($_POST['server'], " \n\r\t\v\x00/");
-	if ($server != DI::config()->get('invidious', 'server', INVIDIOUS_DEFAULT) && !empty($server)) {
-		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'invidious', 'server', $server);
+	// Sanitize and validate the server URL before saving
+	$validatedServer = filter_var($server, FILTER_VALIDATE_URL);
+	if ($validatedServer !== false && $validatedServer != DI::config()->get('invidious', 'server', INVIDIOUS_DEFAULT)) {
+		DI::pConfig()->set(DI::userSession()->getLocalUserId(), 'invidious', 'server', $validatedServer);
 	} else {
 		DI::pConfig()->delete(DI::userSession()->getLocalUserId(), 'invidious', 'server');
 	}
@@ -93,14 +99,12 @@ function invidious_render(array &$b)
 	$original = $b['html'];
 	$server   = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'invidious', 'server', DI::config()->get('invidious', 'server', INVIDIOUS_DEFAULT));
 
-	$b['html'] = preg_replace("~https?://(?:www\.)?youtube\.com/watch\?v=(.*?)~ism", $server . '/watch?v=$1', $b['html']);
-	$b['html'] = preg_replace("~https?://(?:www\.)?youtube\.com/embed/(.*?)~ism", $server . '/embed/$1', $b['html']);
-	$b['html'] = preg_replace("~https?://(?:www\.)?youtube\.com/shorts/(.*?)~ism", $server . '/shorts/$1', $b['html']);
-	$b['html'] = preg_replace ("/https?:\/\/music.youtube.com\/(.*?)/ism", $server . '/watch?v=$1', $b['html']);
-	$b['html'] = preg_replace ("/https?:\/\/m.youtube.com\/(.*?)/ism", $server . '/watch?v=$1', $b['html']);
-	$b['html'] = preg_replace("/https?:\/\/youtu.be\/(.*?)/ism", $server . '/watch?v=$1', $b['html']);
+	// Use optimized regex to replace different YouTube URL formats
+	$b['html'] = preg_replace("~https?://(?:www\.|m\.)?youtube\.com/(watch|embed|shorts)\?v=([a-zA-Z0-9_-]+)~ism", $server . '/$1?v=$2', $b['html']);
+	$b['html'] = preg_replace("~https?://(?:music\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)~ism", $server . '/watch?v=$1', $b['html']);
+	$b['html'] = preg_replace("~https?://?youtu\.be/([a-zA-Z0-9_-]+)~ism", $server . '/watch?v=$1', $b['html']);
 
 	if ($original != $b['html']) {
-		$b['html'] .= '<hr><p><small>' . DI::l10n()->t('(Invidious addon enabled: YouTube links via %s)', $server) . '</small></p>';
+		$b['html'] .= '<hr><p><small class="invidious-note">' . DI::l10n()->t('(Invidious addon enabled: YouTube links via %s)', $server) . '</small></p>';
 	}
 }
