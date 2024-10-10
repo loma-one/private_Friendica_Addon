@@ -69,22 +69,25 @@ function apps_active(string &$b)
 
     // HTML für die Icons-Leiste
     $b .= '<div id="icon_wrapper" style="position: fixed; top: 50%; right: 0; transform: translateY(-50%); width: 50px; background-color: var(--background-color, rgba(255, 255, 255, 0)); box-shadow: -2px 0 5px rgba(0,0,0,0.5); padding: 10px 0;">
+                <a href="https://friendica-hilfe.gitbook.io/friendica-hilfe" title="Friendica Hilfe" class="open-window">
+                    <img src="addon/apps/icon/help.jpg" alt="Hilfe" style="width:30px; height:30px;" />
+                </a>
                 <a href="https://audon.space" title="Open Audon" class="open-window">
                     <img src="addon/apps/icon/audon_icon.png" alt="Audon" style="width:30px; height:30px; margin-bottom: 10px;" />
                 </a>
-                <a href="https://web.libera.chat" title="Open Libera.Chat" class="open-window">
+                <a href="https://web.libera.chat" title="Open Chat" class="open-window">
                     <img src="addon/apps/icon/libera_icon.png" alt="Libera.Chat" style="width:30px; height:30px; margin-bottom: 10px;" />
                 </a>
-                <a href="https://app.cinny.in" title="Open Cinny" class="open-window">
+                <a href="https://app.cinny.in" title="Matrix Client" class="open-window">
                     <img src="addon/apps/icon/cinny_icon.png" alt="Cinny" style="width:30px; height:30px; margin-bottom: 10px;" />
                 </a>
-                <a href="https://www.jamendo.com/start" title="Open Jamendo" class="open-window">
+                <a href="https://www.jamendo.com/start" title="Open Music" class="open-window">
                     <img src="addon/apps/icon/jamendo_icon.png" alt="Jamendo" style="width:30px; height:30px; margin-bottom: 10px;" />
                 </a>
                 <a href="https://podcastaddict.com" title="Open Podcast Index" class="open-window">
                     <img src="addon/apps/icon/podcast_icon.png" alt="Podcast Index" style="width:30px; height:30px; margin-bottom: 10px;" />
                 </a>
-                <a href="https://conversejs.org/fullscreen.html" title="Open ConverseJS" class="open-window">
+                <a href="https://conversejs.org/fullscreen.html" title="Open XMPP" class="open-window">
                     <img src="addon/apps/icon/conversejs_icon.png" alt="ConverseJS" style="width:30px; height:30px;" />
                 </a>
                 <a href="https://www.deepl.com/de/translator" title="Open Deepl" class="open-window">
