@@ -1,7 +1,7 @@
 <?php
 /**
  * Name: User Notice
- * Description: Displays a one-time notification in a modal for users
+ * Description: Displays a one-time notification in a blue modal for logged-in users. Use the addon to inform your users about important things on your node.
  * Version: 1.0
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
