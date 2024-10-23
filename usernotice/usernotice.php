@@ -77,6 +77,7 @@ function usernotice_fetch(string &$b)
             <div class="usernotice-modal-content">
                 <span class="usernotice-close">&times;</span>
                 <h2>' . DI::l10n()->t('User-Notice') . '</h2>
+                <hr class="usernotice-divider">
                 <p>' . htmlspecialchars($noticeText) . '</p>
             </div>
         </div>
