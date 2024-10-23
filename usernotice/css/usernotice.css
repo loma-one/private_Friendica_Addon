@@ -61,4 +61,12 @@
     .usernotice-close {
         font-size: 24px; /* Kleinere Schließen-Schaltfläche */
     }
+
+        /* Dezenter Trennstrich */
+    .usernotice-divider {
+        border: none;
+        border-top: 1px solid rgba(244, 244, 244, 0.98);
+        margin: 10px 0;
+        width: 100%;
+    }
 }
