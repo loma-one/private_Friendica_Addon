@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-02 16:19+0100\n"
+"POT-Creation-Date: 2024-11-30 07:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,34 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: date.php:37
+#: date.php:41
 msgid "Week"
 msgstr ""
 
-#: date.php:65
+#: date.php:78
+msgid "DD.MM.YYYY"
+msgstr ""
+
+#: date.php:79
+msgid "YYYY-MM-DD"
+msgstr ""
+
+#: date.php:80
+msgid "MM/DD/YYYY"
+msgstr ""
+
+#: date.php:91
 msgid "Displays the current date, including the day of the week, week number, and the day of the year."
 msgstr ""
 
-#: date.php:68
+#: date.php:94
 msgid "Show date data"
 msgstr ""
 
-#: date.php:74
+#: date.php:96
+msgid "Date Format"
+msgstr ""
+
+#: date.php:103
 msgid "Current Date Settings"
 msgstr ""
