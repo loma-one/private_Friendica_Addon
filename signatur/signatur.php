@@ -2,7 +2,7 @@
 /*
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.0
+ * Version: 1.1
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -31,16 +31,27 @@ function signatur_add_signature(array &$b)
         return;
     }
 
+    // Check if the signature feature is enabled for the user
     $enabled = DI::pConfig()->get($b['uid'], 'signatur', 'enabled', false);
     if (!$enabled) {
         return;
     }
 
+    // Get the user's custom signature or the admin default
     $signature = DI::pConfig()->get($b['uid'], 'signatur', 'text') ??
                  DI::config()->get('signatur', 'default_text', "---\nDefault Signature");
 
+    // Define the marker as [hr] (horizontal rule)
+    $signature_marker = "[hr]";
+
+    // Check if the marker is already present in the post body
+    if (strpos($b['body'], $signature_marker) !== false) {
+        return; // Signature already exists, do not add it again
+    }
+
+    // Append the signature with the [hr] marker
     if (!empty($b['body'])) {
-        $b['body'] .= "\n\n" . $signature;
+        $b['body'] .= "\n\n{$signature_marker}\n{$signature}";
     }
 }
 
