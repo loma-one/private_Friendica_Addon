@@ -53,8 +53,3 @@ Für Fragen oder Unterstützung können Sie sich an den Autor wenden:
 
 - **Autor**: Matthias Ebers
 - **Website**: [https://loma.ml/profile/feb](https://loma.ml/profile/feb)
-
-## Danksagungen
-
-Vielen Dank an alle, die zu diesem Addon beigetragen haben!
-
