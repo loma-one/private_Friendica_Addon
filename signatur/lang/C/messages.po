@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-01 18:40+0100\n"
+"POT-Creation-Date: 2024-12-07 16:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,38 +17,42 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: signatur.php:64
+#: signatur.php:85
 msgid "Add a signature to your posts."
 msgstr ""
 
-#: signatur.php:65
+#: signatur.php:86
 msgid "Enable Signature"
 msgstr ""
 
-#: signatur.php:66
+#: signatur.php:87
 msgid "Your Signature"
 msgstr ""
 
-#: signatur.php:66
+#: signatur.php:87
 msgid "Enter your custom signature. (Multiline allowed)"
 msgstr ""
 
-#: signatur.php:67 signatur.php:109
+#: signatur.php:88
+msgid "Enable Signature in Comments"
+msgstr ""
+
+#: signatur.php:89 signatur.php:133
 msgid "Save"
 msgstr ""
 
-#: signatur.php:72
+#: signatur.php:94
 msgid "Signature Settings"
 msgstr ""
 
-#: signatur.php:107
+#: signatur.php:131
 msgid "Set the default signature for users who have not defined their own."
 msgstr ""
 
-#: signatur.php:108
+#: signatur.php:132
 msgid "Default Signature"
 msgstr ""
 
-#: signatur.php:108
+#: signatur.php:132
 msgid "This will be used if users do not set their own signature."
 msgstr ""

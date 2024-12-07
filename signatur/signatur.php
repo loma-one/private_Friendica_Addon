@@ -2,7 +2,7 @@
 /*
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.1
+ * Version: 1.2
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -37,6 +37,15 @@ function signatur_add_signature(array &$b)
         return;
     }
 
+    // Check if the post is a comment
+    if (isset($b['parent']) && $b['parent'] != $b['uri-id']) {
+        // Check if the signature should be added to comments
+        $enable_signature_in_comments = DI::pConfig()->get($b['uid'], 'signatur', 'enable_signature_in_comments', true);
+        if (!$enable_signature_in_comments) {
+            return;
+        }
+    }
+
     // Get the user's custom signature or the admin default
     $signature = DI::pConfig()->get($b['uid'], 'signatur', 'text') ??
                  DI::config()->get('signatur', 'default_text', "---\nDefault Signature");
@@ -69,12 +78,14 @@ function signatur_user_settings(array &$data)
     $uid = DI::userSession()->getLocalUserId();
     $enabled = DI::pConfig()->get($uid, 'signatur', 'enabled', false);
     $signature = DI::pConfig()->get($uid, 'signatur', 'text', '');
+    $enable_signature_in_comments = DI::pConfig()->get($uid, 'signatur', 'enable_signature_in_comments', true);
 
     $t = Renderer::getMarkupTemplate('settings.tpl', 'addon/signatur/');
     $html = Renderer::replaceMacros($t, [
         '$description' => DI::l10n()->t('Add a signature to your posts.'),
         '$enabled'     => ['enabled', DI::l10n()->t('Enable Signature'), $enabled],
         '$signature'   => ['text', DI::l10n()->t('Your Signature'), $signature, DI::l10n()->t('Enter your custom signature. (Multiline allowed)')],
+        '$enable_signature_in_comments' => ['enable_signature_in_comments', DI::l10n()->t('Enable Signature in Comments'), $enable_signature_in_comments],
         '$submit'      => DI::l10n()->t('Save'),
     ]);
 
@@ -99,9 +110,11 @@ function signatur_user_settings_post(array &$b)
     $uid = DI::userSession()->getLocalUserId();
     $enabled = !empty($_POST['enabled']);
     $signature = trim($_POST['text']);
+    $enable_signature_in_comments = !empty($_POST['enable_signature_in_comments']);
 
     DI::pConfig()->set($uid, 'signatur', 'enabled', $enabled);
     DI::pConfig()->set($uid, 'signatur', 'text', $signature);
+    DI::pConfig()->set($uid, 'signatur', 'enable_signature_in_comments', $enable_signature_in_comments);
 }
 
 /**
