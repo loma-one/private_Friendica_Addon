@@ -45,7 +45,7 @@ Wir freuen uns über Beiträge zur Weiterentwicklung dieses Addons. Wenn Sie ein
 
 ### Lizenz
 
-Dieses Addon wird unter der MIT-Lizenz veröffentlicht. Weitere Informationen finden Sie in der [LICENSE]([LICENSE](https://mit-license.org/)) Datei.
+Dieses Addon wird unter der MIT-Lizenz veröffentlicht. Weitere Informationen finden Sie in der ([LICENSE](https://mit-license.org/)) Datei.
 
 ## Kontakt
 
