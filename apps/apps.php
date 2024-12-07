@@ -2,7 +2,7 @@
 /**
  * Name: Apps
  * Description: Show icon links to various apps and services on the right side of the page.
- * Version: 0.5
+ * Version: 1.4
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -35,12 +35,15 @@ function apps_settings(array &$data)
     for ($i = 0; $i < 10; $i++) {
         $url = htmlspecialchars($links[$i]['url'] ?? '');
         $label = htmlspecialchars($links[$i]['label'] ?? '');
+        $openInNewTab = isset($links[$i]['open_in_new_tab']) && $links[$i]['open_in_new_tab'] ? 'checked' : '';
         $form .= <<<HTML
         <div>
             <label for="apps_link_url_$i">URL:</label>
             <input type="url" name="apps_link_url_$i" value="$url" id="apps_link_url_$i" style="font-weight: normal;" />
             <label for="apps_link_label_$i">Label:</label>
             <input type="text" name="apps_link_label_$i" value="$label" id="apps_link_label_$i" style="font-weight: normal;" />
+            <label for="apps_link_new_tab_$i">New Tab:</label>
+            <input type="checkbox" name="apps_link_new_tab_$i" id="apps_link_new_tab_$i" $openInNewTab />
         </div>
         HTML;
     }
@@ -64,9 +67,10 @@ function apps_save_links()
     for ($i = 0; $i < 10; $i++) {
         $url = trim($_POST["apps_link_url_$i"] ?? '');
         $label = trim($_POST["apps_link_label_$i"] ?? '');
+        $openInNewTab = isset($_POST["apps_link_new_tab_$i"]);
 
         if (!empty($url) && !empty($label) && filter_var($url, FILTER_VALIDATE_URL) && preg_match('#^https?://#', $url)) {
-            $links[] = ['url' => $url, 'label' => $label];
+            $links[] = ['url' => $url, 'label' => $label, 'open_in_new_tab' => $openInNewTab];
         }
     }
 
@@ -89,12 +93,14 @@ function apps_render(string &$b)
     $html = '<div id="icon_wrapper">';
     foreach ($links as $link) {
         $domain = htmlspecialchars(parse_url($link['url'], PHP_URL_HOST));
+        $target = isset($link['open_in_new_tab']) && $link['open_in_new_tab'] ? '_blank' : '';
         $html .= sprintf(
-            '<a href="%s" title="%s" class="open-window">
+            '<a href="%s" title="%s" class="open-window" target="%s">
                 <img src="%s" alt="%s" />
             </a>',
             htmlspecialchars($link['url']),
             htmlspecialchars($link['label']),
+            $target,
             apps_get_favicon($domain),
             htmlspecialchars($link['label'])
         );
@@ -173,12 +179,14 @@ function apps_scripts(): string
     <script>
         document.querySelectorAll(".open-window").forEach(function(link) {
             link.addEventListener("click", function(event) {
-                event.preventDefault();
-                var width = 800;
-                var height = 800;
-                var left = (screen.width - width) / 2;
-                var top = (screen.height - height) / 2;
-                window.open(this.href, "newwindow", "width=" + width + ", height=" + height + ", top=" + top + ", left=" + left);
+                if (this.target !== '_blank') {
+                    event.preventDefault();
+                    var width = 800;
+                    var height = 800;
+                    var left = (screen.width - width) / 2;
+                    var top = (screen.height - height) / 2;
+                    window.open(this.href, "newwindow", "width=" + width + ", height=" + height + ", top=" + top + ", left=" + left);
+                }
             });
         });
     </script>
