@@ -2,7 +2,7 @@
 /*
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.2
+ * Version: 1.3
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -38,7 +38,7 @@ function signatur_add_signature(array &$b)
     }
 
     // Check if the post is a comment
-    if (isset($b['parent']) && $b['parent'] != $b['uri-id']) {
+    if ($b['parent'] && $b['parent'] != $b['uri-id']) {
         // Check if the signature should be added to comments
         $enable_signature_in_comments = DI::pConfig()->get($b['uid'], 'signatur', 'enable_signature_in_comments', true);
         if (!$enable_signature_in_comments) {
