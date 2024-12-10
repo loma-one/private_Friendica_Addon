@@ -38,7 +38,7 @@ function signatur_add_signature(array &$b)
     }
 
     // Check if the post is a comment
-    if ($b['parent'] && $b['parent'] != $b['uri-id']) {
+    if ($b['parent'] && ($b['parent'] != ($b['uri-id'] ?? null))) {
         // Check if the signature should be added to comments
         $enable_signature_in_comments = DI::pConfig()->get($b['uid'], 'signatur', 'enable_signature_in_comments', true);
         if (!$enable_signature_in_comments) {
