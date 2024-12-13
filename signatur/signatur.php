@@ -82,7 +82,7 @@ function signatur_user_settings(array &$data)
 
     $t = Renderer::getMarkupTemplate('settings.tpl', 'addon/signatur/');
     $html = Renderer::replaceMacros($t, [
-        '$description' => DI::l10n()->t('Add a signature to your posts.'),
+        '$description' => DI::l10n()->t('Add a signature to your posts. This addon automatically appends a customizable signature to posts in Friendica. Users can enable or disable it, define personal signatures, and optionally include them in comments.'),
         '$enabled'     => ['enabled', DI::l10n()->t('Enable Signature'), $enabled],
         '$signature'   => ['text', DI::l10n()->t('Your Signature'), $signature, DI::l10n()->t('Enter your custom signature. (Multiline allowed)')],
         '$enable_signature_in_comments' => ['enable_signature_in_comments', DI::l10n()->t('Enable Signature in Comments'), $enable_signature_in_comments],
