@@ -2,7 +2,7 @@
 /*
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.3
+ * Version: 1.4
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -58,9 +58,17 @@ function signatur_add_signature(array &$b)
         return; // Signature already exists, do not add it again
     }
 
-    // Append the signature with the [hr] marker
-    if (!empty($b['body'])) {
-        $b['body'] .= "\n\n{$signature_marker}\n{$signature}";
+    // Check if the original content has changed
+    if (isset($b['original_body']) && $b['original_body'] != $b['body']) {
+        // Append the signature with the [hr] marker
+        if (!empty($b['body'])) {
+            $b['body'] .= "\n\n{$signature_marker}\n{$signature}";
+        }
+    } else {
+        // If original_body is not set, assume it's a new post and add the signature
+        if (!empty($b['body'])) {
+            $b['body'] .= "\n\n{$signature_marker}\n{$signature}";
+        }
     }
 }
 
