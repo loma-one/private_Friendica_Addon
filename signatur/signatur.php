@@ -2,7 +2,7 @@
 /*
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.4
+ * Version: 1.5
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -62,14 +62,55 @@ function signatur_add_signature(array &$b)
     if (isset($b['original_body']) && $b['original_body'] != $b['body']) {
         // Append the signature with the [hr] marker
         if (!empty($b['body'])) {
-            $b['body'] .= "\n\n{$signature_marker}\n{$signature}";
+            $b['body'] = insert_signature_before_images($b['body'], $signature_marker, $signature);
         }
     } else {
         // If original_body is not set, assume it's a new post and add the signature
         if (!empty($b['body'])) {
-            $b['body'] .= "\n\n{$signature_marker}\n{$signature}";
+            $b['body'] = insert_signature_before_images($b['body'], $signature_marker, $signature);
         }
     }
+}
+
+/**
+ * Inserts the signature before images in the post body.
+ *
+ * @param string $body The post body.
+ * @param string $signature_marker The signature marker.
+ * @param string $signature The signature text.
+ * @return string The modified post body.
+ */
+function insert_signature_before_images($body, $signature_marker, $signature)
+{
+    // Split the body into parts based on the image marker
+    $parts = preg_split('/(\[url=.*?\])/', $body, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+    // Initialize the new body
+    $new_body = '';
+
+    // Flag to check if the signature has been added
+    $signature_added = false;
+
+    // Iterate through the parts
+    foreach ($parts as $part) {
+        // Check if the part is an image marker
+        if (strpos($part, '[url=') !== false) {
+            // If the signature has not been added yet, add it before the image
+            if (!$signature_added) {
+                $new_body .= "\n\n{$signature_marker}\n{$signature}\n\n";
+                $signature_added = true;
+            }
+        }
+        // Append the part to the new body
+        $new_body .= $part;
+    }
+
+    // If no images were found, add the signature at the end
+    if (!$signature_added) {
+        $new_body .= "\n\n{$signature_marker}\n{$signature}";
+    }
+
+    return $new_body;
 }
 
 /**
