@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-07 16:35+0100\n"
+"POT-Creation-Date: 2024-12-16 11:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,42 +17,30 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: signatur.php:85
-msgid "Add a signature to your posts."
+#: signatur.php:114
+msgid "BETA Version - Add a signature to your posts. This addon automatically appends a customizable signature to posts in Friendica. Users can enable or disable it, define personal signatures, and optionally include them in comments."
 msgstr ""
 
-#: signatur.php:86
+#: signatur.php:115
 msgid "Enable Signature"
 msgstr ""
 
-#: signatur.php:87
+#: signatur.php:116
 msgid "Your Signature"
 msgstr ""
 
-#: signatur.php:87
+#: signatur.php:116
 msgid "Enter your custom signature. (Multiline allowed)"
 msgstr ""
 
-#: signatur.php:88
+#: signatur.php:117
 msgid "Enable Signature in Comments"
 msgstr ""
 
-#: signatur.php:89 signatur.php:133
+#: signatur.php:118
 msgid "Save"
 msgstr ""
 
-#: signatur.php:94
+#: signatur.php:123
 msgid "Signature Settings"
-msgstr ""
-
-#: signatur.php:131
-msgid "Set the default signature for users who have not defined their own."
-msgstr ""
-
-#: signatur.php:132
-msgid "Default Signature"
-msgstr ""
-
-#: signatur.php:132
-msgid "This will be used if users do not set their own signature."
 msgstr ""
