@@ -2,7 +2,7 @@
 /**
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.6
+ * Version: 1.7
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -11,7 +11,8 @@ use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
-const SIGNATURE_MARKER = "[hr]";
+// Use Zero Width Space (ZWSP) as the signature marker
+const SIGNATURE_MARKER = "\u{200B}";
 
 function signatur_install()
 {
