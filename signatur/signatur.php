@@ -2,7 +2,7 @@
 /**
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.7
+ * Version: 1.8
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -79,7 +79,7 @@ function insert_signature_before_images($body, $signature_marker, $signature)
     }
 
     if ($image_count <= 1) {
-        return $body . "\n\n{$signature_marker}\n{$signature}";
+        return rtrim($body) . "\n{$signature_marker}\n{$signature}";
     }
 
     if ($image_count >= 2 && $text_end_index !== -1) {
@@ -87,11 +87,11 @@ function insert_signature_before_images($body, $signature_marker, $signature)
         $lines_after_first_image = array_slice($lines, $text_end_index);
 
         return implode("\n", $lines_before_first_image) .
-            "\n\n{$signature_marker}\n{$signature}\n\n" .
+            "\n{$signature_marker}\n{$signature}\n" .
             implode("\n", $lines_after_first_image);
     }
 
-    return $body . "\n\n{$signature_marker}\n{$signature}";
+    return rtrim($body) . "\n{$signature_marker}\n{$signature}";
 }
 
 /**
