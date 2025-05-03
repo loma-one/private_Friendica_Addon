@@ -4,7 +4,7 @@
  * Description: Use OCR to get text from images (with timeout, resource limits, format check)
  * Version: 0.2
  * Author: Michael Vogel <http://pirati.ca/profile/heluecht>
- * Modified by: Matthias Ebers <http://loma.ml/profile/feb> (Timeout, Ressourcenbegrenzung, Alt-Text- und Formatprüfung)
+ * Modified by: Matthias Ebers <http://loma.ml/profile/feb>
  */
 
 use Friendica\Core\Hook;
