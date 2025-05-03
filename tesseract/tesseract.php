@@ -15,7 +15,7 @@ use thiagoalessio\TesseractOCR\TesseractOCR;
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 /**
- * Wird beim Aktivieren des Addons aufgerufen
+ * Is called up when the add-on is activated
  */
 function tesseract_install()
 {
@@ -23,7 +23,7 @@ function tesseract_install()
 
 	$wrapperPath = __DIR__ . '/tesseract-limited.sh';
 
-	// Wrapper-Skript mit Timeout und CPU-/I/O-Priorität erstellen
+	// Create wrapper script with timeout and CPU/I/O priority
 	if (!file_exists($wrapperPath)) {
 		$script = <<<BASH
 #!/bin/bash
@@ -43,7 +43,7 @@ BASH;
 }
 
 /**
- * Wird beim Deaktivieren des Addons aufgerufen
+ * Is called up when the add-on is deactivated
  */
 function tesseract_uninstall()
 {
@@ -59,24 +59,24 @@ function tesseract_uninstall()
 }
 
 /**
- * Hauptfunktion für die OCR-Erkennung
+ * Main function for OCR recognition
  */
 function tesseract_ocr_detection(&$media)
 {
-	// ➤ Alt-Text vorhanden? → OCR überspringen
+	// ➤ Alt text available? → Skip OCR
 	if (!empty($media['description'])) {
 		Logger::debug('Image already has description, skipping OCR');
 		return;
 	}
 
-	// ➤ Formatprüfung: Nur bestimmte Bildtypen verarbeiten
+	// Format check: Only process certain image types
 	$allowedTypes = ['image/jpeg', 'image/png', 'image/bmp', 'image/tiff'];
 	if (!empty($media['type']) && !in_array($media['type'], $allowedTypes)) {
 		Logger::debug('Unsupported image type for OCR', ['type' => $media['type']]);
 		return;
 	}
 
-	// ➤ Alternativ: Dateiendung prüfen (wenn MIME-Typ fehlt)
+	// Alternatively: Check file extension (if MIME type is missing)
 	if (empty($media['type']) && !empty($media['filename']) && preg_match('/\.gif$/i', $media['filename'])) {
 		Logger::debug('GIF image detected via filename, skipping OCR');
 		return;
@@ -85,23 +85,23 @@ function tesseract_ocr_detection(&$media)
 	$ocr = new TesseractOCR();
 
 	try {
-		// ➤ Bash-Wrapper mit Ressourcenlimit
+		// Bash wrapper with resource limit
 		$wrapperPath = __DIR__ . '/tesseract-limited.sh';
 		$ocr->executable($wrapperPath);
 
-		// ➤ Alle verfügbaren Sprachen laden
+		// Load all available languages
 		$languages = $ocr->availableLanguages();
 		if ($languages) {
 			$ocr->lang(implode('+', $languages));
 		}
 
-		// ➤ Temporäres Verzeichnis setzen
+		// Set temporary directory
 		$ocr->tempDir(System::getTempPath());
 
-		// ➤ Bilddaten setzen
+		// Set image data
 		$ocr->imageData($media['img_str'], strlen($media['img_str']));
 
-		// ➤ OCR starten
+		// Start OCR
 		$text = trim($ocr->run());
 
 		if (!empty($text)) {
