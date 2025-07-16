@@ -2,14 +2,13 @@
 
 ## Beschreibung
 
-Das `smry_replace`-Addon für Friendica ersetzt spezifische URLs in Beiträgen durch Links zu SMRY.ai. SMRY.ai nutzt KI, um Artikelzusammenfassungen zu generieren und Paywalls zu umgehen, indem es Dienste wie archive.org, googlebot und archive.is verwendet. Das Addon ermöglicht es Benutzern, nahtlos auf Inhalte zuzugreifen und Echtzeit-Antworten durch den Einsatz von Edge Computing zu erfahren.
+Das `smry_replace`-Addon für Friendica ersetzt spezifische URLs in Beiträgen durch Links zu SMRY.ai. SMRY.ai nutzt KI, um Artikelzusammenfassungen zu generieren und Paywalls zu umgehen, indem es Dienste wie archive.org, googlebot und archive.is verwendet. Das Addon ermöglicht es Benutzern, nahtlos auf Inhalte zuzugreifen.
 
 ## Funktionen
 
 - **URL-Ersetzung**: Ersetzt vorkonfigurierte URLs in Beiträgen durch SMRY.ai-Links.
-- **KI-gestützte Zusammenfassungen**: Nutzt die fortschrittlichen Fähigkeiten der OpenAI ChatGPT API und des Vercel AI SDK, um Artikelzusammenfassungen zu generieren.
+- **KI-gestützte Zusammenfassungen**: SMRY nutzt die fortschrittlichen Fähigkeiten der OpenAI ChatGPT API und des Vercel AI SDK, um Artikelzusammenfassungen zu generieren.
 - **Paywall-Umgehung**: Umgeht Paywalls durch die Verwendung von archive.org, googlebot und archive.is.
-- **Echtzeit-Antworten**: Bietet nahtloses Streaming und Echtzeit-Antworten durch Edge Computing.
 
 ## Installation
 
