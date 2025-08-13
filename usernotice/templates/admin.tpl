@@ -1,3 +1,5 @@
+{{include file="field_select.tpl" field=$noticeColor}}
+
 {{include file="field_textarea.tpl" field=$noticeText}}
 
 <div class="settings-submit-wrapper">
@@ -7,3 +9,4 @@
            class="btn btn-primary settings-submit"
            value="{{$submit}}" />
 </div>
+
