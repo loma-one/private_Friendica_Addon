@@ -2,7 +2,7 @@
 /**
  * Name: User Notice
  * Description: Displays a one-time notification in a blue modal for logged-in users. Use the addon to inform your users about important things on your node.
- * Version: 1.0
+ * Version: 1.1
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -52,7 +52,10 @@ function usernotice_addon_admin_post()
 
     // Speichere den neuen Text, wenn das Formular abgeschickt wurde
     if (!empty($_POST['usernotice-submit']) && isset($_POST['usernotice-text'])) {
-        DI::config()->set('usernotice', 'text', trim(strip_tags($_POST['usernotice-text'])));
+        // HTML-Tags entfernen, aber Zeilenumbrüche beibehalten
+        $noticeText = trim($_POST['usernotice-text']);
+        $noticeText = strip_tags($noticeText);
+        DI::config()->set('usernotice', 'text', $noticeText);
     }
 }
 
@@ -78,7 +81,7 @@ function usernotice_fetch(string &$b)
                 <span class="usernotice-close">&times;</span>
                 <h2>' . DI::l10n()->t('User-Notice') . '</h2>
                 <hr class="usernotice-divider">
-                <p>' . htmlspecialchars($noticeText) . '</p>
+                <p>' . nl2br(htmlspecialchars($noticeText, ENT_QUOTES, 'UTF-8')) . '</p>
             </div>
         </div>
 
@@ -86,7 +89,7 @@ function usernotice_fetch(string &$b)
             document.addEventListener("DOMContentLoaded", function () {
                 var modal = document.getElementById("usernotice-modal");
                 var closeBtn = document.getElementsByClassName("usernotice-close")[0];
-                var currentText = "' . addslashes($noticeText) . '";
+                var currentText = ' . json_encode($noticeText) . ';
 
                 // Zeige das Modal an, wenn es noch nicht geschlossen wurde oder der Text sich geändert hat
                 if (!localStorage.getItem("usernoticeClosed") || localStorage.getItem("usernoticeText") !== currentText) {
