@@ -2,7 +2,7 @@
 /**
  * Name: Apps
  * Description: Show icon links to various apps and services on the right side of the page.
- * Version: 1.4
+ * Version: 1.5
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -31,22 +31,47 @@ function apps_settings(array &$data)
     $userId = DI::userSession()->getLocalUserId();
     $links = json_decode(DI::pConfig()->get($userId, 'apps', 'links', '[]'), true);
 
+    // 1. Leere Einträge vollständig entfernen
+    $links = array_values(array_filter($links, function($link) {
+        return !empty($link['url']) && !empty($link['label']);
+    }));
+
+    // 2. Falls weniger als 10 Einträge, eine leere Zeile anhängen
+    if (count($links) < 10) {
+        $links[] = ['url' => '', 'label' => '', 'open_in_new_tab' => false];
+    }
+
     $form = '<p>' . DI::l10n()->t('Manage your app links below. Enter the URL and label for each app. Only valid links will be displayed.') . '</p>';
-    for ($i = 0; $i < 10; $i++) {
+
+    $totalFields = min(count($links), 10);
+
+    // Kopfzeile nur einmal
+    $form .= <<<HTML
+    <div style="margin-bottom:5px; font-weight:bold;">
+        <span style="display:inline-block; width:45%; margin-right:5px;">URL</span>
+        <span style="display:inline-block; width:35%; margin-right:5px;">Label</span>
+        <span style="display:inline-block;">New Tab</span>
+    </div>
+    HTML;
+
+    for ($i = 0; $i < $totalFields; $i++) {
         $url = htmlspecialchars($links[$i]['url'] ?? '');
         $label = htmlspecialchars($links[$i]['label'] ?? '');
-        $openInNewTab = isset($links[$i]['open_in_new_tab']) && $links[$i]['open_in_new_tab'] ? 'checked' : '';
+        $openInNewTab = !empty($links[$i]['open_in_new_tab']) ? 'checked' : '';
+
         $form .= <<<HTML
-        <div>
-            <label for="apps_link_url_$i">URL:</label>
-            <input type="url" name="apps_link_url_$i" value="$url" id="apps_link_url_$i" style="font-weight: normal;" />
-            <label for="apps_link_label_$i">Label:</label>
-            <input type="text" name="apps_link_label_$i" value="$label" id="apps_link_label_$i" style="font-weight: normal;" />
-            <label for="apps_link_new_tab_$i">New Tab:</label>
-            <input type="checkbox" name="apps_link_new_tab_$i" id="apps_link_new_tab_$i" $openInNewTab />
+        <div class="form-group" style="margin-bottom:5px;">
+            <input type="url" name="apps_link_url_$i" value="$url" placeholder="URL"
+                class="form-control" style="width:45%; display:inline-block; margin-right:5px;" />
+            <input type="text" name="apps_link_label_$i" value="$label" placeholder="Label"
+                class="form-control" style="width:40%; display:inline-block; margin-right:5px;" />
+            <label style="display:inline-block;">
+                <input type="checkbox" name="apps_link_new_tab_$i" id="apps_link_new_tab_$i" $openInNewTab />
+            </label>
         </div>
-        HTML;
+    HTML;
     }
+
 
     $data = [
         'addon' => 'apps',
@@ -93,14 +118,18 @@ function apps_render(string &$b)
     $html = '<div id="icon_wrapper">';
     foreach ($links as $link) {
         $domain = htmlspecialchars(parse_url($link['url'], PHP_URL_HOST));
-        $target = isset($link['open_in_new_tab']) && $link['open_in_new_tab'] ? '_blank' : '';
+        $isNewTab = !empty($link['open_in_new_tab']);
+        $target = $isNewTab ? '_blank' : '_self';
+        $dataOpen = $isNewTab ? '1' : '0';
+
         $html .= sprintf(
-            '<a href="%s" title="%s" class="open-window" target="%s">
+            '<a href="%s" title="%s" class="open-window" target="%s" data-open-in-new-tab="%s">
                 <img src="%s" alt="%s" />
             </a>',
             htmlspecialchars($link['url']),
             htmlspecialchars($link['label']),
             $target,
+            $dataOpen,
             apps_get_favicon($domain),
             htmlspecialchars($link['label'])
         );
@@ -112,16 +141,10 @@ function apps_render(string &$b)
 
 function apps_get_favicon(string $domain): string
 {
-    // Primäre Quelle: DuckDuckGo
     $duckDuckGoUrl = sprintf('https://icons.duckduckgo.com/ip3/%s.ico', $domain);
-
-    // Fallback 1: FaviconKit
     $faviconKitUrl = sprintf('https://api.faviconkit.com/%s/32', $domain);
-
-    // Fallback 2: Besticon
     $bestIconUrl = sprintf('https://besticon-demo.herokuapp.com/icon?url=%s&size=32', $domain);
 
-    // JavaScript-gestützte Fallback-Kette
     return sprintf(
         '%s" onerror="this.onerror=null;this.src=\'%s\';this.onerror=function(){this.src=\'%s\';}"',
         $duckDuckGoUrl,
@@ -163,12 +186,6 @@ function apps_styles(): string
             width: 30px;
             height: 30px;
         }
-
-        @media (max-width: 768px) {
-            #icon_wrapper {
-                display: none;
-            }
-        }
     </style>
     CSS;
 }
@@ -177,16 +194,23 @@ function apps_scripts(): string
 {
     return <<<JS
     <script>
-        document.querySelectorAll(".open-window").forEach(function(link) {
-            link.addEventListener("click", function(event) {
-                if (this.target !== '_blank') {
-                    event.preventDefault();
-                    var width = 800;
-                    var height = 800;
-                    var left = (screen.width - width) / 2;
-                    var top = (screen.height - height) / 2;
-                    window.open(this.href, "newwindow", "width=" + width + ", height=" + height + ", top=" + top + ", left=" + left);
-                }
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".open-window").forEach(function(link) {
+                link.addEventListener("click", function(event) {
+                    var openInNewTab = this.getAttribute("data-open-in-new-tab") === "1";
+
+                    if (!openInNewTab) {
+                        event.preventDefault();
+                        var width = 480;
+                        var height = 800;
+                        var left = window.screenX + window.outerWidth - width - 48;
+                        var top = window.screenY + (window.outerHeight - height) / 2;
+                        var windowFeatures = "width=" + width + ",height=" + height +
+                                             ",top=" + top + ",left=" + left +
+                                             ",scrollbars=yes,resizable=yes";
+                        window.open(this.href, "_blank", windowFeatures);
+                    }
+                });
             });
         });
     </script>
