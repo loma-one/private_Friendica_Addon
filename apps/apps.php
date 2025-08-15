@@ -186,6 +186,12 @@ function apps_styles(): string
             width: 30px;
             height: 30px;
         }
+
+            @media (max-width: 768px) {
+            #icon_wrapper {
+                display: none;
+            }
+        }
     </style>
     CSS;
 }
