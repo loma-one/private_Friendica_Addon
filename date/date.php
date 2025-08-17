@@ -2,7 +2,7 @@
 /**
  * Name: Current Date
  * Description: Shows the current date with weekday, calendar week, day of the year, and remaining days until the new year on the user's network page.
- * Version: 1.3
+ * Version: 1.4
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -49,10 +49,10 @@ function date_network_mod_init(string &$body)
     if ($showSunriseSunset) {
         $html .= '
                 <li>
-                    <img src="' . DI::baseUrl() . '/addon/date/icon/sunrise.png" width="20" height="20" alt="Sunrise" style="margin-right: 8px;"> ' . $sunrise . ' h
+                    <img src="' . DI::baseUrl() . '/addon/date/icon/sunrise.png" width="20" height="20" alt="Sunrise" style="margin-right: 8px;"> Sunrise ' . $sunrise . ' h
                 </li>
                 <li>
-                    <img src="' . DI::baseUrl() . '/addon/date/icon/sunset.png" width="20" height="20" alt="Sunset" style="margin-right: 8px;"> ' . $sunset . ' h
+                    <img src="' . DI::baseUrl() . '/addon/date/icon/sunset.png" width="20" height="20" alt="Sunset" style="margin-right: 8px;"> Sunset ' . $sunset . ' h
                 </li>';
     }
 
@@ -69,7 +69,7 @@ function date_network_mod_init(string &$body)
 function get_sunrise_sunset($location)
 {
     $cacheFile = 'sunrise_sunset_cache.json';
-    $cacheDuration = 43200; // 12 hour
+    $cacheDuration = 2160; // 6 hour
 
     if (file_exists($cacheFile)) {
         $cacheData = json_decode(file_get_contents($cacheFile), true);
@@ -151,6 +151,8 @@ function get_sunrise_sunset($location)
     return ['N/A', 'N/A'];
 }
 
+// ---- UPDATED SETTINGS FUNCTIONS ----
+
 function date_addon_settings_post($post)
 {
     $userId = DI::userSession()->getLocalUserId();
@@ -158,32 +160,30 @@ function date_addon_settings_post($post)
         return;
     }
 
-    // Save addon enable status
-    DI::pConfig()->set($userId, 'date', 'date_enable', intval($_POST['date_enable']));
+    DI::pConfig()->set($userId, 'date', 'date_enable', !empty($_POST['date_enable']) ? 1 : 0);
 
-    // Save date format if provided
     if (!empty($_POST['date_format'])) {
         DI::pConfig()->set($userId, 'date', 'date_format', $_POST['date_format']);
     }
 
-    // Save location if valid and clear cache if it changes
     if (!empty($_POST['location'])) {
-        $location = preg_replace('/\s+/', '', $_POST['location']); // Remove whitespace
-        if (preg_match('/^[A-Z]{2},[0-9]+$/', $location)) { // Validate format (e.g., DE,10115)
+        $location = preg_replace('/\s+/', '', $_POST['location']);
+        if (preg_match('/^[A-Z]{2},[0-9]+$/', $location)) {
+            $oldLocation = DI::pConfig()->get($userId, 'date', 'location');
             DI::pConfig()->set($userId, 'date', 'location', $location);
-            $cacheFile = 'sunrise_sunset_cache.json';
-            if (file_exists($cacheFile)) {
-                unlink($cacheFile); // Clear cached sunrise/sunset data
+            if ($oldLocation !== $location) {
+                $cacheFile = 'sunrise_sunset_cache.json';
+                if (file_exists($cacheFile)) {
+                    unlink($cacheFile);
+                }
             }
         }
     }
 
-    // Save API key if provided
     if (!empty($_POST['api_key'])) {
         DI::pConfig()->set($userId, 'date', 'api_key', $_POST['api_key']);
     }
 
-    // Save sunrise/sunset visibility; default to 0 if checkbox is unchecked
     DI::pConfig()->set($userId, 'date', 'show_sunrise_sunset', !empty($_POST['show_sunrise_sunset']) ? 1 : 0);
 }
 
@@ -217,21 +217,26 @@ function date_addon_settings(array &$data)
     <input type="checkbox" name="date_enable" value="1"' . ($enabled ? ' checked="checked"' : '') . '>
     <span>' . DI::l10n()->t('Show date and time for sunrise and sunset') . '</span><br>
     <div class="form-group">
-        <span>' . DI::l10n()->t('Date Format:') . '</span><br>
-        ' . $dateFormatDropdown . '
+        <label for="date_format">' . DI::l10n()->t('Date Format:') . '</label>
+        <select name="date_format" id="date_format" class="form-control">
+            ' . implode('', array_map(function($format, $label) use ($dateFormat) {
+                $selected = ($dateFormat === $format) ? ' selected="selected"' : '';
+                return '<option value="' . $format . '"' . $selected . '>' . $label . '</option>';
+            }, array_keys($dateFormatOptions), $dateFormatOptions)) . '
+        </select>
     </div>
     <div class="form-group">
         <input type="checkbox" name="show_sunrise_sunset" value="1"' . ($showSunriseSunset ? ' checked="checked"' : '') . '>
-        <span>' . DI::l10n()->t('Show Sunrise and Sunset:') . '</span>
+        <span>' . DI::l10n()->t('Show Sunrise and Sunset') . '</span>
     </div>
     <div class="form-group">
-        <span>' . DI::l10n()->t('Location (Country code, Postal code = DE,10115):') . '</span><br>
-        <input type="text" name="location" value="' . $location . '" style="width: 15ch;">
+        <label for="location">' . DI::l10n()->t('Location (Country code, Postal code = DE,10115):') . '</label>
+        <input type="text" name="location" id="location" value="' . $location . '" class="form-control">
     </div>
     <div class="form-group">
-        <span>' . DI::l10n()->t('API Key:') . '</span><br>
-        <span>' . DI::l10n()->t('You can obtain an API key from the <a href="https://opencagedata.com" target="_blank">OpenCage Geocoding API website</a>.') . '</span><br>
-        <input type="text" name="api_key" value="' . $apiKey . '" style="width: 30ch;">
+    <label for="api_key">' . DI::l10n()->t('API Key:') . '</label>
+        <span class="help-block">' . DI::l10n()->t('You can obtain an API key from the <a href="https://opencagedata.com" target="_blank">OpenCage Geocoding API website</a>.') . '</span>
+        <input type="text" name="api_key" id="api_key" value="' . $apiKey . '" class="form-control">
     </div>';
 
     $data = [
@@ -240,3 +245,4 @@ function date_addon_settings(array &$data)
         'html'  => $html,
     ];
 }
+?>
