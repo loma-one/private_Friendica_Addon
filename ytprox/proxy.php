@@ -1,4 +1,6 @@
 <?php
+// addon/ytprox/proxy.php
+// Kleiner Proxy mit Cache für YouTube Thumbnails und oEmbed-Infos
 
 $cacheDir = __DIR__ . '/cache';
 if (!is_dir($cacheDir)) {
@@ -15,13 +17,13 @@ if (!$vid) {
 }
 
 if ($type === 'thumb') {
-    $file = "$cacheDir/{$vid}_thumb.jpg";
-    $src  = "https://img.youtube.com/vi/$vid/hqdefault.jpg";
+    $file  = "$cacheDir/{$vid}_thumb.jpg";
+    $src   = "https://img.youtube.com/vi/$vid/hqdefault.jpg";
     $ctype = "image/jpeg";
 
 } elseif ($type === 'info') {
-    $file = "$cacheDir/{$vid}_info.json";
-    $src  = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$vid&format=json";
+    $file  = "$cacheDir/{$vid}_info.json";
+    $src   = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=$vid&format=json";
     $ctype = "application/json";
 
 } else {
@@ -30,14 +32,14 @@ if ($type === 'thumb') {
     exit;
 }
 
-// Cache-Check (24h)
+// Cache gültig 24h
 if (file_exists($file) && (time() - filemtime($file) < 86400)) {
     header("Content-Type: $ctype");
     readfile($file);
     exit;
 }
 
-// retrieval
+// Abrufen
 $data = @file_get_contents($src);
 if ($data === false) {
     header("HTTP/1.1 502 Bad Gateway");
@@ -45,7 +47,7 @@ if ($data === false) {
     exit;
 }
 
-// Save + output
+// Speichern + ausgeben
 file_put_contents($file, $data);
 header("Content-Type: $ctype");
 echo $data;

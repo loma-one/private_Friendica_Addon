@@ -2,7 +2,7 @@
 /*
  * Name: ytprox
  * Description: Proxied YouTube thumbnails and metadata for Friendica
- * Version: 0.1 dev
+ * Version: 0.4 dev
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -12,13 +12,14 @@ use Friendica\DI;
 
 function ytprox_install()
 {
-    Hook::register('prepare_body_final', __FILE__, 'ytprox_render');
+    // Statt prepare_body_final jetzt direkt beim Parsen eingreifen
+    Hook::register('parse_link', __FILE__, 'ytprox_parse_link');
     Hook::register('addon_settings', __FILE__, 'ytprox_settings');
     Hook::register('addon_settings_post', __FILE__, 'ytprox_settings_post');
 }
 
 /**
- * Anzeige der User-Einstellungen
+ * Addon-Einstellungen anzeigen
  */
 function ytprox_settings(array &$data)
 {
@@ -30,7 +31,12 @@ function ytprox_settings(array &$data)
 
     $t    = Renderer::getMarkupTemplate('settings.tpl', 'addon/ytprox/');
     $html = Renderer::replaceMacros($t, [
-        '$enabled' => ['enabled', DI::l10n()->t('Enable YouTube proxy preview'), $enabled, DI::l10n()->t('If enabled, YouTube links are proxied through the server (thumbnails and metadata).')],
+        '$enabled' => [
+            'enabled',
+            DI::l10n()->t('Enable YouTube proxy preview'),
+            $enabled,
+            DI::l10n()->t('If enabled, YouTube previews (thumbnails and metadata) are fetched via this server.')
+        ],
     ]);
 
     $data = [
@@ -41,7 +47,7 @@ function ytprox_settings(array &$data)
 }
 
 /**
- * Speichern der User-Einstellungen
+ * Addon-Einstellungen speichern
  */
 function ytprox_settings_post(array &$b)
 {
@@ -53,35 +59,32 @@ function ytprox_settings_post(array &$b)
 }
 
 /**
- * Ersetzen von YouTube-Links durch Proxy-Preview
+ * Hook: parse_link – wird aufgerufen, wenn Friendica eine Vorschau für einen Link erstellt
  */
-function ytprox_render(array &$b)
+function ytprox_parse_link(array &$b)
 {
     $uid = DI::userSession()->getLocalUserId();
     if (!$uid || !DI::pConfig()->get($uid, 'ytprox', 'enabled')) {
         return;
     }
 
-    $original = $b['html'];
+    // Nur für YouTube-Links
+    if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})~i', $b['url'], $matches)) {
+        $vid = $matches[1];
 
-    $b['html'] = preg_replace_callback(
-        "~https?://(?:www\.|m\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})~i",
-        function ($matches) {
-            $vid = $matches[1];
-            $thumbUrl = DI::baseUrl() . "/addon/ytprox/proxy.php?type=thumb&vid=" . $vid;
-            $infoUrl  = DI::baseUrl() . "/addon/ytprox/proxy.php?type=info&vid=" . $vid;
+        $infoUrl  = DI::baseUrl() . "/addon/ytprox/proxy.php?type=info&vid=" . $vid;
+        $thumbUrl = DI::baseUrl() . "/addon/ytprox/proxy.php?type=thumb&vid=" . $vid;
 
-            return '<div class="ytprox-card">'
-                . '<a href="https://www.youtube.com/watch?v=' . $vid . '" target="_blank" rel="nofollow noopener">'
-                . '<img src="' . $thumbUrl . '" alt="YouTube Thumbnail" style="max-width:100%; border-radius:8px;">'
-                . '</a>'
-                . '<div class="ytprox-meta" data-src="' . $infoUrl . '"></div>'
-                . '</div>';
-        },
-        $b['html']
-    );
-
-    if ($original != $b['html']) {
-        $b['html'] .= '<hr><p><small class="ytprox-note">(YouTube proxied via ytprox addon)</small></p>';
+        // Hole die Metadaten über den Proxy
+        $json = @file_get_contents($infoUrl);
+        if ($json) {
+            $meta = json_decode($json, true);
+            if ($meta) {
+                $b['title'] = $meta['title'] ?? 'YouTube Video';
+                $b['text']  = $meta['author_name'] ?? '';
+                $b['image'] = $thumbUrl;
+                $b['url']   = "https://www.youtube.com/watch?v=" . $vid;
+            }
+        }
     }
 }
