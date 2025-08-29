@@ -631,6 +631,10 @@
     "shortname": ":audon:",
     "filepath": "icons/fediverse/audon.pngf"
   },
+  "bookwyrm": {
+    "shortname": ":bookwyrm:",
+    "filepath": "icons/fediverse/bookWyrm.png"
+  },
   "calckey": {
     "shortname": ":calckey:",
     "filepath": "icons/fediverse/calckey.png"
@@ -675,6 +679,10 @@
     "shortname": ":mobilizon:",
     "filepath": "icons/fediverse/mobilizon.png"
   },
+  "ostatus": {
+    "shortname": ":ostatus:",
+    "filepath": "icons/fediverse/ostatus.png"
+  },
   "owncast": {
     "shortname": ":owncast:",
     "filepath": "icons/fediverse/owncast.png"
@@ -683,9 +691,25 @@
     "shortname": ":streams:",
     "filepath": "icons/fediverse/streams.png"
   },
+  "zot": {
+    "shortname": ":zot:",
+    "filepath": "icons/fediverse/zot.png"
+  },
   "writeFreely": {
     "shortname": ":writeFreely:",
     "filepath": "icons/fediverse/writefreely.png"
+  },
+  "over18": {
+    "shortname": ":over18:",
+    "filepath": "icons/basic/over18.png"
+  },
+  "verified": {
+    "shortname": ":verified:",
+    "filepath": "icons/basic/verified.png"
+  },
+  "verify": {
+    "shortname": ":verify:",
+    "filepath": "icons/basic/verify.gif"
   },
   "ccc event": {
     "shortname": ":ccc event:",
