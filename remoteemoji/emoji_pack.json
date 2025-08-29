@@ -1,0 +1,694 @@
+{
+  "bunnyflowers": {
+    "shortname": ":bunnyflowers:",
+    "filepath": "icons/animals/bunnyflowers.gif"
+  },
+  "chick": {
+    "shortname": ":chick:",
+    "filepath": "icons/animals/chick.gif"
+  },
+  "bumblebee": {
+    "shortname": ":bumblebee:",
+    "filepath": "icons/animals/bee.gif"
+  },
+  "ladybird": {
+    "shortname": ":ladybird:",
+    "filepath": "icons/animals/ladybird.gif"
+  },
+  "bigspider": {
+    "shortname": ":bigspider:",
+    "filepath": "icons/animals/bigspider.gif"
+  },
+  "cat": {
+    "shortname": ":cat:",
+    "filepath": "icons/animals/cat.gif"
+  },
+  "bunny": {
+    "shortname": ":bunny:",
+    "filepath": "icons/animals/bunny.gif"
+  },
+  "cow": {
+    "shortname": ":cow:",
+    "filepath": "icons/animals/cow.gif"
+  },
+  "crab": {
+    "shortname": ":crab:",
+    "filepath": "icons/animals/crab.gif"
+  },
+  "dolphin": {
+    "shortname": ":dolphin:",
+    "filepath": "icons/animals/dolphin.gif"
+  },
+  "dragonfly": {
+    "shortname": ":dragonfly:",
+    "filepath": "icons/animals/dragonfly.gif"
+  },
+  "frog": {
+    "shortname": ":frog:",
+    "filepath": "icons/animals/frog.gif"
+  },
+  "hamster": {
+    "shortname": ":hamster:",
+    "filepath": "icons/animals/hamster.gif"
+  },
+  "monkey": {
+    "shortname": ":monkey:",
+    "filepath": "icons/animals/monkey.gif"
+  },
+  "horse": {
+    "shortname": ":horse:",
+    "filepath": "icons/animals/horse.gif"
+  },
+  "parrot": {
+    "shortname": ":parrot:",
+    "filepath": "icons/animals/parrot.gif"
+  },
+  "tux": {
+    "shortname": ":tux:",
+    "filepath": "icons/animals/tux.gif"
+  },
+  "snail": {
+    "shortname": ":snail:",
+    "filepath": "icons/animals/snail.gif"
+  },
+  "sheep": {
+    "shortname": ":sheep:",
+    "filepath": "icons/animals/sheep.gif"
+  },
+  "dog": {
+    "shortname": ":dog:",
+    "filepath": "icons/animals/dog.gif"
+  },
+  "elephant": {
+    "shortname": ":elephant:",
+    "filepath": "icons/animals/elephant.gif"
+  },
+  "fish": {
+    "shortname": ":fish:",
+    "filepath": "icons/animals/fish.gif"
+  },
+  "giraffe": {
+    "shortname": ":giraffe:",
+    "filepath": "icons/animals/giraffe.gif"
+  },
+  "pig": {
+    "shortname": ":pig:",
+    "filepath": "icons/animals/pig.gif"
+  },
+  "baby": {
+    "shortname": ":baby:",
+    "filepath": "icons/babies/baby.gif"
+  },
+  "babycot": {
+    "shortname": ":babycot:",
+    "filepath": "icons/babies/babycot.gif"
+  },
+  "pregnant": {
+    "shortname": ":pregnant:",
+    "filepath": "icons/babies/pregnant.gif"
+  },
+  "stork": {
+    "shortname": ":stork:",
+    "filepath": "icons/babies/stork.gif"
+  },
+  "confused": {
+    "shortname": ":confused:",
+    "filepath": "icons/confused/confused.gif"
+  },
+  "shrug": {
+    "shortname": ":shrug:",
+    "filepath": "icons/confused/shrug.gif"
+  },
+  "stupid": {
+    "shortname": ":stupid:",
+    "filepath": "icons/confused/stupid.gif"
+  },
+  "dazed": {
+    "shortname": ":dazed:",
+    "filepath": "icons/confused/dazed.gif"
+  },
+  "affro": {
+    "shortname": ":affro:",
+    "filepath": "icons/cool/affro.gif"
+  },
+  "angel": {
+    "shortname": ":angel:",
+    "filepath": "icons/devilangel/angel.gif"
+  },
+  "cherub": {
+    "shortname": ":cherub:",
+    "filepath": "icons/devilangel/cherub.gif"
+  },
+  "devilangel": {
+    "shortname": ":devilangel:",
+    "filepath": "icons/devilangel/blondedevil.gif"
+  },
+  "catdevil": {
+    "shortname": ":catdevil:",
+    "filepath": "icons/devilangel/catdevil.gif"
+  },
+  "devillish": {
+    "shortname": ":devillish:",
+    "filepath": "icons/devilangel/devil.gif"
+  },
+  "daseesaw": {
+    "shortname": ":daseesaw:",
+    "filepath": "icons/devilangel/daseesaw.gif"
+  },
+  "turnevil": {
+    "shortname": ":turnevil:",
+    "filepath": "icons/devilangel/turnevil.gif"
+  },
+  "saint": {
+    "shortname": ":saint:",
+    "filepath": "icons/devilangel/saint.gif"
+  },
+  "graveside": {
+    "shortname": ":graveside:",
+    "filepath": "icons/devilangel/graveside.gif"
+  },
+  "toilet": {
+    "shortname": ":toilet:",
+    "filepath": "icons/disgust/toilet.gif"
+  },
+  "fartinbed": {
+    "shortname": ":fartinbed:",
+    "filepath": "icons/disgust/fartinbed.gif"
+  },
+  "fartblush": {
+    "shortname": ":fartblush:",
+    "filepath": "icons/disgust/fartblush.gif"
+  },
+  "tea": {
+    "shortname": ":tea:",
+    "filepath": "icons/drink/tea.gif"
+  },
+  "drool": {
+    "shortname": ":drool:",
+    "filepath": "icons/drool/drool.gif"
+  },
+  "crying": {
+    "shortname": ":crying:",
+    "filepath": "icons/sad/crying.png"
+  },
+  "prisoner": {
+    "shortname": ":prisoner:",
+    "filepath": "icons/sad/prisoner.gif"
+  },
+  "sigh": {
+    "shortname": ":sigh:",
+    "filepath": "icons/sad/sigh.gif"
+  },
+  "smoking": {
+    "shortname": ":smoking:",
+    "filepath": "icons/smoking/smoking.gif"
+  },
+  "basketball": {
+    "shortname": ":basketball:",
+    "filepath": "icons/sport/basketball.gif"
+  },
+  "bowling": {
+    "shortname": "~bowling",
+    "filepath": "icons/sport/bowling.gif"
+  },
+  "cycling": {
+    "shortname": ":cycling:",
+    "filepath": "icons/sport/cycling.gif"
+  },
+  "darts": {
+    "shortname": ":darts:",
+    "filepath": "icons/sport/darts.gif"
+  },
+  "fencing": {
+    "shortname": ":fencing:",
+    "filepath": "icons/sport/fencing.gif"
+  },
+  "juggling": {
+    "shortname": ":juggling:",
+    "filepath": "icons/sport/juggling.gif"
+  },
+  "skipping": {
+    "shortname": ":skipping:",
+    "filepath": "icons/sport/skipping.gif"
+  },
+  "archery": {
+    "shortname": ":archery:",
+    "filepath": "icons/sport/archery.gif"
+  },
+  "surfing": {
+    "shortname": ":surfing:",
+    "filepath": "icons/sport/surfing.gif"
+  },
+  "snooker": {
+    "shortname": ":snooker:",
+    "filepath": "icons/sport/snooker.gif"
+  },
+  "horseriding": {
+    "shortname": ":horseriding:",
+    "filepath": "icons/sport/horseriding.gif"
+  },
+  "iloveyou": {
+    "shortname": ":iloveyou:",
+    "filepath": "icons/love/iloveyou.gif"
+  },
+  "inlove": {
+    "shortname": ":inlove:",
+    "filepath": "icons/love/inlove.gif"
+  },
+  "love": {
+    "shortname": "~love",
+    "filepath": "icons/love/love.gif"
+  },
+  "lovebear": {
+    "shortname": ":lovebear:",
+    "filepath": "icons/love/lovebear.gif"
+  },
+  "lovebed": {
+    "shortname": ":lovebed:",
+    "filepath": "icons/love/lovebed.gif"
+  },
+  "loveheart": {
+    "shortname": ":loveheart:",
+    "filepath": "icons/love/loveheart.gif"
+  },
+  "countsheep": {
+    "shortname": ":countsheep",
+    "filepath": "icons/tired/countsheep.gif"
+  },
+  "hammock": {
+    "shortname": ":hammock:",
+    "filepath": "icons/tired/hammock.gif"
+  },
+  "pillow": {
+    "shortname": ":pillow:",
+    "filepath": "icons/tired/pillow.gif"
+  },
+  "yawn": {
+    "shortname": ":yawn:",
+    "filepath": "icons/tired/yawn.gif"
+  },
+  "2guns": {
+    "shortname": ":2guns:",
+    "filepath": "icons/fight/2guns.gif"
+  },
+  "alienfight": {
+    "shortname": ":alienfight",
+    "filepath": "icons/fight/alienfight.gif"
+  },
+  "army": {
+    "shortname": ":army:",
+    "filepath": "icons/fight/army.gif"
+  },
+  "arrowhead": {
+    "shortname": ":arrowhead:",
+    "filepath": "icons/fight/arrowhead.gif"
+  },
+  "bfg": {
+    "shortname": ":bfg:",
+    "filepath": "icons/fight/bfg.gif"
+  },
+  "bowman": {
+    "shortname": ":bowman:",
+    "filepath": "icons/fight/bowman.gif"
+  },
+  "chainsaw": {
+    "shortname": ":chainsaw:",
+    "filepath": "icons/fight/chainsaw.gif"
+  },
+  "crossbow": {
+    "shortname": ":crossbow:",
+    "filepath": "icons/fight/crossbow.gif"
+  },
+  "crusader": {
+    "shortname": ":crusader:",
+    "filepath": "icons/fight/crusader.gif"
+  },
+  "dead": {
+    "shortname": ":dead:",
+    "filepath": "icons/fight/dead.gif"
+  },
+  "hammersplat": {
+    "shortname": ":hammersplat:",
+    "filepath": "icons/fight/hammersplat.gif"
+  },
+  "lasergun": {
+    "shortname": ":lasergun:",
+    "filepath": "icons/fight/lasergun.gif"
+  },
+  "machinegun": {
+    "shortname": ":machinegun:",
+    "filepath": "icons/fight/machinegun.gif"
+  },
+  "acid": {
+    "shortname": ":acid:",
+    "filepath": "icons/fight/acid.gif"
+  },
+  "alienmonster": {
+    "shortname": ":alienmonster:",
+    "filepath": "icons/fantasy/alienmonster.gif"
+  },
+  "barbarian": {
+    "shortname": ":barbarian:",
+    "filepath": "icons/fantasy/barbarian.gif"
+  },
+  "dinosaur": {
+    "shortname": ":dinosaur:",
+    "filepath": "icons/fantasy/dinosaur.gif"
+  },
+  "dragon": {
+    "shortname": ":dragon:",
+    "filepath": "icons/fantasy/dragon.gif"
+  },
+  "draco": {
+    "shortname": ":draco:",
+    "filepath": "icons/fantasy/dragonwhelp.gif"
+  },
+  "ghost": {
+    "shortname": ":ghost:",
+    "filepath": "icons/fantasy/ghost.gif"
+  },
+  "mummy": {
+    "shortname": ":mummy:",
+    "filepath": "icons/fantasy/mummy.gif"
+  },
+  "apple": {
+    "shortname": ":apple:",
+    "filepath": "icons/food/apple.gif"
+  },
+  "broccoli": {
+    "shortname": ":broccoli:",
+    "filepath": "icons/food/broccoli.gif"
+  },
+  "cake": {
+    "shortname": ":cake:",
+    "filepath": "icons/food/cake.gif"
+  },
+  "carrot": {
+    "shortname": ":carrot:",
+    "filepath": "icons/food/carrot.gif"
+  },
+  "popcorn": {
+    "shortname": ":popcorn:",
+    "filepath": "icons/food/popcorn.gif"
+  },
+  "tomato": {
+    "shortname": ":tomato:",
+    "filepath": "icons/food/tomato.gif"
+  },
+  "banana": {
+    "shortname": ":banana:",
+    "filepath": "icons/food/banana.gif"
+  },
+  "cooking": {
+    "shortname": ":cooking:",
+    "filepath": "icons/food/cooking.gif"
+  },
+  "fryegg": {
+    "shortname": ":fryegg:",
+    "filepath": "icons/food/fryegg.gif"
+  },
+  "birthdaycake": {
+    "shortname": ":birthdaycake:",
+    "filepath": "icons/food/birthdaycake.gif"
+  },
+  "cloud9": {
+    "shortname": ":cloud9:",
+    "filepath": "icons/happy/cloud9.gif"
+  },
+  "tearsofjoy": {
+    "shortname": ":tearsofjoy:",
+    "filepath": "icons/happy/tearsofjoy.gif"
+  },
+  "bow": {
+    "shortname": ":bow:",
+    "filepath": "icons/respect/bow.gif"
+  },
+  "bravo": {
+    "shortname": ":bravo:",
+    "filepath": "icons/respect/bravo.gif"
+  },
+  "hailking": {
+    "shortname": ":hailking:",
+    "filepath": "icons/respect/hailking.gif"
+  },
+  "number1": {
+    "shortname": ":number1:",
+    "filepath": "icons/respect/number1.gif"
+  },
+  "cc_cc": {
+    "shortname": ":cc_cc:",
+    "filepath": "icons/respect/cc.png"
+  },
+  "cc_by": {
+    "shortname": ":cc_by:",
+    "filepath": "icons/respect/ccby.png"
+  },
+  "cc_sa": {
+    "shortname": ":cc_sa:",
+    "filepath": "icons/respect/ccsa.png"
+  },
+  "cc_0": {
+    "shortname": ":cc_0:",
+    "filepath": "icons/respect/cc0.png"
+  },
+  "cc_nc_us": {
+    "shortname": ":cc_nc_us:",
+    "filepath": "icons/respect/ccncus.png"
+  },
+  "hahaha": {
+    "shortname": ":hahaha:",
+    "filepath": "icons/laugh/hahaha.gif"
+  },
+  "loltv": {
+    "shortname": ":loltv:",
+    "filepath": "icons/laugh/loltv.gif"
+  },
+  "rofl": {
+    "shortname": ":rofl:",
+    "filepath": "icons/laugh/rofl.gif"
+  },
+  "drums": {
+    "shortname": ":drums:",
+    "filepath": "icons/music/drums.gif"
+  },
+  "guitar": {
+    "shortname": ":guitar:",
+    "filepath": "icons/music/guitar.gif"
+  },
+  "trumpet": {
+    "shortname": ":trumpet:",
+    "filepath": "icons/music/trumpet.gif"
+  },
+  "headbang": {
+    "shortname": ":headbang:",
+    "filepath": "icons/oldcore/headbang.gif"
+  },
+  "beard": {
+    "shortname": ":beard:",
+    "filepath": "icons/oldcore/beard.png"
+  },
+  "whitebeard": {
+    "shortname": ":whitebeard:",
+    "filepath": "icons/oldcore/whitebeard.png"
+  },
+  "shaka": {
+    "shortname": ":shaka:",
+    "filepath": "icons/oldcore/shaka.gif"
+  },
+  "\\.../": {
+    "shortname": ":\\.../",
+    "filepath": "icons/oldcore/shaka.gif"
+  },
+  "\\ooo/": {
+    "shortname": ":\\ooo/",
+    "filepath": "icons/oldcore/shaka.gif"
+  },
+  "headdesk": {
+    "shortname": ":headdesk:",
+    "filepath": "icons/oldcore/headbang.gif"
+  },
+  "-d": {
+    "shortname": ":-d",
+    "filepath": "icons/oldcore/laughing.gif"
+  },
+  "-o": {
+    "shortname": ":-o",
+    "filepath": "icons/oldcore/surprised.gif"
+  },
+  "cool": {
+    "shortname": ":cool:",
+    "filepath": "icons/cool/cool.gif"
+  },
+  "vomit": {
+    "shortname": ":vomit:",
+    "filepath": "icons/disgust/vomit.gif"
+  },
+  "golf": {
+    "shortname": ":golf:",
+    "filepath": "icons/sport/golf.gif"
+  },
+  "football": {
+    "shortname": ":football:",
+    "filepath": "icons/sport/football.gif"
+  },
+  "tennis": {
+    "shortname": ":tennis:",
+    "filepath": "icons/sport/tennis.gif"
+  },
+  "alpha": {
+    "shortname": ":alpha:",
+    "filepath": "icons/fight/alpha.png"
+  },
+  "marine": {
+    "shortname": ":marine:",
+    "filepath": "icons/fight/marine.gif"
+  },
+  "sabre": {
+    "shortname": ":sabre:",
+    "filepath": "icons/fight/sabre.gif"
+  },
+  "tank": {
+    "shortname": ":tank:",
+    "filepath": "icons/fight/tank.gif"
+  },
+  "viking": {
+    "shortname": ":viking:",
+    "filepath": "icons/fight/viking.gif"
+  },
+  "gangs": {
+    "shortname": ":gangs:",
+    "filepath": "icons/fight/gangs.gif"
+  },
+  "dj": {
+    "shortname": ":dj:",
+    "filepath": "icons/music/dj.gif"
+  },
+  "elvis": {
+    "shortname": ":elvis:",
+    "filepath": "icons/music/elvis.gif"
+  },
+  "violin": {
+    "shortname": ":violin:",
+    "filepath": "icons/music/violin.gif"
+  },
+  "friendica": {
+    "shortname": ":friendica:",
+    "filepath": "icons/fediverse/friendica.png"
+  },
+  "bonfire": {
+    "shortname": ":bonfire:",
+    "filepath": "icons/fediverse/bonfire.png"
+  },
+  "fediverse": {
+    "shortname": ":fediverse:",
+    "filepath": "icons/fediverse/fediverse.gif"
+  },
+  "mastodon": {
+    "shortname": ":mastodon:",
+    "filepath": "icons/fediverse/mastodon.gif"
+  },
+  "pleroma": {
+    "shortname": ":pleroma:",
+    "filepath": "icons/fediverse/pleroma.gif"
+  },
+  "misskey": {
+    "shortname": ":misskey:",
+    "filepath": "icons/fediverse/misskey.gif"
+  },
+  "diaspora": {
+    "shortname": ":diaspora:",
+    "filepath": "icons/fediverse/diaspora.png"
+  },
+  "hubzilla": {
+    "shortname": ":hubzilla:",
+    "filepath": "icons/fediverse/hubzilla.png"
+  },
+  "pixelfed": {
+    "shortname": ":pixelfed:",
+    "filepath": "icons/fediverse/pixelfed.gif"
+  },
+  "nextcloud": {
+    "shortname": ":nextcloud:",
+    "filepath": "icons/fediverse/nextcloud.gif"
+  },
+  "activitypub": {
+    "shortname": ":activitypub:",
+    "filepath": "icons/fediverse/ap.gif"
+  },
+  "peertube": {
+    "shortname": ":peertube:",
+    "filepath": "icons/fediverse/peertube.gif"
+  },
+  "ap": {
+    "shortname": ":ap:",
+    "filepath": "icons/fediverse/ap.gif"
+  },
+  "akkoma": {
+    "shortname": ":akkoma:",
+    "filepath": "icons/fediverse/akkoma.png"
+  },
+  "audon": {
+    "shortname": ":audon:",
+    "filepath": "icons/fediverse/audon.pngf"
+  },
+  "calckey": {
+    "shortname": ":calckey:",
+    "filepath": "icons/fediverse/calckey.png"
+  },
+  "castopod": {
+    "shortname": ":castopod:",
+    "filepath": "icons/fediverse/castopod.png"
+  },
+  "firefish": {
+    "shortname": ":firefish:",
+    "filepath": "icons/fediverse/firefish.png"
+  },
+  "calkey": {
+    "shortname": ":calkey:",
+    "filepath": "icons/fediverse/calckey.png"
+  },
+  "funkwhale": {
+    "shortname": ":funkwhale:",
+    "filepath": "icons/fediverse/funkwhale.png"
+  },
+  "gancio": {
+    "shortname": ":gancio:",
+    "filepath": "icons/fediverse/gancio.png"
+  },
+  "GNUsocial": {
+    "shortname": ":GNUsocial:",
+    "filepath": "icons/fediverse/gnusocial.gif"
+  },
+  "goToSocial": {
+    "shortname": ":goToSocial:",
+    "filepath": "icons/fediverse/gotosocial.png"
+  },
+  "lemmy": {
+    "shortname": ":lemmy:",
+    "filepath": "icons/fediverse/lemmy.png"
+    },
+"matrix": {
+  "shortname": ":matrix:",
+  "filepath": "icons/fediverse/matrix.png"
+  },
+  "mobilizon": {
+    "shortname": ":mobilizon:",
+    "filepath": "icons/fediverse/mobilizon.png"
+  },
+  "owncast": {
+    "shortname": ":owncast:",
+    "filepath": "icons/fediverse/owncast.png"
+  },
+  "streams": {
+    "shortname": ":streams:",
+    "filepath": "icons/fediverse/streams.png"
+  },
+  "writeFreely": {
+    "shortname": ":writeFreely:",
+    "filepath": "icons/fediverse/writefreely.png"
+  },
+  "ccc event": {
+    "shortname": ":ccc event:",
+    "filepath": "icons/ccc/ccc.gif"
+  }
+}
