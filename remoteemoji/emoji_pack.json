@@ -455,6 +455,10 @@
     "shortname": ":cc_nc_us:",
     "filepath": "icons/respect/ccncus.png"
   },
+  "cc_nd": {
+    "shortname": ":cc_nd:",
+    "filepath": "icons/respect/ccnd.png"
+  },
   "hahaha": {
     "shortname": ":hahaha:",
     "filepath": "icons/laugh/hahaha.gif"
@@ -714,7 +718,143 @@
   "vivaldi": {
     "shortname": ":vivaldi:",
     "filepath": "icons/noncommercial/vivaldi.png"
-  },
+    },
+  "kde": {
+    "shortname": ":kde:",
+    "filepath": "icons/opensource/kde.png"
+    },
+  "archlinux": {
+    "shortname": ":archlinux:",
+    "filepath": "icons/opensource/archlinux.png"
+    },
+  "debian": {
+    "shortname": ":debian:",
+    "filepath": "icons/opensource/debian.png"
+    },
+  "fdroid": {
+    "shortname": ":fdroid:",
+    "filepath": "icons/opensource/fdroid.png"
+    },
+  "firefox": {
+    "shortname": ":firefox:",
+    "filepath": "icons/opensource/firefox.png"
+    },
+  "firefoxnightly": {
+    "shortname": ":firefoxnightly:",
+    "filepath": "icons/opensource/firefoxnightly.png"
+    },
+  "fedora": {
+    "shortname": ":fedora:",
+    "filepath": "icons/opensource/fedora.png"
+    },
+  "foss": {
+    "shortname": ":foss:",
+    "filepath": "icons/opensource/foss.png"
+    },
+  "jabber": {
+    "shortname": ":jabber:",
+    "filepath": "icons/opensource/jabber.png"
+    },
+  "linux": {
+    "shortname": ":linux:",
+    "filepath": "icons/opensource/linux.png"
+    },
+  "mint": {
+    "shortname": ":mint:",
+    "filepath": "icons/opensource/mint.png"
+    },
+  "opensuse": {
+    "shortname": ":opensuse:",
+    "filepath": "icons/opensource/opensuse.png"
+    },
+  "matrix": {
+    "shortname": ":matrix:",
+    "filepath": "icons/opensource/matrix.png"
+    },
+  "raspi": {
+    "shortname": ":raspi:",
+    "filepath": "icons/opensource/raspi.png"
+    },
+  "raspberrypi": {
+    "shortname": ":raspberrypi:",
+    "filepath": "icons/opensource/raspi.png"
+    },
+  "thunderbird": {
+    "shortname": ":thunderbird:",
+    "filepath": "icons/opensource/thunderbird.png"
+    },
+  "tutanota": {
+    "shortname": ":tutanota:",
+    "filepath": "icons/opensource/tutanota.png"
+    },
+  "ubuntu": {
+    "shortname": ":ubuntu:",
+    "filepath": "icons/opensource/ubuntu.png"
+    },
+  "xmpp": {
+    "shortname": ":xmpp:",
+    "filepath": "icons/opensource/xmpp.png"
+    },
+  "loma.ml": {
+    "shortname": ":loma.ml:",
+    "filepath": "icons/node/loma.ml.png"
+    },
+  "facebook": {
+    "shortname": ":facebook:",
+    "filepath": "icons/commercial/facebook.gif"
+    },
+  "github": {
+    "shortname": ":github:",
+    "filepath": "icons/commercial/github.png"
+    },
+  "google": {
+    "shortname": ":google:",
+    "filepath": "icons/commercial/google.gif"
+    },
+  "instagram": {
+    "shortname": ":instagram:",
+    "filepath": "icons/commercial/instagram.gif"
+    },
+  "signal": {
+    "shortname": ":signal:",
+    "filepath": "icons/commercial/signal.gif"
+    },
+  "spotify": {
+    "shortname": ":spotify:",
+    "filepath": "icons/commercial/spotify.gif"
+    },
+  "telegram": {
+    "shortname": ":telegram:",
+    "filepath": "icons/commercial/telegram.gif"
+    },
+  "threads": {
+    "shortname": ":threads:",
+    "filepath": "icons/commercial/threads.png"
+    },
+  "threema": {
+    "shortname": ":threema:",
+    "filepath": "icons/commercial/threema.png"
+    },
+  "tiktok": {
+    "shortname": ":tiktok:",
+    "filepath": "icons/commercial/tiktok.gif"
+    },
+  "twitch": {
+    "shortname": ":twitch:",
+    "filepath": "icons/commercial/twitch.gif"
+    },
+  "twitter": {
+    "shortname": ":twitter:",
+    "filepath": "icons/commercial/twitter.gif"
+    },
+  "whatsapp": {
+    "shortname": ":whatsapp:",
+    "filepath": "icons/commercial/whatsapp.gif"
+    },
+  "youtube": {
+    "shortname": ":youtube:",
+    "filepath": "icons/commercial/youtube.gif"
+    },
   "ccc event": {
     "shortname": ":ccc event:",
     "filepath": "icons/ccc/ccc.gif"
