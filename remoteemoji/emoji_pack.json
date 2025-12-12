@@ -711,6 +711,10 @@
     "shortname": ":verify:",
     "filepath": "icons/basic/verify.gif"
   },
+  "vivaldi": {
+    "shortname": ":vivaldi:",
+    "filepath": "icons/noncommercial/vivaldi.png"
+  },
   "ccc event": {
     "shortname": ":ccc event:",
     "filepath": "icons/ccc/ccc.gif"
