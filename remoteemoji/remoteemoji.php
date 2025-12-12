@@ -36,10 +36,13 @@ function remoteemoji_smilies(array &$b)
         }
 
         $shortname = $emoji['shortname'];
-        $filepath  = $emoji['filepath']; // z. B. "icons/basic/verified.png"
+        $filepath  = $emoji['filepath'];
 
         $b['texts'][] = $shortname;
-        $b['icons'][] = '<img class="smiley" src="'
+
+        // **DIESE ANPASSUNG IST DIE LÖSUNG**
+        // Die Breiten- und Höhenwerte werden direkt in das style-Attribut eingefügt.
+        $b['icons'][] = '<img class="smiley" style="width: 20px; height: 20px;" src="'
             . DI::baseUrl() . '/addon/remoteemoji/' . $filepath
             . '" alt="' . $shortname . '" />';
     }
