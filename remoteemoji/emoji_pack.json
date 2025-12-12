@@ -851,6 +851,10 @@
     "shortname": ":whatsapp:",
     "filepath": "icons/commercial/whatsapp.gif"
     },
+  "windows": {
+    "shortname": ":windows:",
+    "filepath": "icons/commercial/windows.png"
+    },
   "youtube": {
     "shortname": ":youtube:",
     "filepath": "icons/commercial/youtube.gif"
