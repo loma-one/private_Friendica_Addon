@@ -751,6 +751,18 @@
     "shortname": ":kde:",
     "filepath": "icons/opensource/kde.png"
     },
+  "feodora": {
+    "shortname": ":feodora:",
+    "filepath": "icons/opensource/feodora.png"
+    },
+  "plasma": {
+    "shortname": ":plasma:",
+    "filepath": "icons/opensource/plasma.png"
+    },
+  "zenbrowser": {
+    "shortname": ":zenbrowser:",
+    "filepath": "icons/opensource/zenbrowser.png"
+    },
   "archlinux": {
     "shortname": ":archlinux:",
     "filepath": "icons/opensource/archlinux.png"
@@ -898,7 +910,27 @@
   "reader": {
     "shortname": ":reader:",
     "filepath": "icons/commercial/reader.png"
-    },
+  },
+  "reddit": {
+    "shortname": ":reddit:",
+    "filepath": "icons/commercial/reddit.png"
+  },
+  "tumblr": {
+    "shortname": ":tumblr:",
+    "filepath": "icons/commercial/tumblr.png"
+  },
+  "linkedin": {
+    "shortname": ":linkedin:",
+    "filepath": "icons/commercial/linkedin.png"
+  },
+  "flickr": {
+    "shortname": ":flickr:",
+    "filepath": "icons/commercial/flickr.png"
+  },
+  "vimeo": {
+    "shortname": ":vimeo:",
+    "filepath": "icons/commercial/vimeo.png"
+  },
   "ccc event": {
     "shortname": ":ccc event:",
     "filepath": "icons/ccc/ccc.gif"
