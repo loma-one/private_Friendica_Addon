@@ -751,10 +751,6 @@
     "shortname": ":kde:",
     "filepath": "icons/opensource/kde.png"
     },
-  "feodora": {
-    "shortname": ":feodora:",
-    "filepath": "icons/opensource/feodora.png"
-    },
   "plasma": {
     "shortname": ":plasma:",
     "filepath": "icons/opensource/plasma.png"
