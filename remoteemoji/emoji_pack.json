@@ -731,6 +731,10 @@
     "shortname": ":verify:",
     "filepath": "icons/basic/verify.gif"
   },
+  "lol": {
+    "shortname": ":lol:",
+    "filepath": "icons/basic/lol.svg"
+  },
   "vivaldi": {
     "shortname": ":vivaldi:",
     "filepath": "icons/noncommercial/vivaldi.png"
@@ -779,8 +783,8 @@
     "shortname": ":firedoge:",
     "filepath": "icons/opensource/firefox.png"
     },
-  "firefoxnightly": {
-    "shortname": ":firefoxnightly:",
+  "firefox_nightly": {
+    "shortname": ":firefox_nightly:",
     "filepath": "icons/opensource/firefoxnightly.png"
     },
   "fedora": {
@@ -842,6 +846,10 @@
   "joinfriendica.de": {
     "shortname": ":joinfriendica.de:",
     "filepath": "icons/node/joinfriendica.de.png"
+    },
+  "deezer": {
+    "shortname": ":deezer:",
+    "filepath": "icons/commercial/deezer.png"
     },
   "facebook": {
     "shortname": ":facebook:",
