@@ -735,6 +735,14 @@
     "shortname": ":lol:",
     "filepath": "icons/basic/lol.svg"
   },
+  "fckcdu": {
+    "shortname": ":fckcdu:",
+    "filepath": "icons/basic/fckcdu.png"
+  },
+  "fckafd": {
+    "shortname": ":fckafd:",
+    "filepath": "icons/basic/fckafd.png"
+  },
   "vivaldi": {
     "shortname": ":vivaldi:",
     "filepath": "icons/noncommercial/vivaldi.png"
