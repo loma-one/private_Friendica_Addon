@@ -1,0 +1,32 @@
+.textexpand-container {
+    margin-top: 5px;
+}
+
+.textexpand-teaser {
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.textexpand-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.textexpand-content.open {
+    max-height: 2000px; /* groß genug für lange Posts */
+}
+
+.textexpand-toggle {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.textexpand-wrap {
+    display: block;      /* Forces the link to a new line */
+    margin-top: 8px;     /* Adds some breathing room below the text */
+    font-weight: bold;   /* Makes it easier to find */
+    cursor: pointer;
+    color: #337ab7;      /* Standard link color, adjust if needed */
+}
