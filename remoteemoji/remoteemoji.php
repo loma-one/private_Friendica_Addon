@@ -1,9 +1,9 @@
 <?php
-/*
+/**
  * Name: RemoteEmoji
- * Description: Enables the use of emojis from remote servers.
- * Version: 1.0
- *  Author: Matthias Ebers <https://loma.ml/profile/feb>
+ * Description: Provides a local emoji pack. Supports multi-word shortnames (e.g., :winking face:) and features a cleaned hover effect.
+ * Version: 1.3
+ * Author: Matthias Ebers
  */
 
 use Friendica\Core\Hook;
@@ -14,35 +14,46 @@ function remoteemoji_install()
     Hook::register('smilie', 'addon/remoteemoji/remoteemoji.php', 'remoteemoji_smilies');
 }
 
+function remoteemoji_uninstall()
+{
+    Hook::unregister('smilie', 'addon/remoteemoji/remoteemoji.php', 'remoteemoji_smilies');
+}
+
 function remoteemoji_smilies(array &$b)
 {
-    // JSON-Datei mit Emoji-Definitionen
-    $jsonFile = __DIR__ . '/emoji_pack.json';
+    static $emoji_cache = null;
 
-    if (!file_exists($jsonFile)) {
+    if ($emoji_cache === null) {
+        $jsonFile = __DIR__ . '/emoji_pack.json';
+        if (file_exists($jsonFile)) {
+            $json = file_get_contents($jsonFile);
+            $emoji_cache = json_decode($json, true) ?? [];
+        } else {
+            $emoji_cache = [];
+        }
+    }
+
+    if (empty($emoji_cache)) {
         return;
     }
 
-    $json = file_get_contents($jsonFile);
-    $emojis = json_decode($json, true);
-
-    if (!is_array($emojis)) {
-        return;
-    }
-
-    foreach ($emojis as $emoji) {
-        if (!isset($emoji['shortname']) || !isset($emoji['filepath'])) {
+    foreach ($emoji_cache as $emoji) {
+        if (empty($emoji['shortname']) || empty($emoji['filepath'])) {
             continue;
         }
 
         $shortname = $emoji['shortname'];
-        $filepath  = $emoji['filepath'];
 
+        // Clean the hover text: ":winking face with tongue:" becomes "winking face with tongue"
+        $display_name = trim($shortname, ':');
+
+        $url = DI::baseUrl() . '/addon/remoteemoji/' . $emoji['filepath'];
+
+        // Add the full shortname (including spaces and colons) to the search array
         $b['texts'][] = $shortname;
 
-        // Die Breiten- und Höhenwerte werden direkt in das style-Attribut eingefügt.
+        // Add the corresponding HTML icon
         $b['icons'][] = '<img class="smiley" style="width: 20px; height: 20px;" src="'
-            . DI::baseUrl() . '/addon/remoteemoji/' . $filepath
-            . '" alt="' . $shortname . '" />';
+            . $url . '" alt="' . $display_name . '" title="' . $display_name . '" />';
     }
 }
