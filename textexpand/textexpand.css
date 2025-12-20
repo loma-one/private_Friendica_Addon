@@ -1,32 +1,46 @@
-.textexpand-container {
-    margin-top: 5px;
+/* Settings Page Styling */
+#textexpand-chars-label,
+#textexpand-enable-label {
+    float: left;
+    width: 300px;
+    margin-top: 10px;
 }
 
-.textexpand-teaser {
-    cursor: pointer;
-    overflow: hidden;
+#textexpand-chars,
+#textexpand-enable {
+    float: left;
+    margin-top: 10px;
 }
 
+#textexpand-submit {
+    margin-top: 15px;
+}
+
+/* Stream Display Styling */
+.textexpand-teaser,
 .textexpand-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease;
+    display: block;
+    width: 100%;
 }
 
-.textexpand-content.open {
-    max-height: 2000px; /* groß genug für lange Posts */
-}
-
-.textexpand-toggle {
-    color: #007bff;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
+/* The clickable "show more/less" links */
 .textexpand-wrap {
-    display: block;      /* Forces the link to a new line */
-    margin-top: 8px;     /* Adds some breathing room below the text */
-    font-weight: bold;   /* Makes it easier to find */
+    display: block;         /* Ensures link is on a new line */
+    margin-top: 8px;        /* Spacing between text and link */
     cursor: pointer;
-    color: #337ab7;      /* Standard link color, adjust if needed */
+    font-weight: bold;
+    color: #337ab7;         /* Common link blue */
+    text-decoration: none;
+}
+
+.textexpand-wrap:hover {
+    text-decoration: underline;
+    color: #23527c;
+}
+
+/* Specific styling for the "show less" link at the bottom */
+.textexpand-less {
+    border-top: 1px dashed #ccc;
+    padding-top: 8px;
+    margin-top: 12px;
 }
