@@ -1,6 +1,6 @@
 # QuickPhoto Addon für Friendica
 
-QuickPhoto ist ein Addon für Friendica, das die Arbeit mit Bildern im Editor revolutioniert. Es ersetzt die langen, unübersichtlichen BBCode-Strukturen automatisch durch eine kompakte Kurzschreibweise, ohne die Funktionalität oder Kompatibilität zu beeinträchtigen.
+QuickPhoto ist ein Addon für Friendica, das die Arbeit mit Bildern im Editor vereinfacht. Es ersetzt die langen, unübersichtlichen BBCode-Strukturen automatisch durch eine kompakte Kurzschreibweise, ohne die Funktionalität oder Kompatibilität zu beeinträchtigen.
 
 ### Features
 
@@ -10,7 +10,7 @@ QuickPhoto ist ein Addon für Friendica, das die Arbeit mit Bildern im Editor re
 
  * Echtzeit-Verarbeitung: Reagiert sofort auf Drag & Drop, Copy & Paste sowie auf das Einfügen von Bildern über Editor-Buttons.
 
- * Fokus-Sicherheit: Dank intelligenter Cursor-Verwaltung bleibt der Fokus beim Tippen auch während der automatischen Umwandlung stabil.
+ * Fokus-Sicherheit: Dank Cursor-Verwaltung bleibt der Fokus beim Tippen auch während der automatischen Umwandlung stabil.
 
  * Maximale Kompatibilität: Unterstützt sowohl den Standard-Jot-Editor als auch das Compose-Modul und Antwort-Felder.
 
