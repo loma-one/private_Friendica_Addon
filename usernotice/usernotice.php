@@ -1,8 +1,8 @@
 <?php
 /**
  * Name: User Notice
- * Description: Displays a one-time notification in a modal for logged-in users. Use the addon to inform your users about important things on your node.
- * Version: 1.2
+ * Description: Displays a one-time notification in a modal for logged-in users. Supports BBCode for links.
+ * Version: 1.4
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -10,34 +10,29 @@ use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Content\Text\BBCode;
 
 function usernotice_install()
 {
-    // Modal beim Seiteninhalt einfügen
     Hook::register('page_content_top', __FILE__, 'usernotice_fetch');
 }
 
 function usernotice_addon_admin(string &$s)
 {
-    // Nur für Administratoren sichtbar
     if (!DI::userSession()->isSiteAdmin()) {
         return;
     }
 
-    // Stylesheet für Adminbereich laden
     DI::page()->registerStylesheet(__DIR__ . '/css/style.css');
 
-    // Werte aus der Konfiguration laden
     $noticeText  = DI::config()->get('usernotice', 'text', '');
     $noticeColor = DI::config()->get('usernotice', 'color', 'green');
 
-    // Admin-Template laden
     $t = Renderer::getMarkupTemplate('admin.tpl', 'addon/usernotice');
     if (!$t) {
         throw new \Exception('Template admin.tpl could not be loaded.');
     }
 
-    // Adminseite rendern
     $s .= Renderer::replaceMacros($t, [
         '$title'       => DI::l10n()->t('"usernotice" Settings'),
         '$noticeColor' => [
@@ -55,7 +50,7 @@ function usernotice_addon_admin(string &$s)
             'usernotice-text',
             DI::l10n()->t('Message'),
             $noticeText,
-            DI::l10n()->t('Notification message to display in a modal')
+            DI::l10n()->t('Notification message (BBCode supported, e.g. [url=https://example.com]Link[/url])')
         ],
         '$submit'     => DI::l10n()->t('Save Settings')
     ]);
@@ -63,17 +58,14 @@ function usernotice_addon_admin(string &$s)
 
 function usernotice_addon_admin_post()
 {
-    // Nur Administratoren dürfen Änderungen speichern
     if (!DI::userSession()->isSiteAdmin()) {
         return;
     }
 
-    // Einstellungen speichern
     if (!empty($_POST['usernotice-submit'])) {
         if (isset($_POST['usernotice-text'])) {
-            // HTML entfernen, Zeilenumbrüche beibehalten
+            // Wir speichern den Roh-Text (inkl. BBCode), trimmen aber Leerzeichen
             $noticeText = trim($_POST['usernotice-text']);
-            $noticeText = strip_tags($noticeText);
             DI::config()->set('usernotice', 'text', $noticeText);
         }
 
@@ -88,43 +80,49 @@ function usernotice_addon_admin_post()
 
 function usernotice_fetch(string &$b)
 {
-    // Nur für eingeloggte Benutzer
     if (!DI::userSession()->getLocalUserId()) {
         return;
     }
 
-    // Text und Farbe aus der Config holen
     $noticeText  = DI::config()->get('usernotice', 'text');
     $noticeColor = DI::config()->get('usernotice', 'color', 'green');
 
-    // Modal nur anzeigen, wenn Text vorhanden
     if ($noticeText) {
-        // Stylesheet laden
         DI::page()->registerStylesheet(__DIR__ . '/css/style.css');
 
-        // Modal-HTML und JS einfügen
+        // BBCode in HTML umwandeln
+        $renderedText = BBCode::convert($noticeText);
+
         $b .= '
         <div id="usernotice-modal" class="usernotice-modal usernotice-' . htmlspecialchars($noticeColor, ENT_QUOTES, 'UTF-8') . '">
             <div class="usernotice-modal-content">
-                <span class="usernotice-close">&times;</span>
                 <h2>' . DI::l10n()->t('User-Notice') . '</h2>
                 <hr class="usernotice-divider">
-                <p>' . nl2br(htmlspecialchars($noticeText, ENT_QUOTES, 'UTF-8')) . '</p>
+                <div class="usernotice-body">' . $renderedText . '</div>
+                <hr class="usernotice-divider">
+                <div class="usernotice-button-container">
+                    <button id="usernotice-ok-btn" class="usernotice-button">OK</button>
+                </div>
             </div>
         </div>
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 var modal = document.getElementById("usernotice-modal");
-                var closeBtn = document.getElementsByClassName("usernotice-close")[0];
+                var closeBtn = document.getElementById("usernotice-ok-btn");
                 var currentText = ' . json_encode($noticeText) . ';
 
-                // Modal anzeigen, wenn nicht schon geschlossen oder Text geändert
                 if (!localStorage.getItem("usernoticeClosed") || localStorage.getItem("usernoticeText") !== currentText) {
                     modal.style.display = "block";
                 }
 
-                // Modal schließen
+                // Alle Links im Modal in neuem Tab öffnen
+                var links = modal.getElementsByTagName("a");
+                for (var i = 0; i < links.length; i++) {
+                    links[i].setAttribute("target", "_blank");
+                    links[i].setAttribute("rel", "noopener noreferrer");
+                }
+
                 closeBtn.onclick = function() {
                     modal.style.display = "none";
                     localStorage.setItem("usernoticeClosed", "true");
