@@ -2,7 +2,7 @@
 /**
  * Name: Current Date
  * Description: Shows the current date with weekday, calendar week, day of the year, and remaining days until the new year on the user's network page.
- * Version: 1.4
+ * Version: 1.5
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -81,10 +81,7 @@ function get_sunrise_sunset($location)
         }
     }
 
-    // Remove any whitespace from the location string
     $location = preg_replace('/\s+/', '', $location);
-
-    // Split the location into country code and postal code
     list($countryCode, $postalCode) = explode(',', $location);
     $apiKey = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'date', 'api_key');
     $geocodingUrl = "https://api.opencagedata.com/geocode/v1/json?q={$postalCode}+{$countryCode}&key={$apiKey}";
@@ -136,7 +133,6 @@ function get_sunrise_sunset($location)
         $sunrise = (new DateTime($data['results']['sunrise']))->setTimezone($timeZone)->format('H:i');
         $sunset = (new DateTime($data['results']['sunset']))->setTimezone($timeZone)->format('H:i');
 
-        // Cache the data
         $cacheData = [
             'timestamp' => time(),
             'location' => $location,
@@ -150,8 +146,6 @@ function get_sunrise_sunset($location)
 
     return ['N/A', 'N/A'];
 }
-
-// ---- UPDATED SETTINGS FUNCTIONS ----
 
 function date_addon_settings_post($post)
 {
@@ -206,38 +200,15 @@ function date_addon_settings(array &$data)
         'm/d/Y' => DI::l10n()->t('MM/DD/YYYY'),
     ];
 
-    $dateFormatDropdown = '<select name="date_format">';
-    foreach ($dateFormatOptions as $format => $label) {
-        $selected = ($dateFormat === $format) ? ' selected="selected"' : '';
-        $dateFormatDropdown .= '<option value="' . $format . '"' . $selected . '>' . $label . '</option>';
-    }
-    $dateFormatDropdown .= '</select>';
-
-    $html = '<span class="description">' . DI::l10n()->t('Displays the current date, including the day of the week, week number, and the day of the year.') . '</span><br>
-    <input type="checkbox" name="date_enable" value="1"' . ($enabled ? ' checked="checked"' : '') . '>
-    <span>' . DI::l10n()->t('Show date and time for sunrise and sunset') . '</span><br>
-    <div class="form-group">
-        <label for="date_format">' . DI::l10n()->t('Date Format:') . '</label>
-        <select name="date_format" id="date_format" class="form-control">
-            ' . implode('', array_map(function($format, $label) use ($dateFormat) {
-                $selected = ($dateFormat === $format) ? ' selected="selected"' : '';
-                return '<option value="' . $format . '"' . $selected . '>' . $label . '</option>';
-            }, array_keys($dateFormatOptions), $dateFormatOptions)) . '
-        </select>
-    </div>
-    <div class="form-group">
-        <input type="checkbox" name="show_sunrise_sunset" value="1"' . ($showSunriseSunset ? ' checked="checked"' : '') . '>
-        <span>' . DI::l10n()->t('Show Sunrise and Sunset') . '</span>
-    </div>
-    <div class="form-group">
-        <label for="location">' . DI::l10n()->t('Location (Country code, Postal code = DE,10115):') . '</label>
-        <input type="text" name="location" id="location" value="' . $location . '" class="form-control">
-    </div>
-    <div class="form-group">
-    <label for="api_key">' . DI::l10n()->t('API Key:') . '</label>
-        <span class="help-block">' . DI::l10n()->t('You can obtain an API key from the <a href="https://opencagedata.com" target="_blank">OpenCage Geocoding API website</a>.') . '</span>
-        <input type="text" name="api_key" id="api_key" value="' . $apiKey . '" class="form-control">
-    </div>';
+    $t = Renderer::getMarkupTemplate('settings.tpl', 'addon/date/');
+    $html = Renderer::replaceMacros($t, [
+        '$enabled' => ['date_enable', DI::l10n()->t('Enable Addon'), $enabled, ''],
+        '$date_format' => ['date_format', DI::l10n()->t('Date Format'), $dateFormat, '', $dateFormatOptions],
+        '$show_sunrise_sunset' => ['show_sunrise_sunset', DI::l10n()->t('Show Sunrise and Sunset'), $showSunriseSunset, ''],
+        '$location' => ['location', DI::l10n()->t('Location (Country code, Postal code)'), $location, 'DE,10115'],
+        '$api_key' => ['api_key', DI::l10n()->t('OpenCage API Key'), $apiKey, ''],
+        '$description' => DI::l10n()->t('Displays the current date, including the day of the week, week number, and the day of the year.'),
+    ]);
 
     $data = [
         'addon' => 'date',
@@ -245,4 +216,3 @@ function date_addon_settings(array &$data)
         'html'  => $html,
     ];
 }
-?>
