@@ -1,5 +1,6 @@
 (function() {
     const monsterPattern = /\[url=(.*?)\]\[img=(.*?)\](.*?)\[\/img\]\[\/url\]/gi;
+    let throttleTimer;
 
     const cleanupOldEntries = () => {
         const now = Date.now();
@@ -18,7 +19,8 @@
     };
 
     const simplify = (text) => {
-        if (!text) return text;
+        // Optimierung: Schneller Vorab-Check bevor RegEx feuert
+        if (!text || !text.includes('[url=')) return text;
         return text.replace(monsterPattern, (match, urlPart, imgPart, existingDesc) => {
             const fileName = imgPart.split('/').pop();
             const storageKey = `qp_${fileName}`;
@@ -35,7 +37,7 @@
     };
 
     const reconstruct = (text) => {
-        if (!text) return text;
+        if (!text || !text.includes('[img]')) return text;
         return text.replace(/\[img\](.*?)\|(.*?)\[\/img\]/g, (match, fileName, desc) => {
             const data = localStorage.getItem(`qp_${fileName}`);
             if (data) {
@@ -51,14 +53,9 @@
         const current = textarea.value;
         const simple = simplify(current);
         if (current !== simple) {
-            // Speichert die Cursor-Position
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
-
             textarea.value = simple;
-
-            // Setzt den Cursor wieder an die ursprüngliche Stelle
-            // (verhindert das Springen ans Textende)
             textarea.setSelectionRange(start, end);
         }
     };
@@ -76,17 +73,17 @@
         };
     }
 
-    // Sofort-Reaktion bei Drag & Drop
     document.addEventListener('drop', (e) => {
         if (e.target.tagName === 'TEXTAREA') {
             setTimeout(() => applySimplify(e.target), 150);
         }
     }, true);
 
-    // Sofort-Reaktion bei Button-Klicks und Tastendruck
     document.addEventListener('input', (e) => {
         if (e.target.tagName === 'TEXTAREA') {
-            applySimplify(e.target);
+            // Optimierung: Throttling beim Tippen
+            clearTimeout(throttleTimer);
+            throttleTimer = setTimeout(() => applySimplify(e.target), 300);
         }
     });
 
@@ -106,13 +103,20 @@
         }
     }, true);
 
-    // Das Intervall läuft jetzt IMMER, auch wenn das Feld aktiv ist.
-    // applySimplify sorgt dafür, dass der Cursor nicht springt.
+    // INTELLIGENTES INTERVALL: Prüft Existenz, Sichtbarkeit und Tab-Fokus
     setInterval(() => {
-        document.querySelectorAll('textarea').forEach(textarea => {
-            applySimplify(textarea);
+        if (document.hidden) return;
+
+        const textareas = document.querySelectorAll('textarea');
+        if (textareas.length === 0) return;
+
+        textareas.forEach(textarea => {
+            // Prüft, ob der Editor wirklich sichtbar ist (nicht hidden oder display:none)
+            if (textarea.offsetParent !== null) {
+                applySimplify(textarea);
+            }
         });
-    }, 1500);
+    }, 2500); // Intervall leicht erhöht auf 2,5s für bessere Performance
 
     cleanupOldEntries();
 })();

@@ -2,7 +2,7 @@
 /**
  * Name: QuickPhoto
  * Description: Client- und Serverseitige Rekonstruktion für maximale Kompatibilität.
- * Version: 1.0
+ * Version: 1.1
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
