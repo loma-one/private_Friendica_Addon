@@ -2,7 +2,7 @@
 /**
  * Name: signatur
  * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
- * Version: 1.8
+ * Version: 1.9
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
  */
@@ -65,33 +65,36 @@ function signatur_add_signature(array &$b)
  */
 function insert_signature_before_images($body, $signature_marker, $signature)
 {
-    $lines = explode("\n", $body);
-    $image_count = 0;
-    $text_end_index = -1;
+    $lines = explode("\n", rtrim($body));
+    $last_text_index = -1;
 
-    foreach ($lines as $index => $line) {
-        if (strpos($line, '[url=') !== false) {
-            $image_count++;
-            if ($image_count === 1 && $text_end_index === -1) {
-                $text_end_index = $index;
-            }
+    // Search backwards for the last line that contains text
+    for ($i = count($lines) - 1; $i >= 0; $i--) {
+        $line = trim($lines[$i]);
+
+        // Extended media detection including QuickPhoto shortcode
+        // Checks for: Standard [img], [attach], [url=] AND QuickPhoto's [img]filename|desc[/img]
+        $is_media = (strpos($line, '[img') !== false ||
+                     strpos($line, '[attach') !== false ||
+                     strpos($line, '[url=') !== false ||
+                     preg_match('/\[img\].*?\|.*?\[\/img\]/i', $line));
+
+        if (!$is_media && $line !== '') {
+            $last_text_index = $i;
+            break;
         }
     }
 
-    if ($image_count <= 1) {
+    if ($last_text_index === -1) {
         return rtrim($body) . "\n{$signature_marker}\n{$signature}";
     }
 
-    if ($image_count >= 2 && $text_end_index !== -1) {
-        $lines_before_first_image = array_slice($lines, 0, $text_end_index);
-        $lines_after_first_image = array_slice($lines, $text_end_index);
+    $before_signature = array_slice($lines, 0, $last_text_index + 1);
+    $after_signature = array_slice($lines, $last_text_index + 1);
 
-        return implode("\n", $lines_before_first_image) .
-            "\n{$signature_marker}\n{$signature}\n" .
-            implode("\n", $lines_after_first_image);
-    }
-
-    return rtrim($body) . "\n{$signature_marker}\n{$signature}";
+    return implode("\n", $before_signature) .
+        "\n{$signature_marker}\n{$signature}\n" .
+        implode("\n", $after_signature);
 }
 
 /**
