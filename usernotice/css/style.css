@@ -38,23 +38,11 @@
     color: white;
 }
 
-/* Schließen-Button */
-.usernotice-close {
-    color: white;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.usernotice-close:hover {
-    color: darkred;
-}
-
 /* Modal Header */
-.usernotice-modal-content h3 {
+.usernotice-modal-content h2 {
     font-size: 2rem;
     margin: 0 0 10px 0;
-    color: white;
+    text-align: center;
 }
 
 /* Divider */
@@ -63,4 +51,45 @@
     border-top: 1px solid rgba(244, 244, 244, 0.98);
     margin: 10px 0;
     width: 100%;
+}
+
+.usernotice-yellow .usernotice-divider {
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Button Container zentriert */
+.usernotice-button-container {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* OK-Button */
+.usernotice-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: inherit;
+    border: 1px solid currentColor;
+    padding: 8px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.usernotice-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.usernotice-yellow .usernotice-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Styling für Links im Modal */
+.usernotice-body a {
+    text-decoration: underline;
+    color: inherit;
+    font-weight: bold;
+}
+
+.usernotice-body {
+    line-height: 1.5;
 }
