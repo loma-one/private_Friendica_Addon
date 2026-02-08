@@ -112,16 +112,19 @@ function smry_replace_render(array &$b)
     if (!DI::userSession()->getLocalUserId() || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'smry_replace', 'enabled')) {
         return;
     }
+
     $smry_sites = DI::config()->get('smry_replace', 'smry_sites') ?? [] ?: [];
     $replaced = false;
+
     foreach ($smry_sites as $smry_site) {
         if (strpos($b['html'], $smry_site) !== false) {
-            $b['html'] = str_replace($smry_site, 'https://smry.ai/' . $smry_site, $b['html']);
+            // Änderung der URL-Struktur auf das neue Proxy-Format
+            $b['html'] = str_replace($smry_site, 'https://smry.ai/de/proxy?url=' . $smry_site, $b['html']);
             $replaced = true;
         }
     }
+
     if ($replaced) {
         $b['html'] .= '<hr><p><small>' . DI::l10n()->t('(smry replace addon enabled for some news sites.)') . '</small></p>';
     }
 }
-
