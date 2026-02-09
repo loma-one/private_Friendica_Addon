@@ -1,11 +1,12 @@
 <?php
 /*
  * Name: Audon Application
- * Description: add an Audon instance. Based on webRTC Addon
- * Version: 0.2
+ * Description: add a Audon instance. Based on webRTC Addon
+ * Version: 0.1
  * Author: Stephen Mahood <https://friends.mayfirst.org/profile/marxistvegan>
  * Author: Tobias Diekershoff <https://f.diekershoff.de/profile/tobias>
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
+ * Status: Unsupported
  */
 
 use Friendica\Core\Hook;
@@ -26,13 +27,13 @@ function audon_addon_admin(string &$o)
 {
 	$t = Renderer::getMarkupTemplate('admin.tpl', 'addon/audon/');
 	$o = Renderer::replaceMacros($t, [
-		'$submit' => DI::l10n()->t('Save Settings'),
+		'$submit'   => DI::l10n()->t('Save Settings'), 
 		'$audonurl' => [
-			'audonurl',
-			DI::l10n()->t('Audon Base URL'),
-			DI::config()->get('audon', 'audonurl'),
-			DI::l10n()->t('Page your users will create an Audon audio chat room on. For example, you could use https://audon.space.'),
-		],
+			'audonurl', 
+			DI::l10n()->t('Audon Base URL'), 
+			DI::config()->get('audon','audonurl'), 
+			DI::l10n()->t('Page your users will create an Audon audio chat room on. For example you could use https://audon.space.'), 
+		], 
 	]);
 }
 
@@ -46,26 +47,23 @@ function audon_addon_admin_post()
  * existence of this method is checked to figure out if the addon offers a
  * module.
  */
-function audon_module()
-{
-}
+function audon_module() {}
 
 function audon_content(): string
 {
 	$o = '';
 
-	/* landing page to create chatrooms */
+	/* landingpage to create chatrooms */
 	$audonurl = DI::config()->get('audon', 'audonurl');
 
-	/* open the landing page in a new browser window without controls */
-	$o = '<script>
-				window.open("' . $audonurl . '", "_blank", "toolbar=no,scrollbars=no,resizable=no,top=100,left=100,width=740,height=600");
-			</script>';
 
+	/* embedd the landing page in an iframe */
 	$o .= '<h2>' . DI::l10n()->t('Audio Chat') . '</h2>';
 	$o .= '<p>' . DI::l10n()->t('Audon is an audio conferencing tool. Connect your account to Audon and create a room. Share the generated link to talk to other participants.') . '</p>';
 	if ($audonurl == '') {
 		$o .= '<p>' . DI::l10n()->t('Please contact your Friendica administrator to remind them to configure the Audon addon.') . '</p>';
+	} else {
+		$o .= '<iframe src="' . $audonurl . '" width="740px" height="600px"></iframe>';
 	}
 
 	return $o;
