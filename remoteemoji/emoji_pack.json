@@ -763,6 +763,14 @@
     "shortname": ":kde:",
     "filepath": "icons/opensource/kde.png"
     },
+  "duckduckgo": {
+    "shortname": ":duckduckgo:",
+    "filepath": "icons/opensource/duckduckgo.png"
+    },
+  "tor": {
+    "shortname": ":tor:",
+    "filepath": "icons/opensource/tor.png"
+    },
   "plasma": {
     "shortname": ":plasma:",
     "filepath": "icons/opensource/plasma.png"
@@ -854,6 +862,30 @@
   "joinfriendica.de": {
     "shortname": ":joinfriendica.de:",
     "filepath": "icons/node/joinfriendica.de.png"
+    },
+  "ablobaww": {
+    "shortname": ":ablobaww:",
+    "filepath": "icons/blob/ablobaww.png"
+    },
+  "ablobglitch": {
+    "shortname": ":ablobglitch:",
+    "filepath": "icons/blob/ablobglitch.png"
+    },
+  "bloblaugh": {
+    "shortname": ":bloblaugh:",
+    "filepath": "icons/blob/bloblaugh.png"
+    },
+  "blobpats": {
+    "shortname": ":blobpats:",
+    "filepath": "icons/blob/blobpats.png"
+    },
+  "party_blob": {
+    "shortname": ":party_blob:",
+    "filepath": "icons/blob/party_blob.gif"
+    },
+  "thumbsupblob": {
+    "shortname": ":thumbsupblob:",
+    "filepath": "icons/blob/thumbsupblob.png"
     },
   "deezer": {
     "shortname": ":deezer:",
