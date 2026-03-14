@@ -24,7 +24,7 @@
                 <form method="get" action="{{$sort_url}}" class="form-inline">
                     <input type="hidden" name="pending" value="{{$only_pending}}">
                     <div class="input-group">
-                        <input type="text" name="search" class="form-control input-sm" placeholder="Suchen..." value="{{$search_val}}" style="width: 150px;">
+                        <input type="text" name="search" class="form-control input-sm" placeholder="Suchen..." value="{{$search_val}}" style="width: 250px;">
                         <span class="input-group-btn">
                             <button class="btn btn-sm btn-primary" type="submit" title="Suchen">
                                 <i class="fa fa-search"></i>
@@ -111,6 +111,5 @@
 <style>
     .row-checked { opacity: 0.4; filter: grayscale(1); background-color: #eee !important; }
     .row-checked strong { text-decoration: line-through; }
-    /* Sicherstellen, dass Text in Zellen links bleibt */
     .table > tbody > tr > td { text-align: left; }
 </style>
