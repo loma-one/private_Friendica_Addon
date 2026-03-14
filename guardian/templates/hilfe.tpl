@@ -1,39 +1,48 @@
-<div class="panel-body" style="margin-top: 30px; border-top: 2px solid #eee; background-color: #f9f9f9; padding: 20px;">
-    <h4><i class="fa fa-shield"></i> Guardian Schutz-System</h4>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-info-circle"></i> Guardian Audit Hilfe & Scoring-Logik</h3>
+    </div>
+    <div class="panel-body">
+        <p>Das Guardian-System bewertet Neuregistrierungen anhand von Spam-Mustern. Ein hoher <strong>Score</strong> führt zur farblichen Hervorhebung der Zeile.</p>
 
-    <div class="row">
-        <div class="col-md-6">
-            <h5><i class="fa fa-bar-chart"></i> Analyse-Logik (Scoring)</h5>
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <strong><span class="badge alert-danger">+100</span> System-Blockliste:</strong>
-                    Exakte Übereinstimmung mit <em>Admin -> Sicherheit -> E-Mail-Sperrliste</em>.
-                </li>
-                <li class="list-group-item">
-                    <strong><span class="badge alert-danger">+60</span> Spam-TLD:</strong>
-                    Endungen wie <code>.top, .xyz, .bid, .buzz, .monster, .pw, .tk</code>.
-                </li>
-                <li class="list-group-item">
-                    <strong><span class="badge alert-warning">+30</span> Zahlenfolge:</strong>
-                    4 oder mehr aufeinanderfolgende Ziffern im Nickname.
-                </li>
-            </ul>
-        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Scoring-Regeln</h4>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <span class="badge">100</span>
+                        <strong>Manuelle Blockliste:</strong> E-Mail oder Domain steht in den System-Einstellungen unter <em>disallowed_email</em>.
+                    </li>
+                    <li class="list-group-item">
+                        <span class="badge">60</span>
+                        <strong>Verdächtige TLDs:</strong> Domains mit Endungen wie <code>.top, .xyz, .bid, .monster, .pw, .work, .tk</code> etc.
+                    </li>
+                    <li class="list-group-item">
+                        <span class="badge">30</span>
+                        <strong>Nickname-Muster:</strong> Der Benutzername enthält eine Kette von 4 oder mehr aufeinanderfolgenden Zahlen.
+                    </li>
+                    <li class="list-group-item">
+                        <span class="badge">+10</span>
+                        <strong>Korrelation (Freemailer):</strong> Zusätzliche Punkte, wenn bereits ein Verdacht besteht UND ein bekannter Provider (Gmail, GMX, Proton, iCloud, etc.) genutzt wird.
+                    </li>
+                </ul>
+            </div>
 
-        <div class="col-md-6">
-            <h5><i class="fa fa-bug"></i> Honeypot-Status (Prävention)</h5>
-            <p>Die serverseitige Falle ist <strong>aktiv</strong>. Damit Bots blockiert werden, muss folgendes Feld in der <code>register.tpl</code> deines Themes verbaut sein:</p>
-            <pre style="font-size: 10px; background: #eee; padding: 5px; border: 1px solid #ccc;">
-&lt;div style="display:none;"&gt;
-  &lt;input type="text" name="special_mail_field"&gt;
-&lt;/div&gt;</pre>
-            <p><small class="text-muted">Bots, die in diese Falle tappen, werden sofort mit "403 Forbidden" abgewiesen und erscheinen gar nicht erst in dieser Liste.</small></p>
+            <div class="col-md-6">
+                <h4>Bedienung</h4>
+                <ul>
+                    <li><strong>Status-Farben:</strong>
+                        <span class="label label-danger">Rot (Score >= 100)</span>,
+                        <span class="label label-warning">Gelb (Score >= 30)</span>.
+                    </li>
+                    <li><strong>Lokale Markierung:</strong> Über die Checkbox ganz links kannst du bearbeitete Zeilen ausgrauen. Diese Markierung wird nur in deinem Browser gespeichert (LocalStorage).</li>
+                    <li><strong>Filter:</strong> Nutze "Nur ausstehende", um gezielt Benutzer zu finden, die noch auf ihre Freischaltung warten.</li>
+                    <li><strong>Suche:</strong> Sucht übergreifend in Name, Nickname und E-Mail-Adresse.</li>
+                </ul>
+            </div>
         </div>
     </div>
-
-    <hr>
-
-    <div class="alert alert-info">
-        <i class="fa fa-lightbulb-o"></i> <strong>Workflow-Tipp:</strong> Nutze das Auge-Symbol <i class="fa fa-eye"></i> in der Tabelle, um Datensätze als "geprüft" zu markieren. Dies wird lokal in deinem Browser gespeichert und hilft dir, den Überblick bei vielen Neuanmeldungen zu behalten.
+    <div class="panel-footer">
+        <small>Hinweis: Ein hoher Score ist ein Indikator, kein Beweis. Bitte prüfe im Zweifel die Details des Benutzers.</small>
     </div>
 </div>
