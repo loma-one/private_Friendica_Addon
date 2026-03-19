@@ -11,122 +11,93 @@ class GuardianPanel
 {
     public function getAuditContent(): string
     {
-        $sort_by = $_GET['sort'] ?? 'register_date';
-        $order   = $_GET['order'] ?? 'desc';
-        $search  = isset($_GET['search']) ? trim($_GET['search']) : '';
-        $only_pending = isset($_GET['pending']) ? (int)$_GET['pending'] : 0;
+        $sort_by   = $_GET['sort'] ?? 'register_date';
+        $order     = $_GET['order'] ?? 'desc';
+        $search    = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $view_mode = $_GET['view'] ?? '48h';
 
-        $users = User::getList(0, 1000, 'all');
-        if (!is_array($users)) {
-            $users = [];
-        }
+        $users = User::getList(0, 2000, 'all');
+        if (!is_array($users)) { $users = []; }
 
         $disallowed_raw = DI::config()->get('system', 'disallowed_email');
         $disallowed_array = preg_split('/[\s,]+/', (string)$disallowed_raw, -1, PREG_SPLIT_NO_EMPTY);
 
         $filteredUsers = [];
+        $now = time();
+        $fortyEightHoursAgo = $now - (48 * 3600);
+
         foreach ($users as $u) {
-            if ($only_pending && !$u['pending']) {
-                continue;
-            }
-
             $u['display_name'] = !empty($u['name']) ? $u['name'] : $u['nickname'];
-
-            // --- Scoring System ---
             $u['spam_score'] = 0;
             $u['spam_reasons'] = [];
             $email_lc = strtolower($u['email']);
             $domain = explode('@', $email_lc)[1] ?? '';
+            $reg_time = strtotime($u['register_date']);
 
-            // 1. Check: Manuelle Blockliste (100 Punkte)
             foreach ($disallowed_array as $pattern) {
-                $p_lc = strtolower(trim($pattern));
-                if ($email_lc === $p_lc || $domain === $p_lc) {
+                if ($email_lc === strtolower(trim($pattern)) || $domain === strtolower(trim($pattern))) {
                     $u['spam_score'] += 100;
-                    $u['spam_reasons'][] = "Blockliste: " . $p_lc;
+                    $u['spam_reasons'][] = "Blockliste: " . $pattern;
                     break;
                 }
             }
-
-            // 2. Check: Verdächtige TLDs (60 Punkte)
-            $tld_pattern = '/\.(top|xyz|bid|buzz|monster|pw|tk|gq|cf|ga|ml|work|date|faith|win|loan|stream|racing|accountant|review)$/i';
-            if (preg_match($tld_pattern, $u['email'], $matches)) {
+            if (preg_match('/\.(top|xyz|bid|buzz|monster|pw|tk|gq|cf|ga|ml|work|date|faith|win|loan|stream|racing|accountant|review)$/i', $u['email'], $m)) {
                 $u['spam_score'] += 60;
-                $u['spam_reasons'][] = "TLD: ." . strtolower($matches[1]);
+                $u['spam_reasons'][] = "TLD: ." . $m[1];
             }
-
-            // 3. Check: Lange Zahlenketten im Nickname (30 Punkte)
-            if (preg_match('/[0-9]{4,}/', $u['nickname'], $matches)) {
+            if (preg_match('/[0-9]{4,}/', $u['nickname'], $m)) {
                 $u['spam_score'] += 30;
-                $u['spam_reasons'][] = "Zahlen: " . $matches[0];
+                $u['spam_reasons'][] = "Zahlen: " . $m[0];
             }
-
-            // 4. KORRELATION: Bonus für Freemailer NUR bei bestehendem Verdacht
             if ($u['spam_score'] > 0 && $u['spam_score'] < 100) {
-                $freemailer_pattern = '/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i';
-                if (preg_match($freemailer_pattern, $u['email'], $mail_matches)) {
+                if (preg_match('/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i', $u['email'])) {
                     $u['spam_score'] += 10;
-                    $u['spam_reasons'][] = "Kombination: " . strtolower($mail_matches[1]) . " + Verdacht";
+                    $u['spam_reasons'][] = "Korrelation: Freemailer";
                 }
             }
 
-            // --- Suche-Logik ---
-            $is_search_match = false;
-            if (!empty($search)) {
-                $search_lc = strtolower($search);
-                if (strpos(strtolower($u['display_name']), $search_lc) !== false ||
-                    strpos(strtolower($u['nickname']), $search_lc) !== false ||
-                    strpos(strtolower($u['email']), $search_lc) !== false) {
-                    $is_search_match = true;
-                }
-            }
-
-            // --- Anzeige-Entscheidung ---
             $show = false;
             if (!empty($search)) {
-                if ($is_search_match) $show = true;
+                if (strpos(strtolower($u['display_name']), strtolower($search)) !== false ||
+                    strpos(strtolower($u['nickname']), strtolower($search)) !== false ||
+                    strpos(strtolower($u['email']), strtolower($search)) !== false) {
+                    $show = true;
+                }
             } else {
-                if ($u['spam_score'] > 0) $show = true;
+                switch ($view_mode) {
+                    case 'spam': if ($u['spam_score'] > 0) $show = true; break;
+                    case 'pending': if ($u['pending']) $show = true; break;
+                    case 'all': $show = true; break;
+                    case '48h':
+                    default: if ($reg_time >= $fortyEightHoursAgo) $show = true; break;
+                }
             }
 
             if ($show) {
-                $u['status_text'] = 'Aktiv';
-                $u['status_class'] = 'success';
-                if ($u['pending']) {
-                    $u['status_text'] = 'Wartend';
-                    $u['status_class'] = 'warning';
-                } elseif ($u['account_removed']) {
-                    $u['status_text'] = 'Gelöscht';
-                    $u['status_class'] = 'danger';
-                } elseif ($u['blocked']) {
-                    $u['status_text'] = 'Gesperrt';
-                    $u['status_class'] = 'danger';
-                } elseif ($u['account_expired']) {
-                    $u['status_text'] = 'Inaktiv';
-                    $u['status_class'] = 'default';
-                }
+                $u['status_text'] = $u['pending'] ? 'Wartend' : ($u['blocked'] ? 'Gesperrt' : 'Aktiv');
+                $u['status_class'] = $u['pending'] ? 'warning' : ($u['blocked'] ? 'danger' : 'success');
                 $filteredUsers[] = $u;
             }
         }
 
-        usort($filteredUsers, function($a, $b) use ($sort_by, $order) {
-            $valA = $a[$sort_by] ?? '';
-            $valB = $b[$sort_by] ?? '';
-            return ($order === 'asc') ? ($valA <=> $valB) : ($valB <=> $valA);
+        usort($filteredUsers, function($a, $b) use ($sort_by, $order, $view_mode) {
+            if ($view_mode === '48h' || $view_mode === 'pending') {
+                return strtotime($b['register_date']) <=> strtotime($a['register_date']);
+            }
+            return ($order === 'asc') ? ($a[$sort_by] <=> $b[$sort_by]) : ($b[$sort_by] <=> $a[$sort_by]);
         });
 
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
-            '$title' => 'Guardian Spam Audit',
-            '$count' => count($filteredUsers),
-            '$users' => array_slice($filteredUsers, $pager->getStart(), 50),
+            '$title'      => 'Guardian Spam Audit',
+            '$count'      => count($filteredUsers),
+            '$users'      => array_slice($filteredUsers, $pager->getStart(), 50),
             '$search_val' => $search,
-            '$only_pending' => $only_pending,
-            '$sort_url' => DI::baseUrl() . '/guardian',
-            '$current_sort' => $sort_by,
+            '$view_mode'  => $view_mode,
+            '$sort_url'   => DI::baseUrl() . '/guardian',
             '$next_order' => ($order === 'asc' ? 'desc' : 'asc'),
-            '$pager' => $pager->renderFull(count($filteredUsers)),
-            '$hilfe' => Renderer::replaceMacros(Renderer::getMarkupTemplate('hilfe.tpl', 'addon/guardian'), []),
+            '$pager'      => $pager->renderFull(count($filteredUsers)),
+            '$hilfe'      => Renderer::replaceMacros(Renderer::getMarkupTemplate('hilfe.tpl', 'addon/guardian'), []),
         ]);
     }
 }
