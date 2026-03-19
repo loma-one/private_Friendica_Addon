@@ -1,39 +1,32 @@
 <div id="admin-users" class="adminpage generic-page-wrapper">
     <div class="panel-heading">
-        <h1>{{$title}} <span class="badge">{{$count}}</span></h1>
+        <h1><i class="fa fa-shield"></i> {{$title}} <span class="badge">{{$count}}</span></h1>
     </div>
 
     <div style="margin: 0 15px 15px 15px;">
         <div class="row">
-            <div class="col-xs-6" style="padding-top: 7px;">
+            <div class="col-xs-6">
                 <form method="get" action="{{$sort_url}}" class="form-inline">
-                    <div class="checkbox">
-                        <label style="cursor: pointer; {{if $only_pending}}font-weight: bold; color: #337ab7;{{/if}}">
-                            <input type="hidden" name="pending" value="0">
-                            <input type="checkbox" name="pending" value="1" {{if $only_pending}}checked{{/if}} onchange="this.form.submit()">
-                            <span style="margin-left: 5px;">
-                                {{if $only_pending}}<i class="fa fa-filter"></i> {{/if}}Nur ausstehende
-                            </span>
-                        </label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-filter"></i> Ansicht</span>
+                        <select name="view" class="form-control input-sm" onchange="this.form.submit()">
+                            <option value="48h" {{if $view_mode == '48h'}}selected{{/if}}>Letzte 48 Stunden</option>
+                            <option value="spam" {{if $view_mode == 'spam'}}selected{{/if}}>Spam-Verdacht</option>
+                            <option value="pending" {{if $view_mode == 'pending'}}selected{{/if}}>Nur ausstehende</option>
+                            <option value="all" {{if $view_mode == 'all'}}selected{{/if}}>Alle Accounts</option>
+                        </select>
                     </div>
                     <input type="hidden" name="search" value="{{$search_val}}">
                 </form>
             </div>
-
             <div class="col-xs-6 text-right">
                 <form method="get" action="{{$sort_url}}" class="form-inline">
-                    <input type="hidden" name="pending" value="{{$only_pending}}">
+                    <input type="hidden" name="view" value="{{$view_mode}}">
                     <div class="input-group">
-                        <input type="text" name="search" class="form-control input-sm" placeholder="Suchen..." value="{{$search_val}}" style="width: 250px;">
+                        <input type="text" name="search" class="form-control input-sm" placeholder="Suchen..." value="{{$search_val}}" style="width: 200px;">
                         <span class="input-group-btn">
-                            <button class="btn btn-sm btn-primary" type="submit" title="Suchen">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            {{if $search_val}}
-                                <a href="{{$sort_url}}?pending={{$only_pending}}" class="btn btn-sm btn-warning" title="Suche löschen">
-                                    <i class="fa fa-times"></i>
-                                </a>
-                            {{/if}}
+                            <button class="btn btn-sm btn-primary" type="submit"><i class="fa fa-search"></i></button>
+                            {{if $search_val}}<a href="{{$sort_url}}?view={{$view_mode}}" class="btn btn-sm btn-warning"><i class="fa fa-times"></i></a>{{/if}}
                         </span>
                     </div>
                 </form>
@@ -46,10 +39,10 @@
             <thead>
                 <tr class="active">
                     <th width="1%"></th>
-                    <th><a href="{{$sort_url}}?sort=display_name&order={{$next_order}}&pending={{$only_pending}}&search={{$search_val}}">Benutzer</a></th>
+                    <th><a href="{{$sort_url}}?sort=display_name&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">Benutzer</a></th>
                     <th>Status</th>
-                    <th><a href="{{$sort_url}}?sort=register_date&order={{$next_order}}&pending={{$only_pending}}&search={{$search_val}}">Registriert</a></th>
-                    <th><a href="{{$sort_url}}?sort=spam_score&order={{$next_order}}&pending={{$only_pending}}&search={{$search_val}}">Score</a></th>
+                    <th><a href="{{$sort_url}}?sort=register_date&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">Registriert</a></th>
+                    <th><a href="{{$sort_url}}?sort=spam_score&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">Score</a></th>
                     <th class="text-left">Details / Grund</th>
                 </tr>
             </thead>
@@ -59,36 +52,20 @@
                     <td class="text-center" style="vertical-align: middle;">
                         <input type="checkbox" class="audit-check" data-uid="{{$u.uid}}" onclick="toggleAudit('{{$u.uid}}')">
                     </td>
-                    <td style="max-width: 250px; word-break: break-all; overflow-wrap: break-word;">
-                        <strong>{{$u.display_name}}</strong><br>
-                        <small class="text-muted">@{{$u.nickname}}</small><br>
-                        <small>{{$u.email}}</small>
-                    </td>
-                    <td style="vertical-align: middle;">
-                        <span class="label label-{{$u.status_class}}">{{$u.status_text}}</span>
-                    </td>
+                    <td><strong>{{$u.display_name}}</strong><br><small>@{{$u.nickname}}</small><br><small>{{$u.email}}</small></td>
+                    <td style="vertical-align: middle;"><span class="label label-{{$u.status_class}}">{{$u.status_text}}</span></td>
                     <td style="vertical-align: middle;"><small>{{$u.register_date}}</small></td>
-                    <td style="vertical-align: middle;">
-                        <span class="badge">{{$u.spam_score}}</span>
-                    </td>
-                    <td style="max-width: 200px; vertical-align: middle; text-align: left;">
-                        {{foreach $u.spam_reasons as $reason}}
-                            <span class="label label-default" style="font-weight:normal; margin-right:2px; display: inline-block; margin-bottom: 2px; white-space: normal; word-break: break-word; text-align: left;">{{$reason}}</span>
-                        {{/foreach}}
+                    <td style="vertical-align: middle;"><span class="badge">{{$u.spam_score}}</span></td>
+                    <td style="max-width: 200px; text-align: left;">
+                        {{foreach $u.spam_reasons as $reason}}<span class="label label-default" style="font-weight:normal; margin-right:2px; display: inline-block; margin-bottom: 2px;">{{$reason}}</span>{{/foreach}}
                     </td>
                 </tr>
             {{/foreach}}
             </tbody>
         </table>
     </div>
-
-    <div class="panel-footer text-center">
-        {{$pager nofilter}}
-    </div>
-
-    <div style="margin: 20px 15px;">
-        {{$hilfe nofilter}}
-    </div>
+    <div class="panel-footer text-center">{{$pager nofilter}}</div>
+    <div style="margin: 20px 15px;">{{$hilfe nofilter}}</div>
 </div>
 
 <script>
@@ -111,5 +88,5 @@
 <style>
     .row-checked { opacity: 0.4; filter: grayscale(1); background-color: #eee !important; }
     .row-checked strong { text-decoration: line-through; }
-    .table > tbody > tr > td { text-align: left; }
+    .table > tbody > tr > td { text-align: left; vertical-align: middle; }
 </style>
