@@ -6,7 +6,6 @@
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Author: Michael Vogel <https://pirati.ca/profile/heluecht>
  * Status:
- * Note: Please use the URL Replace addon instead
  */
 
 use Friendica\Core\Hook;
@@ -92,19 +91,37 @@ function invidious_settings_post(array &$b)
  */
 function invidious_render(array &$b)
 {
-	if (!DI::userSession()->getLocalUserId() || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'invidious', 'enabled')) {
-		return;
-	}
+    if (!DI::userSession()->getLocalUserId() || !DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'invidious', 'enabled')) {
+        return;
+    }
 
-	$original = $b['html'];
-	$server   = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'invidious', 'server', DI::config()->get('invidious', 'server', INVIDIOUS_DEFAULT));
+    $original = $b['html'];
 
-	// Use optimized regex to replace different YouTube URL formats
-	$b['html'] = preg_replace("~https?://(?:www\.|m\.)?youtube\.com/(watch|embed|shorts)\?v=([a-zA-Z0-9_-]+)~ism", $server . '/$1?v=$2', $b['html']);
-	$b['html'] = preg_replace("~https?://(?:music\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)~ism", $server . '/watch?v=$1', $b['html']);
-	$b['html'] = preg_replace("~https?://?youtu\.be/([a-zA-Z0-9_-]+)~ism", $server . '/watch?v=$1', $b['html']);
+    $server = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'invidious', 'server', DI::config()->get('invidious', 'server', INVIDIOUS_DEFAULT));
+    $server = rtrim($server, '/');
 
-	if ($original != $b['html']) {
-		$b['html'] .= '<hr><p><small class="invidious-note">' . DI::l10n()->t('(Invidious addon enabled: YouTube links via %s)', $server) . '</small></p>';
-	}
+    $pattern = "~https?://(?:(?:www\.|m\.|music\.)?youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([a-zA-Z0-9_-]{11})([^ \n\r\t\v\x00\"<>]*[?&][tT]=[^ \n\r\t\v\x00\"<>]*)?~ism";
+
+    $b['html'] = preg_replace_callback($pattern, function($matches) use ($server) {
+        $videoId = $matches[1];
+        $params  = $matches[2] ?? '';
+
+        if (!empty($params)) {
+            $params = str_replace('&amp;', '&', $params);
+            if (strpos($params, '?') === false && strpos($params, '&') === 0) {
+                $params = '?' . ltrim($params, '&');
+            }
+        }
+
+        return $server . '/watch?v=' . $videoId . $params;
+    }, $b['html']);
+
+    if ($original != $b['html']) {
+        $displayHost = parse_url($server, PHP_URL_HOST);
+        $serverLink = '<a href="' . $server . '" target="_blank" rel="noopener noreferrer">' . $displayHost . '</a>';
+
+        $b['html'] .= '<hr><p><small class="invidious-note">' .
+                      DI::l10n()->t('(Invidious addon enabled: YouTube links via %s)', $serverLink) .
+                      '</small></p>';
+    }
 }
