@@ -88,8 +88,20 @@ class GuardianPanel
             }
 
             if ($show) {
-                $u['status_text'] = $u['pending'] ? 'Wartend' : ($u['blocked'] ? 'Gesperrt' : 'Aktiv');
-                $u['status_class'] = $u['pending'] ? 'warning' : ($u['blocked'] ? 'danger' : 'success');
+                // Erweiterte Status-Ermittlung: Prüft auf Löschung und Deaktivierung
+                if ((isset($u['account_removed']) && $u['account_removed']) || (isset($u['deleted']) && $u['deleted'])) {
+                    $u['status_text'] = 'Gelöscht';
+                    $u['status_class'] = 'default'; // Grau
+                } elseif (isset($u['pending']) && $u['pending']) {
+                    $u['status_text'] = 'Wartend';
+                    $u['status_class'] = 'warning'; // Gelb
+                } elseif (isset($u['blocked']) && $u['blocked']) {
+                    $u['status_text'] = 'Gesperrt';
+                    $u['status_class'] = 'danger'; // Rot
+                } else {
+                    $u['status_text'] = 'Aktiv';
+                    $u['status_class'] = 'success'; // Grün
+                }
                 $filteredUsers[] = $u;
             }
         }
