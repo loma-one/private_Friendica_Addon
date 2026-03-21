@@ -106,7 +106,7 @@ class GuardianPanel
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
 
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
-            '$title'      => 'Guardian Schutz-System',
+            '$title'      => 'Guardian Spam Audit',
             '$count'      => count($filteredUsers),
             '$users'      => array_slice($filteredUsers, $pager->getStart(), 50),
             '$search_val' => $search,
