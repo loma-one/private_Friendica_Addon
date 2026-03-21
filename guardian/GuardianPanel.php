@@ -9,16 +9,28 @@ use Friendica\Content\Pager;
 
 class GuardianPanel
 {
+    /**
+     * Konstruktor ohne Argumente für maximale Kompatibilität
+     */
+    public function __construct()
+    {
+    }
+
     public function getAuditContent(): string
     {
+        // Parameter aus der URL sicher abgreifen
         $sort_by   = $_GET['sort'] ?? 'register_date';
         $order     = $_GET['order'] ?? 'desc';
         $search    = isset($_GET['search']) ? trim($_GET['search']) : '';
         $view_mode = $_GET['view'] ?? '48h';
 
+        // User-Liste abrufen (Limit auf 2000 für Performance)
         $users = User::getList(0, 2000, 'all');
-        if (!is_array($users)) { $users = []; }
+        if (!is_array($users)) {
+            $users = [];
+        }
 
+        // Blockliste aus der System-Konfiguration laden
         $disallowed_raw = DI::config()->get('system', 'disallowed_email');
         $disallowed_array = preg_split('/[\s,]+/', (string)$disallowed_raw, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -34,6 +46,7 @@ class GuardianPanel
             $domain = explode('@', $email_lc)[1] ?? '';
             $reg_time = strtotime($u['register_date']);
 
+            // --- Scoring-Regeln ---
             foreach ($disallowed_array as $pattern) {
                 if ($email_lc === strtolower(trim($pattern)) || $domain === strtolower(trim($pattern))) {
                     $u['spam_score'] += 100;
@@ -56,6 +69,7 @@ class GuardianPanel
                 }
             }
 
+            // --- Anzeige-Filter ---
             $show = false;
             if (!empty($search)) {
                 if (strpos(strtolower($u['display_name']), strtolower($search)) !== false ||
@@ -80,6 +94,7 @@ class GuardianPanel
             }
         }
 
+        // --- Sortierung ---
         usort($filteredUsers, function($a, $b) use ($sort_by, $order, $view_mode) {
             if ($view_mode === '48h' || $view_mode === 'pending') {
                 return strtotime($b['register_date']) <=> strtotime($a['register_date']);
@@ -87,9 +102,11 @@ class GuardianPanel
             return ($order === 'asc') ? ($a[$sort_by] <=> $b[$sort_by]) : ($b[$sort_by] <=> $a[$sort_by]);
         });
 
+        // Pager Initialisierung
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
+
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
-            '$title'      => 'Guardian Spam Audit',
+            '$title'      => 'Guardian Schutz-System',
             '$count'      => count($filteredUsers),
             '$users'      => array_slice($filteredUsers, $pager->getStart(), 50),
             '$search_val' => $search,
