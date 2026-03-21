@@ -39,10 +39,22 @@
             <thead>
                 <tr class="active">
                     <th width="1%"></th>
-                    <th><a href="{{$sort_url}}?sort=display_name&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">Benutzer</a></th>
+                    <th>
+                        <a href="{{$sort_url}}?sort=display_name&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">
+                            Benutzer {{if $sort_by == 'display_name'}}<i class="fa fa-caret-{{if $next_order == 'asc'}}down{{else}}up{{/if}}"></i>{{/if}}
+                        </a>
+                    </th>
                     <th>Status</th>
-                    <th><a href="{{$sort_url}}?sort=register_date&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">Registriert</a></th>
-                    <th><a href="{{$sort_url}}?sort=spam_score&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">Score</a></th>
+                    <th>
+                        <a href="{{$sort_url}}?sort=register_date&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">
+                            Registriert {{if $sort_by == 'register_date'}}<i class="fa fa-caret-{{if $next_order == 'asc'}}down{{else}}up{{/if}}"></i>{{/if}}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{$sort_url}}?sort=spam_score&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">
+                            Score {{if $sort_by == 'spam_score'}}<i class="fa fa-caret-{{if $next_order == 'asc'}}down{{else}}up{{/if}}"></i>{{/if}}
+                        </a>
+                    </th>
                     <th class="text-left">Details / Grund</th>
                 </tr>
             </thead>
