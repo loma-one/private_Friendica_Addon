@@ -36,8 +36,8 @@ Hier ist ein Beispiel, wie Sie einen Link zu einer App hinzufügen können:
 
 ### Voraussetzungen
 
-- PHP 7.4 oder höher
-- Friendica 2021.09 oder höher
+- PHP 8.2 oder höher
+- Friendica 2026.01 oder höher
 
 ### Beitragen
 
