@@ -64,7 +64,7 @@
                     <td class="text-center" style="vertical-align: middle;">
                         <input type="checkbox" class="audit-check" data-uid="{{$u.uid}}" onclick="toggleAudit('{{$u.uid}}')">
                     </td>
-                    <td><strong>{{$u.display_name}}</strong><br><small>@{{$u.nickname}}</small><br><small>{{$u.email}}</small></td>
+                    <td><strong>{{$u.display_name}}</strong><br><small><a href="{{$base_url}}/profile/{{$u.nickname}}/profile" target="_blank">@{{$u.nickname}}</a></small><br><small>{{$u.email}}</small></td>
                     <td style="vertical-align: middle;"><span class="label label-{{$u.status_class}}">{{$u.status_text}}</span></td>
                     <td style="vertical-align: middle;"><small>{{$u.register_date}}</small></td>
                     <td style="vertical-align: middle;"><span class="badge">{{$u.spam_score}}</span></td>
