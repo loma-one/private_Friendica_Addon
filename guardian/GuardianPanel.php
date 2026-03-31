@@ -119,6 +119,7 @@ class GuardianPanel
 
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
             '$title'      => 'Guardian Spam Audit',
+            '$base_url'   => DI::baseUrl(),
             '$count'      => count($filteredUsers),
             '$users'      => array_slice($filteredUsers, $pager->getStart(), 50),
             '$search_val' => $search,
