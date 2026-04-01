@@ -17,6 +17,7 @@
         flex-direction: row;
         flex-wrap: wrap;
         padding-left: 0;
+        margin-left: 3px;
     }
 
     .fl-stack-item {
