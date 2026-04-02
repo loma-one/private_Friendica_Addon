@@ -45,32 +45,44 @@ function follow_network_mod_init()
         $apiUrl = DI::baseUrl() . '/api/v1/directory';
 
         try {
-            $response = DI::httpClient()->get($apiUrl, 'application/json');
-            if ($response->isSuccess()) {
-                $json = json_decode($response->getBody(), true);
-                if (is_array($json)) {
-                    foreach ($json as $entry) {
-                        $url = $entry['url'] ?? '';
-                        if (empty($url)) continue;
-
-                        $icon = $entry['avatar'] ?? '';
-                        $name = !empty($entry['display_name']) ? $entry['display_name'] : ($entry['username'] ?? 'User');
-
-                        $contactId = Contact::getIdForURL($url);
-                        $localProfileUrl = ($contactId) ? DI::baseUrl() . '/contact/' . $contactId . '/conversations' : $url;
-
-                        $externalItems[] = [
-                            'name'         => (string)$name,
-                            'url'          => (string)$localProfileUrl,
-                            'icon'         => (string)$icon,
-                            'original_url' => (string)$url,
-                        ];
+                    $response = DI::httpClient()->get($apiUrl, 'application/json');
+                    if ($response->isSuccess()) {
+                        $json = json_decode($response->getBody(), true);
+                        if (is_array($json)) {
+                            foreach ($json as $entry) {
+                                // 1. Filtere Bots und System-Accounts aus
+                                // Im Fediverse werden Instanz-Accounts oft als 'bot' markiert
+                                if (!empty($entry['bot'])) {
+                                    continue;
+                                }
+        
+                                $url = $entry['url'] ?? '';
+                                if (empty($url)) continue;
+        
+                                // 2. Zusätzlicher Check: Überspringe Accounts ohne Avatar
+                                // System-Accounts haben oft kein Bild, was das Widget unschön macht
+                                $icon = $entry['avatar'] ?? '';
+                                if (empty($icon) || strpos($icon, 'static/avatars/missing.png') !== false) {
+                                    continue;
+                                }
+        
+                                $name = !empty($entry['display_name']) ? $entry['display_name'] : ($entry['username'] ?? 'User');
+        
+                                $contactId = Contact::getIdForURL($url);
+                                $localProfileUrl = ($contactId) ? DI::baseUrl() . '/contact/' . $contactId . '/conversations' : $url;
+        
+                                $externalItems[] = [
+                                    'name'         => (string)$name,
+                                    'url'          => (string)$localProfileUrl,
+                                    'icon'         => (string)$icon,
+                                    'original_url' => (string)$url,
+                                ];
+                            }
+                        }
                     }
+                } catch (\Exception $e) {
+                    DI::logger()->info("FOLLOW-DIRECTORY-ERROR: " . $e->getMessage());
                 }
-            }
-        } catch (\Exception $e) {
-            DI::logger()->info("FOLLOW-DIRECTORY-ERROR: " . $e->getMessage());
-        }
         DI::cache()->set($cacheKey, $externalItems, 10800);
     }
 
