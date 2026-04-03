@@ -69,7 +69,8 @@ function follow_network_mod_init()
                                 $name = !empty($entry['display_name']) ? $entry['display_name'] : ($entry['username'] ?? 'User');
         
                                 $contactId = Contact::getIdForURL($url);
-                                $localProfileUrl = ($contactId) ? DI::baseUrl() . '/contact/' . $contactId . '/conversations' : $url;
+                                // Link auf das Profil und nicht auf den Feed
+                                $localProfileUrl = ($contactId) ? DI::baseUrl() . '/contact/' . $contactId . '/' : $url;
         
                                 $externalItems[] = [
                                     'name'         => (string)$name,
