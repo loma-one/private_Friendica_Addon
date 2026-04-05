@@ -2,8 +2,8 @@
 /**
  * Name: Follow Suggestions
  * Description: Onboarding widget for local Friendica/Fediverse contacts
- * Version: 4.4.2
- * Author: Matthias Ebers
+ * Version: 4.5.2
+ * Author: Matthias Ebers <feb@loma.ml>
  */
 
 use Friendica\Core\Hook;
@@ -37,83 +37,112 @@ function follow_network_mod_init()
         return;
     }
 
-    $cacheKey = 'follow_local_directory_v1';
-    $externalItems = DI::cache()->get($cacheKey);
+    $cacheKey = 'follow_local_directory_v2';
+    $cacheEntry = DI::cache()->get($cacheKey);
 
-    if ($externalItems === null) {
+    if ($cacheEntry === null || !is_array($cacheEntry) || !isset($cacheEntry['data'])) {
         $externalItems = [];
         $apiUrl = DI::baseUrl() . '/api/v1/directory';
 
         try {
-                    $response = DI::httpClient()->get($apiUrl, 'application/json');
-                    if ($response->isSuccess()) {
-                        $json = json_decode($response->getBody(), true);
-                        if (is_array($json)) {
-                            foreach ($json as $entry) {
-                                // 1. Filtere Bots und System-Accounts aus
-                                // Im Fediverse werden Instanz-Accounts oft als 'bot' markiert
-                                if (!empty($entry['bot'])) {
-                                    continue;
-                                }
-        
-                                $url = $entry['url'] ?? '';
-                                if (empty($url)) continue;
-        
-                                // 2. Zusätzlicher Check: Überspringe Accounts ohne Avatar
-                                // System-Accounts haben oft kein Bild, was das Widget unschön macht
-                                $icon = $entry['avatar'] ?? '';
-                                if (empty($icon) || strpos($icon, 'static/avatars/missing.png') !== false) {
-                                    continue;
-                                }
-        
-                                $name = !empty($entry['display_name']) ? $entry['display_name'] : ($entry['username'] ?? 'User');
-        
-                                $contactId = Contact::getIdForURL($url);
-                                // Link auf das Profil und nicht auf den Feed
-                                $localProfileUrl = ($contactId) ? DI::baseUrl() . '/contact/' . $contactId . '/' : $url;
-        
-                                $externalItems[] = [
-                                    'name'         => (string)$name,
-                                    'url'          => (string)$localProfileUrl,
-                                    'icon'         => (string)$icon,
-                                    'original_url' => (string)$url,
-                                ];
+            $response = DI::httpClient()->get($apiUrl, 'application/json');
+            if ($response->isSuccess()) {
+                $json = json_decode($response->getBody(), true);
+                if (is_array($json)) {
+                    foreach ($json as $entry) {
+                        if (!empty($entry['bot'])) {
+                            continue;
+                        }
+
+                        $accountType = $entry['type'] ?? $entry['source'] ?? '';
+                        $nonHumanTypes = ['service', 'application', 'relay', 'news', 'group'];
+
+                        foreach ($nonHumanTypes as $badType) {
+                            if (stripos($accountType, $badType) !== false) {
+                                continue 2;
                             }
                         }
+
+                        $url = $entry['url'] ?? '';
+                        if (empty($url)) {
+                            continue;
+                        }
+
+                        $icon = $entry['avatar'] ?? '';
+                        if (empty($icon) || strpos($icon, 'static/avatars/missing.png') !== false) {
+                            continue;
+                        }
+
+                        $name = !empty($entry['display_name']) ? $entry['display_name'] : ($entry['username'] ?? 'User');
+
+                        $externalItems[] = [
+                            'name'         => (string)$name,
+                            'icon'         => (string)$icon,
+                            'original_url' => (string)$url,
+                        ];
                     }
-                } catch (\Exception $e) {
-                    DI::logger()->info("FOLLOW-DIRECTORY-ERROR: " . $e->getMessage());
                 }
-        DI::cache()->set($cacheKey, $externalItems, 10800);
+            }
+        } catch (\Exception $e) {
+            DI::logger()->info("FOLLOW-DIRECTORY-ERROR: " . $e->getMessage());
+        }
+
+        $cacheData = [
+            'timestamp' => time(),
+            'data'      => $externalItems
+        ];
+
+        DI::cache()->set($cacheKey, $cacheData, 10800);
+        $externalItems = $cacheData['data'];
+    } else {
+        $externalItems = $cacheEntry['data'];
     }
 
-    if (empty($externalItems)) return;
+    if (empty($externalItems)) {
+        return;
+    }
 
-        $urls = array_column($externalItems, 'original_url');
+    $urls = array_column($externalItems, 'original_url');
+    $excludedUrls = [];
+    $urlToContactId = [];
 
-        $existingUrls = [];
-        $r = DBA::select('contact', ['url'], [
-            'uid' => $userId,
-            'url' => $urls,
-            'rel' => [1, 2, 3, 4, 5, 6, 7]
-        ]);
+    $r = DBA::select('contact', ['id', 'url', 'rel', 'blocked', 'ignored'], [
+        'uid' => $userId,
+        'url' => $urls
+    ]);
 
-        if (DBA::isResult($r)) {
-            while ($row = DBA::fetch($r)) {
-                $existingUrls[] = $row['url'];
+    if (DBA::isResult($r)) {
+        while ($row = DBA::fetch($r)) {
+            if ($row['rel'] != Contact::NOTHING || $row['blocked'] || $row['ignored']) {
+                $excludedUrls[] = $row['url'];
+            } else {
+                $urlToContactId[$row['url']] = $row['id'];
             }
-            DBA::close($r);
+        }
+        DBA::close($r);
+    }
+
+    $finalSuggestions = [];
+    foreach ($externalItems as $item) {
+        if (in_array($item['original_url'], $excludedUrls)) {
+            continue;
         }
 
-        $finalSuggestions = [];
-        foreach ($externalItems as $item) {
-            if (!in_array($item['original_url'], $existingUrls)) {
-                $finalSuggestions[] = $item;
-            }
-            if (count($finalSuggestions) >= 50) break;
-        }
+        $url = $item['original_url'];
+        $contactId = $urlToContactId[$url] ?? Contact::getIdForURL($url);
+        $localProfileUrl = ($contactId) ? DI::baseUrl() . '/contact/' . $contactId . '/' : $url;
 
-    if (empty($finalSuggestions)) return;
+        $item['url'] = $localProfileUrl;
+        $finalSuggestions[] = $item;
+
+        if (count($finalSuggestions) >= 50) {
+            break;
+        }
+    }
+
+    if (empty($finalSuggestions)) {
+        return;
+    }
 
     shuffle($finalSuggestions);
     $displayItems = array_slice($finalSuggestions, 0, 9);
@@ -130,25 +159,33 @@ function follow_network_mod_init()
 
 function follow_addon_admin(string &$o)
 {
-    $cacheKey = 'follow_local_directory_v1';
-    $cachedData = DI::cache()->get($cacheKey);
-    $count = is_array($cachedData) ? count($cachedData) : 0;
+    $cacheKey = 'follow_local_directory_v2';
+    $cacheEntry = DI::cache()->get($cacheKey);
 
-    $currentTime = date('Y-m-d H:i:s');
-    $nextUpdate = date('Y-m-d H:i:s', time() + 10800);
+    $hasData = is_array($cacheEntry) && isset($cacheEntry['data']);
+    $count = $hasData ? count($cacheEntry['data']) : 0;
+
+    if ($hasData) {
+        $lastUpdateTs = $cacheEntry['timestamp'];
+        $lastUpdateText = date('Y-m-d H:i:s', $lastUpdateTs);
+        $nextUpdateText = date('Y-m-d H:i:s', $lastUpdateTs + 10800);
+    } else {
+        $lastUpdateText = DI::l10n()->t('No data in cache');
+        $nextUpdateText = DI::l10n()->t('After next widget load');
+    }
 
     $t = Renderer::getMarkupTemplate('admin.tpl', 'addon/follow/');
     $o = Renderer::replaceMacros($t, [
-        '$info'           => sprintf(DI::l10n()->t('There are currently %d profiles in the pool.'), $count),
-        '$last_update'    => $count > 0 ? $currentTime : DI::l10n()->t('No data in cache'),
-        '$next_update'    => $count > 0 ? $nextUpdate : DI::l10n()->t('After next widget load'),
+        '$info'        => sprintf(DI::l10n()->t('There are currently %d profiles in the pool.'), $count),
+        '$last_update' => $lastUpdateText,
+        '$next_update' => $nextUpdateText,
     ]);
 }
 
 function follow_addon_admin_post()
 {
     if (!empty($_POST['follow_reset_cache'])) {
-        DI::cache()->delete('follow_local_directory_v1');
+        DI::cache()->delete('follow_local_directory_v2');
     }
 }
 
