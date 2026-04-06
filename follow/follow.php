@@ -54,11 +54,18 @@ function follow_network_mod_init()
                             continue;
                         }
 
-                        $accountType = $entry['type'] ?? $entry['source'] ?? '';
+                        $accountType = $entry['type'] ?? '';
+
+                        // Falls 'type' leer ist, schauen wir in 'source', aber nur wenn es ein String ist
+                        if (empty($accountType) && isset($entry['source']) && is_string($entry['source'])) {
+                            $accountType = $entry['source'];
+                        }
+
                         $nonHumanTypes = ['service', 'application', 'relay', 'news', 'group'];
 
                         foreach ($nonHumanTypes as $badType) {
-                            if (stripos($accountType, $badType) !== false) {
+                            // Sicherstellen, dass wir nur suchen, wenn accountType wirklich ein String ist
+                            if (is_string($accountType) && stripos($accountType, $badType) !== false) {
                                 continue 2;
                             }
                         }
@@ -107,20 +114,20 @@ function follow_network_mod_init()
     $urlToContactId = [];
 
     $r = DBA::select('contact', ['id', 'url', 'rel', 'blocked', 'ignored'], [
-        'uid' => $userId,
-        'url' => $urls
-    ]);
+            'uid' => $userId,
+            'url' => $urls
+        ]);
 
-    if (DBA::isResult($r)) {
-        while ($row = DBA::fetch($r)) {
-            if ($row['rel'] != Contact::NOTHING || $row['blocked'] || $row['ignored']) {
-                $excludedUrls[] = $row['url'];
-            } else {
-                $urlToContactId[$row['url']] = $row['id'];
+        if (DBA::isResult($r)) {
+            // Nutze foreach statt while(DBA::fetch), um maximale Kompatibilität zu gewährleisten
+            foreach ($r as $row) {
+                if ($row['rel'] != Contact::NOTHING || $row['blocked'] || $row['ignored']) {
+                    $excludedUrls[] = $row['url'];
+                } else {
+                    $urlToContactId[$row['url']] = $row['id'];
+                }
             }
         }
-        DBA::close($r);
-    }
 
     $finalSuggestions = [];
     foreach ($externalItems as $item) {
