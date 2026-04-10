@@ -58,7 +58,7 @@ function guardian_users_tabs(array &$arr)
 function guardian_module()
 {
     if (!DI::userSession()->isSiteAdmin()) {
-        throw new \Friendica\Network\HTTPException\ForbiddenException('Zugang verweigert: Nur für Admins.');
+        throw new \Friendica\Network\HTTPException\ForbiddenException('Access denied.');
     }
 }
 
@@ -66,7 +66,7 @@ function guardian_content()
 {
     // Nur für Admins zugänglich
     if (!DI::userSession()->isSiteAdmin()) {
-        return "Zugang verweigert: Nur für Admins.";
+        return "Access denied.";
     }
 
     $classFile = __DIR__ . '/GuardianPanel.php';
