@@ -2,7 +2,7 @@
 /**
  * Name: Guardian
  * Description: Honeypot-Schutz und erweitertes Moderations-Panel
- * Version: 0.8.2
+ * Version: 0.8.3
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -21,10 +21,6 @@ function guardian_uninstall()
     Hook::unregister('moderation_users_tabs', 'addon/guardian/guardian.php', 'guardian_users_tabs');
 }
 
-/**
- * REPARATUR: Nur ein Argument akzeptieren, da Friendica nur eines sendet.
- * Das verhindert den ArgumentCountError.
- */
 function guardian_register_post(&$b)
 {
     if (!empty($_POST['special_mail_field'])) {
@@ -57,18 +53,22 @@ function guardian_users_tabs(array &$arr)
 
 function guardian_module()
 {
-    if (!DI::userSession()->isSiteAdmin()) {
-        throw new \Friendica\Network\HTTPException\ForbiddenException('Access denied.');
+    // Double-Check: Nutzer muss eingeloggt UND Admin sein
+    if (!DI::userSession()->getLocalUserId() || !DI::userSession()->isSiteAdmin()) {
+        header('Location: ' . DI::baseUrl() . '/login');
+        exit();
     }
 }
 
 function guardian_content()
 {
-    // Nur für Admins zugänglich
-    if (!DI::userSession()->isSiteAdmin()) {
-        return "Access denied.";
+    // Double-Check: Nutzer muss eingeloggt UND Admin sein
+    if (!DI::userSession()->getLocalUserId() || !DI::userSession()->isSiteAdmin()) {
+        header('Location: ' . DI::baseUrl() . '/login');
+        exit();
     }
 
+    // Restlicher Code bleibt unverändert
     $classFile = __DIR__ . '/GuardianPanel.php';
     if (file_exists($classFile)) {
         require_once($classFile);
