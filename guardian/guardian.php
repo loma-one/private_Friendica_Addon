@@ -2,7 +2,7 @@
 /**
  * Name: Guardian
  * Description: Honeypot-Schutz und erweitertes Moderations-Panel
- * Version: 0.8.1
+ * Version: 0.8.2
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -13,6 +13,12 @@ function guardian_install()
 {
     Hook::register('register_post', 'addon/guardian/guardian.php', 'guardian_register_post');
     Hook::register('moderation_users_tabs', 'addon/guardian/guardian.php', 'guardian_users_tabs');
+}
+
+function guardian_uninstall()
+{
+    Hook::unregister('register_post', 'addon/guardian/guardian.php', 'guardian_register_post');
+    Hook::unregister('moderation_users_tabs', 'addon/guardian/guardian.php', 'guardian_users_tabs');
 }
 
 /**
@@ -30,19 +36,39 @@ function guardian_register_post(&$b)
 
 function guardian_users_tabs(array &$arr)
 {
+    // Nur für Admins anzeigen
+    if (!DI::userSession()->isSiteAdmin()) {
+        return;
+    }
+
+    // Sicherstellen, dass der Key 'tabs' existiert
+    if (!isset($arr['tabs'])) {
+        $arr['tabs'] = [];
+    }
+
     $arr['tabs'][] = [
         'label' => 'Guardian Audit',
-        'url'   => DI::baseUrl() . '/guardian?view=48h',
-        'sel'   => (DI::args()->getCommand() == 'guardian' ? 'active' : ''),
+        'url'   => 'guardian',
+        'sel'   => (DI::args()->getCommand() === 'guardian' ? 'active' : ''),
         'title' => 'Spam-Analyse',
         'id'    => 'admin-users-guardian',
     ];
 }
 
-function guardian_module() {}
+function guardian_module()
+{
+    if (!DI::userSession()->isSiteAdmin()) {
+        throw new \Friendica\Network\HTTPException\ForbiddenException('Zugang verweigert: Nur für Admins.');
+    }
+}
 
 function guardian_content()
 {
+    // Nur für Admins zugänglich
+    if (!DI::userSession()->isSiteAdmin()) {
+        return "Zugang verweigert: Nur für Admins.";
+    }
+
     $classFile = __DIR__ . '/GuardianPanel.php';
     if (file_exists($classFile)) {
         require_once($classFile);
@@ -51,10 +77,6 @@ function guardian_content()
     $className = '\Friendica\Addon\guardian\GuardianPanel';
 
     try {
-        /**
-         * REPARATUR: Einfache Instanziierung.
-         * DI::getDice()->create() ist hier zu fehleranfällig.
-         */
         if (class_exists($className)) {
             $panel = new $className();
             return $panel->getAuditContent();
