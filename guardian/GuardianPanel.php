@@ -9,28 +9,30 @@ use Friendica\Content\Pager;
 
 class GuardianPanel
 {
-    /**
-     * Konstruktor ohne Argumente für maximale Kompatibilität
-     */
     public function __construct()
     {
     }
 
     public function getAuditContent(): string
     {
-        // Parameter aus der URL sicher abgreifen
         $sort_by   = $_GET['sort'] ?? 'register_date';
         $order     = $_GET['order'] ?? 'desc';
         $search    = isset($_GET['search']) ? trim($_GET['search']) : '';
         $view_mode = $_GET['view'] ?? '48h';
 
-        // User-Liste abrufen (Limit auf 2000 für Performance)
         $users = User::getList(0, 2000, 'all');
         if (!is_array($users)) {
             $users = [];
         }
 
-        // Blockliste aus der System-Konfiguration laden
+        // --- NEU: Vorbereitung Dubletten-Analyse ---
+        // Wir erfassen alle Anzeigenamen (kleingeschrieben), um Häufungen zu finden
+        $all_names = array_map(function($user) {
+            $name = !empty($user['name']) ? $user['name'] : $user['nickname'];
+            return strtolower(trim($name));
+        }, $users);
+        $name_counts = array_count_values($all_names);
+
         $disallowed_raw = DI::config()->get('system', 'disallowed_email');
         $disallowed_array = preg_split('/[\s,]+/', (string)$disallowed_raw, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -46,7 +48,7 @@ class GuardianPanel
             $domain = explode('@', $email_lc)[1] ?? '';
             $reg_time = strtotime($u['register_date']);
 
-            // --- Scoring-Regeln ---
+            // 1. Regel: Blockliste
             foreach ($disallowed_array as $pattern) {
                 if ($email_lc === strtolower(trim($pattern)) || $domain === strtolower(trim($pattern))) {
                     $u['spam_score'] += 100;
@@ -54,14 +56,29 @@ class GuardianPanel
                     break;
                 }
             }
+
+            // 2. Regel: Spam-TLDs
             if (preg_match('/\.(top|xyz|bid|buzz|monster|pw|tk|gq|cf|ga|ml|work|date|faith|win|loan|stream|racing|accountant|review)$/i', $u['email'], $m)) {
                 $u['spam_score'] += 60;
                 $u['spam_reasons'][] = "TLD: ." . $m[1];
             }
+
+            // 3. Regel: Zahlenketten im Nickname
             if (preg_match('/[0-9]{4,}/', $u['nickname'], $m)) {
                 $u['spam_score'] += 30;
                 $u['spam_reasons'][] = "Zahlen: " . $m[0];
             }
+
+            // 4. Regel: NEU - Namens-Dubletten (Fingerprinting)
+            $current_name_lc = strtolower(trim($u['display_name']));
+            if (isset($name_counts[$current_name_lc]) && $name_counts[$current_name_lc] > 1) {
+                // Basis 20 Punkte + 10 pro weitere Dublette (max 80)
+                $extra_points = min(80, 10 + ($name_counts[$current_name_lc] * 10));
+                $u['spam_score'] += $extra_points;
+                $u['spam_reasons'][] = "Dublette: Name " . $name_counts[$current_name_lc] . "x vorhanden";
+            }
+
+            // 5. Regel: Freemailer-Korrelation (nur wenn bereits Verdacht besteht)
             if ($u['spam_score'] > 0 && $u['spam_score'] < 100) {
                 if (preg_match('/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i', $u['email'])) {
                     $u['spam_score'] += 10;
@@ -69,7 +86,7 @@ class GuardianPanel
                 }
             }
 
-            // --- Anzeige-Filter ---
+            // --- Filter-Logik ---
             $show = false;
             if (!empty($search)) {
                 if (strpos(strtolower($u['display_name']), strtolower($search)) !== false ||
@@ -88,25 +105,23 @@ class GuardianPanel
             }
 
             if ($show) {
-                // Erweiterte Status-Ermittlung: Prüft auf Löschung und Deaktivierung
                 if ((isset($u['account_removed']) && $u['account_removed']) || (isset($u['deleted']) && $u['deleted'])) {
                     $u['status_text'] = 'Gelöscht';
-                    $u['status_class'] = 'default'; // Grau
+                    $u['status_class'] = 'default';
                 } elseif (isset($u['pending']) && $u['pending']) {
                     $u['status_text'] = 'Wartend';
-                    $u['status_class'] = 'warning'; // Gelb
+                    $u['status_class'] = 'warning';
                 } elseif (isset($u['blocked']) && $u['blocked']) {
                     $u['status_text'] = 'Gesperrt';
-                    $u['status_class'] = 'danger'; // Rot
+                    $u['status_class'] = 'danger';
                 } else {
                     $u['status_text'] = 'Aktiv';
-                    $u['status_class'] = 'success'; // Grün
+                    $u['status_class'] = 'success';
                 }
                 $filteredUsers[] = $u;
             }
         }
 
-        // --- Sortierung ---
         usort($filteredUsers, function($a, $b) use ($sort_by, $order, $view_mode) {
             if ($view_mode === '48h' || $view_mode === 'pending') {
                 return strtotime($b['register_date']) <=> strtotime($a['register_date']);
@@ -114,7 +129,6 @@ class GuardianPanel
             return ($order === 'asc') ? ($a[$sort_by] <=> $b[$sort_by]) : ($b[$sort_by] <=> $a[$sort_by]);
         });
 
-        // Pager Initialisierung
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
 
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
