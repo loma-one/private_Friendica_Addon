@@ -18,10 +18,10 @@ function quickphoto_install() {
 function quickphoto_header(&$header) {
     $desc_label = DI::l10n()->t('Image description');
 
-    $js_label = addslashes($desc_label);
+    $js_label = json_encode($desc_label);
 
-    $header .= "\n" . '<script type="text/javascript">var qp_i18n = { imageDesc: "' . $js_label . '" };</script>';
-    $header .= "\n" . '<script type="text/javascript" src="/addon/quickphoto/quickphoto.js?v=5.1"></script>' . "\n";
+    $header .= "\n" . '<script type="text/javascript">var qp_i18n = { imageDesc: ' . $js_label . ' };</script>';
+    $header .= "\n" . '<script type="text/javascript" src="/addon/quickphoto/quickphoto.js?v=5.2"></script>' . "\n";
 }
 
 function quickphoto_post_hook(&$item) {
