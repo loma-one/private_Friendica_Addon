@@ -3,7 +3,7 @@
 /**
  * Name: QuickPhoto
  * Description: Replaces the BBCode for inserted images and provides a placeholder for image descriptions.
- * Version: 1.3
+ * Version: 1.4
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
