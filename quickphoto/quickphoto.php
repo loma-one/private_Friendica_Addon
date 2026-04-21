@@ -3,7 +3,7 @@
 /**
  * Name: QuickPhoto
  * Description: Replaces the BBCode for inserted images and provides a placeholder for image descriptions.
- * Version: 1.4
+ * Version: 1.5
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -25,5 +25,27 @@ function quickphoto_header(&$header) {
 }
 
 function quickphoto_post_hook(&$item) {
-    // Placeholder
+    if (strpos($item['body'], '[img]') === false || strpos($item['body'], '|') === false) {
+        return;
+    }
+
+    $pattern = '/\[img\](.*?)\|(.*?)\[\/img\]/i';
+
+    $item['body'] = preg_replace_callback($pattern, function($matches) {
+        $filename = $matches[1];
+        $description = $matches[2];
+
+        $condition = [
+            'resource-id' => $filename,
+            'uid' => local_user()
+        ];
+
+        $photo = DI::pStore()->selectFirst('photo', ['url'], $condition);
+
+        if ($photo) {
+            return '[url=' . $photo['url'] . '][img=' . $photo['url'] . ']' . $description . '[/img][/url]';
+        }
+
+        return $matches[0];
+    }, $item['body']);
 }
