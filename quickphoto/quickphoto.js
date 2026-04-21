@@ -55,6 +55,7 @@
         return textarea.value.replace(/\[img\](.*?)\|(.*?)\[\/img\]/g, (match, fileName, desc) => {
             const data = getMetadata(textarea, fileName);
             if (data) {
+                // Falls die Beschreibung dem Standard-Platzhalter entspricht, leeren wir sie für den Server
                 const finalDesc = (desc === i18nDesc) ? "" : desc;
                 return `[url=${data.url}][img=${data.img}]${finalDesc}[/img][/url]`;
             }
