@@ -1,21 +1,21 @@
 <?php
 /**
  * Name: Tesseract OCR
- * Description: Use OCR to get text from images (with timeout, resource limits, format check)
- * Version: 0.2
+ * Description: Use OCR to extract text from images (with timeout, resource limits, alt-text & format checks)
+ * Version: 0.2.1
  * Author: Michael Vogel <http://pirati.ca/profile/heluecht>
- * Modified by: Matthias Ebers <http://loma.ml/profile/feb>
+ *  * Modified by: Matthias Ebers <http://loma.ml/profile/feb>
  */
 
 use Friendica\Core\Hook;
-use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\DI;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 /**
- * Is called up when the add-on is activated
+ * Called when the addon is enabled
  */
 function tesseract_install()
 {
@@ -23,27 +23,28 @@ function tesseract_install()
 
 	$wrapperPath = __DIR__ . '/tesseract-limited.sh';
 
-	// Create wrapper script with timeout and CPU/I/O priority
+	// Create a wrapper script with timeout and resource constraints
 	if (!file_exists($wrapperPath)) {
 		$script = <<<BASH
 #!/bin/bash
 # Wrapper for tesseract with timeout and resource limits
-timeout 5s nice -n 10 ionice -c3 /usr/bin/tesseract "\$@"
+export OMP_THREAD_LIMIT=1
+timeout 5s nice -n 15 ionice -c3 /usr/bin/tesseract "\$@"
 BASH;
 
 		file_put_contents($wrapperPath, $script);
 		chmod($wrapperPath, 0755);
 
-		Logger::notice('Tesseract wrapper script created', ['path' => $wrapperPath]);
+		DI::logger()->notice('Tesseract wrapper script created', ['path' => $wrapperPath]);
 	} else {
-		Logger::info('Tesseract wrapper script already exists', ['path' => $wrapperPath]);
+		DI::logger()->info('Tesseract wrapper script already exists', ['path' => $wrapperPath]);
 	}
 
-	Logger::notice('Tesseract OCR addon installed');
+	DI::logger()->notice('Tesseract OCR addon installed');
 }
 
 /**
- * Is called up when the add-on is deactivated
+ * Called when the addon is disabled
  */
 function tesseract_uninstall()
 {
@@ -51,66 +52,85 @@ function tesseract_uninstall()
 
 	if (file_exists($wrapperPath)) {
 		unlink($wrapperPath);
-		Logger::notice('Tesseract wrapper script removed', ['path' => $wrapperPath]);
+		DI::logger()->notice('Tesseract wrapper script removed', ['path' => $wrapperPath]);
 	}
 
 	Hook::unregister('ocr-detection', __FILE__, 'tesseract_ocr_detection');
-	Logger::notice('Tesseract OCR addon uninstalled');
+	DI::logger()->notice('Tesseract OCR addon uninstalled');
 }
 
 /**
- * Main function for OCR recognition
+ * Main OCR processing hook for incoming images
  */
 function tesseract_ocr_detection(&$media)
 {
-	// ➤ Alt text available? → Skip OCR
-	if (!empty($media['description'])) {
-		Logger::debug('Image already has description, skipping OCR');
-		return;
-	}
+    // Check server load (overload protection)
+    if (function_exists('sys_getloadavg')) {
+        $load = sys_getloadavg();
+        // $load[0] corresponds to the average load over the last minute.
+        // A value of, say, 4.0 indicates 100% utilisation on a 4-core CPU.
+        $maxLoad = 2.0; // Adjust this value to match your CPU cores
 
-	// Format check: Only process certain image types
+        if ($load[0] > $maxLoad) {
+            DI::logger()->notice('Server load too high; temporarily skip OCR', ['current_load' => $load[0]]);
+            return;
+        }
+    }
+
+    // Skip OCR if image already contains an alt-text
+    if (!empty($media['description'])) {
+        DI::logger()->debug('Image already has description, skipping OCR');
+        return;
+    }
+
+	// Only allow specific MIME types for OCR
 	$allowedTypes = ['image/jpeg', 'image/png', 'image/bmp', 'image/tiff'];
 	if (!empty($media['type']) && !in_array($media['type'], $allowedTypes)) {
-		Logger::debug('Unsupported image type for OCR', ['type' => $media['type']]);
+		DI::logger()->debug('Unsupported image type for OCR', ['type' => $media['type']]);
 		return;
 	}
 
-	// Alternatively: Check file extension (if MIME type is missing)
+	// Alternatively skip GIF files based on filename
 	if (empty($media['type']) && !empty($media['filename']) && preg_match('/\.gif$/i', $media['filename'])) {
-		Logger::debug('GIF image detected via filename, skipping OCR');
+		DI::logger()->debug('GIF image detected via filename, skipping OCR');
 		return;
 	}
 
-	$ocr = new TesseractOCR();
+	// Set a maximum file size (e.g. skip anything larger than 2 MB)
+	if (strlen($media['img_str']) > 2 * 1024 * 1024) {
+		DI::logger()->debug('Image too large for OCR, skip...');
+		return;
+	}
 
 	try {
-		// Bash wrapper with resource limit
-		$wrapperPath = __DIR__ . '/tesseract-limited.sh';
-		$ocr->executable($wrapperPath);
+		$ocr = new TesseractOCR();
 
-		// Load all available languages
-		$languages = $ocr->availableLanguages();
-		if ($languages) {
-			$ocr->lang(implode('+', $languages));
+		// Use wrapper script with timeout and niceness
+		$ocr->executable(__DIR__ . '/tesseract-limited.sh');
+
+		// Detect and set available languages (Limitiert auf DE und EN)
+		$allowedLanguages = ['deu', 'eng'];
+		$foundLanguages = array_intersect($ocr->availableLanguages(), $allowedLanguages);
+		if (!empty($foundLanguages)) {
+			$ocr->lang(implode('+', $foundLanguages));
 		}
 
-		// Set temporary directory
+		// Use Friendica's temporary path
 		$ocr->tempDir(System::getTempPath());
 
-		// Set image data
+		// Provide raw image data to Tesseract
 		$ocr->imageData($media['img_str'], strlen($media['img_str']));
 
-		// Start OCR
+		// Run OCR and assign description if text is found
 		$text = trim($ocr->run());
 
 		if (!empty($text)) {
 			$media['description'] = $text;
-			Logger::debug('OCR text detected', ['text' => $text]);
+			DI::logger()->debug('OCR text detected', ['text' => $text]);
 		} else {
-			Logger::debug('No text detected in image');
+			DI::logger()->debug('No text detected in image');
 		}
 	} catch (\Throwable $th) {
-		Logger::info('Error calling TesseractOCR', ['message' => $th->getMessage()]);
+		DI::logger()->info('Error calling TesseractOCR', ['message' => $th->getMessage()]);
 	}
 }
