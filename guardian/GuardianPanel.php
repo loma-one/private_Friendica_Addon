@@ -9,30 +9,35 @@ use Friendica\Content\Pager;
 
 class GuardianPanel
 {
+    /**
+     * Konstruktor ohne Argumente für maximale Kompatibilität
+     */
     public function __construct()
     {
     }
 
     public function getAuditContent(): string
     {
+        // Parameter aus der URL sicher abgreifen
         $sort_by   = $_GET['sort'] ?? 'register_date';
         $order     = $_GET['order'] ?? 'desc';
         $search    = isset($_GET['search']) ? trim($_GET['search']) : '';
         $view_mode = $_GET['view'] ?? '48h';
 
+        // User-Liste abrufen (Limit auf 2000 für Performance)
         $users = User::getList(0, 2000, 'all');
         if (!is_array($users)) {
             $users = [];
         }
 
-        // --- NEU: Vorbereitung Dubletten-Analyse ---
-        // Wir erfassen alle Anzeigenamen (kleingeschrieben), um Häufungen zu finden
+        // Vorbereitung Dubletten-Analyse
         $all_names = array_map(function($user) {
             $name = !empty($user['name']) ? $user['name'] : $user['nickname'];
             return strtolower(trim($name));
         }, $users);
         $name_counts = array_count_values($all_names);
 
+        // Blockliste aus der System-Konfiguration laden
         $disallowed_raw = DI::config()->get('system', 'disallowed_email');
         $disallowed_array = preg_split('/[\s,]+/', (string)$disallowed_raw, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -69,16 +74,21 @@ class GuardianPanel
                 $u['spam_reasons'][] = "Zahlen: " . $m[0];
             }
 
-            // 4. Regel: NEU - Namens-Dubletten (Fingerprinting)
+            // 3b. Regel: Ungewöhnliche Konsonantenketten (Bot-Generatoren)
+            if (preg_match('/[bcdfghjklmnpqrstvwxyz]{4,}/i', $u['nickname'])) {
+                $u['spam_score'] += 40;
+                $u['spam_reasons'][] = "Struktur: Konsonantenkette";
+            }
+
+            // 4. Regel: Namens-Dubletten (Fingerprinting)
             $current_name_lc = strtolower(trim($u['display_name']));
             if (isset($name_counts[$current_name_lc]) && $name_counts[$current_name_lc] > 1) {
-                // Basis 20 Punkte + 10 pro weitere Dublette (max 80)
                 $extra_points = min(80, 10 + ($name_counts[$current_name_lc] * 10));
                 $u['spam_score'] += $extra_points;
                 $u['spam_reasons'][] = "Dublette: Name " . $name_counts[$current_name_lc] . "x vorhanden";
             }
 
-            // 5. Regel: Freemailer-Korrelation (nur wenn bereits Verdacht besteht)
+            // 5. Regel: Freemailer-Korrelation (nur bei bestehendem Verdacht)
             if ($u['spam_score'] > 0 && $u['spam_score'] < 100) {
                 if (preg_match('/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i', $u['email'])) {
                     $u['spam_score'] += 10;
@@ -86,7 +96,14 @@ class GuardianPanel
                 }
             }
 
-            // --- Filter-Logik ---
+            // 5b. Regel: Unbekannte Mail-Domain + langer, kryptischer Nickname (JETZT EIGENSTÄNDIG)
+            $is_freemailer = preg_match('/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i', $u['email']);
+            if (!$is_freemailer && strlen($u['nickname']) > 10 && strpos($u['display_name'], ' ') === false) {
+                $u['spam_score'] += 30;
+                $u['spam_reasons'][] = "Korrelation: Kryptischer Name auf Custom-Domain";
+            }
+
+            // --- Anzeige-Filter ---
             $show = false;
             if (!empty($search)) {
                 if (strpos(strtolower($u['display_name']), strtolower($search)) !== false ||
@@ -98,6 +115,16 @@ class GuardianPanel
                 switch ($view_mode) {
                     case 'spam': if ($u['spam_score'] > 0) $show = true; break;
                     case 'pending': if ($u['pending']) $show = true; break;
+
+                    // Filter für inaktive Accounts (Nie eingeloggt oder nur 1x bei Registrierung)
+                    case 'inactive':
+                        $has_never_logged_in = empty($u['login']) || strpos($u['login'], '0000-00-00') === 0;
+                        $has_only_initial_login = !$has_never_logged_in && (strtotime($u['login']) <= ($reg_time + 60)); // Login innerhalb von 60 Sek nach Reg.
+                        if ($has_never_logged_in || $has_only_initial_login) {
+                            $show = true;
+                        }
+                        break;
+
                     case 'all': $show = true; break;
                     case '48h':
                     default: if ($reg_time >= $fortyEightHoursAgo) $show = true; break;
@@ -105,6 +132,7 @@ class GuardianPanel
             }
 
             if ($show) {
+                // Erweiterte Status-Ermittlung: Prüft auf Löschung und Deaktivierung
                 if ((isset($u['account_removed']) && $u['account_removed']) || (isset($u['deleted']) && $u['deleted'])) {
                     $u['status_text'] = 'Gelöscht';
                     $u['status_class'] = 'default';
@@ -122,13 +150,15 @@ class GuardianPanel
             }
         }
 
+        // --- Sortierung ---
         usort($filteredUsers, function($a, $b) use ($sort_by, $order, $view_mode) {
-            if ($view_mode === '48h' || $view_mode === 'pending') {
+            if ($view_mode === '48h' || $view_mode === 'pending' || $view_mode === 'inactive') {
                 return strtotime($b['register_date']) <=> strtotime($a['register_date']);
             }
             return ($order === 'asc') ? ($a[$sort_by] <=> $b[$sort_by]) : ($b[$sort_by] <=> $a[$sort_by]);
         });
 
+        // Pager Initialisierung
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
 
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
@@ -138,6 +168,7 @@ class GuardianPanel
             '$users'      => array_slice($filteredUsers, $pager->getStart(), 50),
             '$search_val' => $search,
             '$view_mode'  => $view_mode,
+            '$sort_by'    => $sort_by,
             '$sort_url'   => DI::baseUrl() . '/guardian',
             '$next_order' => ($order === 'asc' ? 'desc' : 'asc'),
             '$pager'      => $pager->renderFull(count($filteredUsers)),
