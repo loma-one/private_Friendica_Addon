@@ -1,178 +1,120 @@
-<?php
+<div id="admin-users" class="adminpage generic-page-wrapper">
+    <div class="panel-heading">
+        <h1><i class="fa fa-shield"></i> {{$title}} <span class="badge">{{$count}}</span></h1>
+    </div>
 
-namespace Friendica\Addon\guardian;
+    <div style="margin: 0 15px 15px 15px;">
+        <div class="row">
+            <div class="col-xs-6">
+                <form method="get" action="{{$sort_url}}" class="form-inline">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-filter"></i> Ansicht</span>
+                        <select name="view" class="form-control input-sm" onchange="this.form.submit()">
+                            <option value="48h" {{if $view_mode == '48h'}}selected{{/if}}>Letzte 48 Stunden</option>
+                            <option value="spam" {{if $view_mode == 'spam'}}selected{{/if}}>Spam-Verdacht</option>
+                            <option value="pending" {{if $view_mode == 'pending'}}selected{{/if}}>Nur ausstehende</option>
+                            <option value="all" {{if $view_mode == 'all'}}selected{{/if}}>Alle Accounts</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="search" value="{{$search_val}}">
+                </form>
+            </div>
+            <div class="col-xs-6 text-right">
+                <form method="get" action="{{$sort_url}}" class="form-inline">
+                    <input type="hidden" name="view" value="{{$view_mode}}">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control input-sm" placeholder="Suchen..." value="{{$search_val}}" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button class="btn btn-sm btn-primary" type="submit"><i class="fa fa-search"></i></button>
+                            {{if $search_val}}<a href="{{$sort_url}}?view={{$view_mode}}" class="btn btn-sm btn-warning"><i class="fa fa-times"></i></a>{{/if}}
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-use Friendica\DI;
-use Friendica\Model\User;
-use Friendica\Core\Renderer;
-use Friendica\Content\Pager;
+    <div class="table-responsive" style="padding: 0 15px;">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr class="active">
+                    <th width="1%"></th>
+                    <th>
+                        <a href="{{$sort_url}}?sort=display_name&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">
+                            Benutzer {{if $sort_by == 'display_name'}}<i class="fa fa-caret-{{if $next_order == 'asc'}}down{{else}}up{{/if}}"></i>{{/if}}
+                        </a>
+                    </th>
+                    <th>Status</th>
+                    <th>
+                        <a href="{{$sort_url}}?sort=register_date&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">
+                            Registriert {{if $sort_by == 'register_date'}}<i class="fa fa-caret-{{if $next_order == 'asc'}}down{{else}}up{{/if}}"></i>{{/if}}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{$sort_url}}?sort=spam_score&order={{$next_order}}&view={{$view_mode}}&search={{$search_val}}">
+                            Score {{if $sort_by == 'spam_score'}}<i class="fa fa-caret-{{if $next_order == 'asc'}}down{{else}}up{{/if}}"></i>{{/if}}
+                        </a>
+                    </th>
+                    <th class="text-left">Details / Grund</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{foreach $users as $u}}
+                <tr id="row-{{$u.uid}}" class="{{if $u.spam_score >= 100}}danger{{elseif $u.spam_score >= 30}}warning{{/if}}">
+                    <td class="text-center" style="vertical-align: middle;">
+                        <input type="checkbox" class="audit-check" data-uid="{{$u.uid}}" onclick="toggleAudit('{{$u.uid}}')">
+                    </td>
+                    <td>
+                        <strong>
+                            <a href="{{$base_url}}/profile/{{$u.nickname}}" target="_blank">{{$u.display_name}}</a>
+                        </strong><br>
+                        <small><a href="{{$base_url}}/profile/{{$u.nickname}}/profile" target="_blank">@{{$u.nickname}}</a></small><br>
+                        <small>{{$u.email}}</small>
+                    </td>
+                    <td style="vertical-align: middle;"><span class="label label-{{$u.status_class}}">{{$u.status_text}}</span></td>
+                    <td style="vertical-align: middle;"><small>{{$u.register_date}}</small></td>
+                    <td style="vertical-align: middle;"><span class="badge">{{$u.spam_score}}</span></td>
+                    <td style="max-width: 200px; text-align: left;">
+                        {{foreach $u.spam_reasons as $reason}}<span class="label label-default" style="font-weight:normal; margin-right:2px; display: inline-block; margin-bottom: 2px;">{{$reason}}</span>{{/foreach}}
+                    </td>
+                </tr>
+            {{/foreach}}
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer text-center">{{$pager nofilter}}</div>
+    <div style="margin: 20px 15px;">{{$hilfe nofilter}}</div>
+</div>
 
-class GuardianPanel
-{
-    /**
-     * Konstruktor ohne Argumente für maximale Kompatibilität
-     */
-    public function __construct()
-    {
+<script>
+    function toggleAudit(uid) {
+        const row = document.getElementById('row-' + uid);
+        row.classList.toggle('row-checked');
+        localStorage.setItem('guardian_checked_' + uid, row.classList.contains('row-checked'));
     }
-
-    public function getAuditContent(): string
-    {
-        // Parameter aus der URL sicher abgreifen
-        $sort_by   = $_GET['sort'] ?? 'register_date';
-        $order     = $_GET['order'] ?? 'desc';
-        $search    = isset($_GET['search']) ? trim($_GET['search']) : '';
-        $view_mode = $_GET['view'] ?? '48h';
-
-        // User-Liste abrufen (Limit auf 2000 für Performance)
-        $users = User::getList(0, 2000, 'all');
-        if (!is_array($users)) {
-            $users = [];
-        }
-
-        // Vorbereitung Dubletten-Analyse
-        $all_names = array_map(function($user) {
-            $name = !empty($user['name']) ? $user['name'] : $user['nickname'];
-            return strtolower(trim($name));
-        }, $users);
-        $name_counts = array_count_values($all_names);
-
-        // Blockliste aus der System-Konfiguration laden
-        $disallowed_raw = DI::config()->get('system', 'disallowed_email');
-        $disallowed_array = preg_split('/[\s,]+/', (string)$disallowed_raw, -1, PREG_SPLIT_NO_EMPTY);
-
-        $filteredUsers = [];
-        $now = time();
-        $fortyEightHoursAgo = $now - (48 * 3600);
-
-        foreach ($users as $u) {
-            $u['display_name'] = !empty($u['name']) ? $u['name'] : $u['nickname'];
-            $u['spam_score'] = 0;
-            $u['spam_reasons'] = [];
-            $email_lc = strtolower($u['email']);
-            $domain = explode('@', $email_lc)[1] ?? '';
-            $reg_time = strtotime($u['register_date']);
-
-            // 1. Regel: Blockliste
-            foreach ($disallowed_array as $pattern) {
-                if ($email_lc === strtolower(trim($pattern)) || $domain === strtolower(trim($pattern))) {
-                    $u['spam_score'] += 100;
-                    $u['spam_reasons'][] = "Blockliste: " . $pattern;
-                    break;
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.audit-check').forEach(function(box) {
+            const uid = box.getAttribute('data-uid');
+            if (localStorage.getItem('guardian_checked_' + uid) === 'true') {
+                box.checked = true;
+                document.getElementById('row-' + uid).classList.add('row-checked');
             }
-
-            // 2. Regel: Spam-TLDs
-            if (preg_match('/\.(top|xyz|bid|buzz|monster|pw|tk|gq|cf|ga|ml|work|date|faith|win|loan|stream|racing|accountant|review)$/i', $u['email'], $m)) {
-                $u['spam_score'] += 60;
-                $u['spam_reasons'][] = "TLD: ." . $m[1];
-            }
-
-            // 3. Regel: Zahlenketten im Nickname
-            if (preg_match('/[0-9]{4,}/', $u['nickname'], $m)) {
-                $u['spam_score'] += 30;
-                $u['spam_reasons'][] = "Zahlen: " . $m[0];
-            }
-
-            // 3b. Regel: Ungewöhnliche Konsonantenketten (Bot-Generatoren)
-            if (preg_match('/[bcdfghjklmnpqrstvwxyz]{4,}/i', $u['nickname'])) {
-                $u['spam_score'] += 40;
-                $u['spam_reasons'][] = "Struktur: Konsonantenkette";
-            }
-
-            // 4. Regel: Namens-Dubletten (Fingerprinting)
-            $current_name_lc = strtolower(trim($u['display_name']));
-            if (isset($name_counts[$current_name_lc]) && $name_counts[$current_name_lc] > 1) {
-                $extra_points = min(80, 10 + ($name_counts[$current_name_lc] * 10));
-                $u['spam_score'] += $extra_points;
-                $u['spam_reasons'][] = "Dublette: Name " . $name_counts[$current_name_lc] . "x vorhanden";
-            }
-
-            // 5. Regel: Freemailer-Korrelation (nur bei bestehendem Verdacht)
-            if ($u['spam_score'] > 0 && $u['spam_score'] < 100) {
-                if (preg_match('/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i', $u['email'])) {
-                    $u['spam_score'] += 10;
-                    $u['spam_reasons'][] = "Korrelation: Freemailer";
-                }
-            }
-
-            // 5b. Regel: Unbekannte Mail-Domain + langer, kryptischer Nickname (JETZT EIGENSTÄNDIG)
-            $is_freemailer = preg_match('/(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|icloud|me|mac|proton|protonmail|freenet|mail|yandex|aol)\./i', $u['email']);
-            if (!$is_freemailer && strlen($u['nickname']) > 10 && strpos($u['display_name'], ' ') === false) {
-                $u['spam_score'] += 30;
-                $u['spam_reasons'][] = "Korrelation: Kryptischer Name auf Custom-Domain";
-            }
-
-            // --- Anzeige-Filter ---
-            $show = false;
-            if (!empty($search)) {
-                if (strpos(strtolower($u['display_name']), strtolower($search)) !== false ||
-                    strpos(strtolower($u['nickname']), strtolower($search)) !== false ||
-                    strpos(strtolower($u['email']), strtolower($search)) !== false) {
-                    $show = true;
-                }
-            } else {
-                switch ($view_mode) {
-                    case 'spam': if ($u['spam_score'] > 0) $show = true; break;
-                    case 'pending': if ($u['pending']) $show = true; break;
-
-                    // Filter für inaktive Accounts (Nie eingeloggt oder nur 1x bei Registrierung)
-                    case 'inactive':
-                        $has_never_logged_in = empty($u['login']) || strpos($u['login'], '0000-00-00') === 0;
-                        $has_only_initial_login = !$has_never_logged_in && (strtotime($u['login']) <= ($reg_time + 60)); // Login innerhalb von 60 Sek nach Reg.
-                        if ($has_never_logged_in || $has_only_initial_login) {
-                            $show = true;
-                        }
-                        break;
-
-                    case 'all': $show = true; break;
-                    case '48h':
-                    default: if ($reg_time >= $fortyEightHoursAgo) $show = true; break;
-                }
-            }
-
-            if ($show) {
-                // Erweiterte Status-Ermittlung: Prüft auf Löschung und Deaktivierung
-                if ((isset($u['account_removed']) && $u['account_removed']) || (isset($u['deleted']) && $u['deleted'])) {
-                    $u['status_text'] = 'Gelöscht';
-                    $u['status_class'] = 'default';
-                } elseif (isset($u['pending']) && $u['pending']) {
-                    $u['status_text'] = 'Wartend';
-                    $u['status_class'] = 'warning';
-                } elseif (isset($u['blocked']) && $u['blocked']) {
-                    $u['status_text'] = 'Gesperrt';
-                    $u['status_class'] = 'danger';
-                } else {
-                    $u['status_text'] = 'Aktiv';
-                    $u['status_class'] = 'success';
-                }
-                $filteredUsers[] = $u;
-            }
-        }
-
-        // --- Sortierung ---
-        usort($filteredUsers, function($a, $b) use ($sort_by, $order, $view_mode) {
-            if ($view_mode === '48h' || $view_mode === 'pending' || $view_mode === 'inactive') {
-                return strtotime($b['register_date']) <=> strtotime($a['register_date']);
-            }
-            return ($order === 'asc') ? ($a[$sort_by] <=> $b[$sort_by]) : ($b[$sort_by] <=> $a[$sort_by]);
         });
+    });
+</script>
 
-        // Pager Initialisierung
-        $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
+<style>
+    .row-checked { opacity: 0.4; filter: grayscale(1); background-color: #eee !important; }
+    .row-checked strong { text-decoration: line-through; }
+    .table > tbody > tr > td { text-align: left; vertical-align: middle; }
 
-        return Renderer::replaceMacros(Renderer::getMarkupTemplate('guardian.tpl', 'addon/guardian'), [
-            '$title'      => 'Guardian Spam Audit',
-            '$base_url'   => DI::baseUrl(),
-            '$count'      => count($filteredUsers),
-            '$users'      => array_slice($filteredUsers, $pager->getStart(), 50),
-            '$search_val' => $search,
-            '$view_mode'  => $view_mode,
-            '$sort_by'    => $sort_by,
-            '$sort_url'   => DI::baseUrl() . '/guardian',
-            '$next_order' => ($order === 'asc' ? 'desc' : 'asc'),
-            '$pager'      => $pager->renderFull(count($filteredUsers)),
-            '$hilfe'      => Renderer::replaceMacros(Renderer::getMarkupTemplate('hilfe.tpl', 'addon/guardian'), []),
-        ]);
+    .table td .label {
+        white-space: normal !important;
+        display: inline-block;
+        max-width: 100%;
+        word-break: break-word;
+        margin-bottom: 4px;
+        line-height: 1.4;
+        text-align: left;
     }
-}
+</style>
