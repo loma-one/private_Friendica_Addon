@@ -104,7 +104,17 @@
 </script>
 
 <style>
-    .row-checked { opacity: 0.4; filter: grayscale(1); background-color: var(--nav-bg) !important; }
+    .row-checked { opacity: 0.4; filter: grayscale(1); background-color: #eee !important; }
     .row-checked strong { text-decoration: line-through; }
     .table > tbody > tr > td { text-align: left; vertical-align: middle; }
+
+    .table td .label {
+        white-space: normal !important;
+        display: inline-block;
+        max-width: 100%;
+        word-break: break-word;
+        margin-bottom: 4px;
+        line-height: 1.4;
+        text-align: left;
+    }
 </style>
