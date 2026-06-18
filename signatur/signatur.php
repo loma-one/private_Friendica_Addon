@@ -1,7 +1,7 @@
 <?php
 /**
  * Name: signatur
- * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own.
+ * Description: Automatically adds a signature to new posts. Admins can define a default signature, and users can configure their own. Can be toggled via the editor.
  * Version: 1.9
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Status: Beta
@@ -17,8 +17,44 @@ const SIGNATURE_MARKER = "\u{200B}";
 function signatur_install()
 {
     Hook::register('post_local', __FILE__, 'signatur_add_signature');
+    Hook::register('jot_networks', __FILE__, 'signatur_jot_nets');
     Hook::register('addon_settings', __FILE__, 'signatur_user_settings');
     Hook::register('addon_settings_post', __FILE__, 'signatur_user_settings_post');
+}
+
+function signatur_uninstall()
+{
+    Hook::unregister('post_local', __FILE__, 'signatur_add_signature');
+    Hook::unregister('jot_networks', __FILE__, 'signatur_jot_nets');
+    Hook::unregister('addon_settings', __FILE__, 'signatur_user_settings');
+    Hook::unregister('addon_settings_post', __FILE__, 'signatur_user_settings_post');
+}
+
+/**
+ * Adds the checkbox to the editor (Jot permissions/connectors)
+ *
+ * @param array &$jotnets_fields Editor fields.
+ */
+function signatur_jot_nets(array &$jotnets_fields)
+{
+    $uid = DI::userSession()->getLocalUserId();
+    if (!$uid) {
+        return;
+    }
+
+    // Präzise Abfrage: Nur anzeigen, wenn das Addon in den Einstellungen aktiv gesetzt wurde
+    $enabled = DI::pConfig()->get($uid, 'signatur', 'enabled');
+
+    if ($enabled) {
+        $jotnets_fields[] = [
+            'type' => 'checkbox',
+            'field' => [
+                'signatur_enable',
+                DI::l10n()->t('Signatur anfügen'),
+                DI::pConfig()->get($uid, 'signatur', 'by_default', false)
+            ]
+        ];
+    }
 }
 
 /**
@@ -37,16 +73,28 @@ function signatur_add_signature(array &$b)
         return;
     }
 
-    $isComment = !empty($b['parent']) && ($b['parent'] != ($b['uri-id'] ?? null));
-    $enableSignatureInComments = DI::pConfig()->get($b['uid'], 'signatur', 'enable_signature_in_comments', true);
+    // Check if enabled via editor checkbox
+    $sig_enable = (!empty($_REQUEST['signatur_enable']) ? intval($_REQUEST['signatur_enable']) : 0);
 
+    // API posts or fallback to "by_default" setting
+    if ($b['api_source'] && DI::pConfig()->get($b['uid'], 'signatur', 'by_default')) {
+        $sig_enable = 1;
+    }
+
+    // Falls es kein Kommentar ist UND die Editor-Checkbox nicht aktiv ist -> abbrechen
+    $isComment = !empty($b['parent']) && ($b['parent'] != ($b['uri-id'] ?? null));
+    if (!$isComment && !$sig_enable) {
+        return;
+    }
+
+    // Comments have their own independent setting rule
+    $enableSignatureInComments = DI::pConfig()->get($b['uid'], 'signatur', 'enable_signature_in_comments', true);
     if ($isComment && !$enableSignatureInComments) {
         return;
     }
 
     $signature = DI::pConfig()->get($b['uid'], 'signatur', 'text', '');
-
-    if (strpos($b['body'], SIGNATURE_MARKER) !== false) {
+    if (empty($signature) || strpos($b['body'], SIGNATURE_MARKER) !== false) {
         return;
     }
 
@@ -65,36 +113,33 @@ function signatur_add_signature(array &$b)
  */
 function insert_signature_before_images($body, $signature_marker, $signature)
 {
-    $lines = explode("\n", rtrim($body));
-    $last_text_index = -1;
+    $lines = explode("\n", $body);
+    $image_count = 0;
+    $text_end_index = -1;
 
-    // Search backwards for the last line that contains text
-    for ($i = count($lines) - 1; $i >= 0; $i--) {
-        $line = trim($lines[$i]);
-
-        // Extended media detection including QuickPhoto shortcode
-        // Checks for: Standard [img], [attach], [url=] AND QuickPhoto's [img]filename|desc[/img]
-        $is_media = (strpos($line, '[img') !== false ||
-                     strpos($line, '[attach') !== false ||
-                     strpos($line, '[url=') !== false ||
-                     preg_match('/\[img\].*?\|.*?\[\/img\]/i', $line));
-
-        if (!$is_media && $line !== '') {
-            $last_text_index = $i;
-            break;
+    foreach ($lines as $index => $line) {
+        if (strpos($line, '[url=') !== false) {
+            $image_count++;
+            if ($image_count === 1 && $text_end_index === -1) {
+                $text_end_index = $index;
+            }
         }
     }
 
-    if ($last_text_index === -1) {
-        return rtrim($body) . "\n{$signature_marker}\n{$signature}";
+    if ($image_count <= 1) {
+        return $body . "\n\n{$signature_marker}\n{$signature}";
     }
 
-    $before_signature = array_slice($lines, 0, $last_text_index + 1);
-    $after_signature = array_slice($lines, $last_text_index + 1);
+    if ($image_count >= 2 && $text_end_index !== -1) {
+        $lines_before_first_image = array_slice($lines, 0, $text_end_index);
+        $lines_after_first_image = array_slice($lines, $text_end_index);
 
-    return implode("\n", $before_signature) .
-        "\n{$signature_marker}\n{$signature}\n" .
-        implode("\n", $after_signature);
+        return implode("\n", $lines_before_first_image) .
+            "\n\n{$signature_marker}\n{$signature}\n\n" .
+            implode("\n", $lines_after_first_image);
+    }
+
+    return $body . "\n\n{$signature_marker}\n{$signature}";
 }
 
 /**
@@ -110,6 +155,7 @@ function signatur_user_settings(array &$data)
     }
 
     $enabled = DI::pConfig()->get($uid, 'signatur', 'enabled', false);
+    $by_default = DI::pConfig()->get($uid, 'signatur', 'by_default', false);
     $signature = DI::pConfig()->get($uid, 'signatur', 'text', '');
     $enable_signature_in_comments = DI::pConfig()->get($uid, 'signatur', 'enable_signature_in_comments', true);
 
@@ -117,6 +163,7 @@ function signatur_user_settings(array &$data)
     $html = Renderer::replaceMacros($t, [
         '$description' => DI::l10n()->t('BETA Version - Add a signature to your posts. This addon automatically appends a customizable signature to posts in Friendica. Users can enable or disable it, define personal signatures, and optionally include them in comments.'),
         '$enabled' => ['enabled', DI::l10n()->t('Enable Signature'), $enabled],
+        '$by_default' => ['by_default', DI::l10n()->t('Signatur im Editor standardmäßig aktivieren'), $by_default],
         '$signature' => ['text', DI::l10n()->t('Your Signature'), $signature, DI::l10n()->t('Enter your custom signature. (Multiline allowed)')],
         '$enable_signature_in_comments' => ['enable_signature_in_comments', DI::l10n()->t('Enable Signature in Comments'), $enable_signature_in_comments],
         '$submit' => DI::l10n()->t('Save'),
@@ -141,11 +188,8 @@ function signatur_user_settings_post(array &$b)
         return;
     }
 
-    $enabled = !empty($_POST['enabled']);
-    $signature = trim($_POST['text']);
-    $enable_signature_in_comments = !empty($_POST['enable_signature_in_comments']);
-
-    DI::pConfig()->set($uid, 'signatur', 'enabled', $enabled);
-    DI::pConfig()->set($uid, 'signatur', 'text', $signature);
-    DI::pConfig()->set($uid, 'signatur', 'enable_signature_in_comments', $enable_signature_in_comments);
+    DI::pConfig()->set($uid, 'signatur', 'enabled', !empty($_POST['enabled']));
+    DI::pConfig()->set($uid, 'signatur', 'by_default', !empty($_POST['by_default']));
+    DI::pConfig()->set($uid, 'signatur', 'text', trim($_POST['text']));
+    DI::pConfig()->set($uid, 'signatur', 'enable_signature_in_comments', !empty($_POST['enable_signature_in_comments']));
 }
