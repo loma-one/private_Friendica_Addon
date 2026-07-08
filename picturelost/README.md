@@ -1,6 +1,6 @@
 # PictureLost Addon für Friendica
 
-Das **PictureLost** Addon durchsucht die Friendica-Datenbank nach verwaisten Bildern (Dateileichen), die zwar in der Galerie des Nutzers existieren, aber in keinem Beitrag (`post-content`) mehr aktiv verwendet werden. 
+Das **PictureLost** Addon durchsucht die Friendica-Datenbank nach verwaisten Bildern, die zwar in der Galerie des Nutzers existieren, aber in keinem Beitrag (`post-content`) mehr aktiv verwendet werden. 
 
 Es bietet eine schlanke Oberfläche, um diese Bilder schnell zu identifizieren und direkt über die Standard-Galerie restlos zu löschen.
 
