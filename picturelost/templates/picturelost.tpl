@@ -31,7 +31,7 @@
                 <tr>
                     <td colspan="2" class="text-center text-success" style="padding: 30px;">
                         <i class="fa fa-check-circle fa-2x"></i><br>
-                        <strong>Keine verwaisten Bilder gefunden. Deine Galerie ist absolut sauber!</strong>
+                        <strong>Keine verwaisten Bilder gefunden.</strong>
                     </td>
                 </tr>
             {{/if}}
