@@ -15,7 +15,6 @@ class PictureLostPanel
 
     public function getLostContent(): string
     {
-        // Absolut sichere Konvertierung in eine reine Zahl
         $local_user_id = intval(DI::userSession()->getLocalUserId());
 
         $is_enabled = DI::pConfig()->get($local_user_id, 'picturelost', 'enabled', 0);
@@ -25,7 +24,6 @@ class PictureLostPanel
                    '</div></div>';
         }
 
-        // Nickname direkt aus der Datenbank holen
         $nickname = '';
         $user_sql = "SELECT nickname FROM user WHERE uid = " . $local_user_id . " LIMIT 1";
         $user_ste = DBA::p($user_sql);
@@ -34,9 +32,6 @@ class PictureLostPanel
             $nickname = $user_row['nickname'] ?? '';
         }
 
-        // KORREKTUR: Die SQL-Query liefert AUSSCHLIESSLICH verwaiste Bilder.
-        // Ein Bild gilt als verwaist, wenn seine resource-id weder normal noch mit einer
-        // führenden '0' in der Tabelle post-content existiert.
         $sql = "SELECT
                     p.id,
                     p.`resource-id` AS resource_id,
@@ -59,7 +54,6 @@ class PictureLostPanel
         $ste = DBA::p($sql);
         $lost_photos = $ste ? $ste->fetchAll() : [];
 
-        // Paging aufsetzen (50 Elemente pro Seite)
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 50);
         $paginated_photos = array_slice($lost_photos, $pager->getStart(), 50);
 
