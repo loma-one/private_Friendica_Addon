@@ -1,13 +1,12 @@
 # RemoteEmoji Hybrid
 
-> **Combines local emoji packs with dynamic custom emojis via the Friendica API.**
+**Combines local emoji packs with dynamic custom emojis via the Friendica API.**
 
 ---
 
 ## Author
 
-- **Matthias Ebers**
-- [Friendica Profile](https://loma.ml/profile/feb)
+- **Matthias Ebers** [Friendica Profile](https://loma.ml/profile/feb)
 
 ---
 
