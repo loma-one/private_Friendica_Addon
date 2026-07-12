@@ -1,6 +1,6 @@
 # RemoteEmoji Hybrid
 
-**Combines local emoji packs with dynamic custom emojis via the Friendica API.**
+**Combines local emoji packs with dynamic custom emojis via the Fediverse API.**
 
 ## Author
 
