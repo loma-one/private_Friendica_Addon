@@ -54,4 +54,4 @@
 
 ## License
 
-This addon is released under the **MIT License**. See [LICENSE](LICENSE) for details.
+This addon is released under the **MIT License**. See [LICENSE](https://mit-license.org/) for details.
