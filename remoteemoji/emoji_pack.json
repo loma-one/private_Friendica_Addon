@@ -601,19 +601,19 @@
   },
   "fediverse": {
     "shortname": ":fediverse:",
-    "filepath": "icons/fediverse/fediverse.gif"
+    "filepath": "icons/fediverse/fediverse.png"
   },
   "mastodon": {
     "shortname": ":mastodon:",
-    "filepath": "icons/fediverse/mastodon.gif"
+    "filepath": "icons/fediverse/mastodon.png"
   },
   "pleroma": {
     "shortname": ":pleroma:",
-    "filepath": "icons/fediverse/pleroma.gif"
+    "filepath": "icons/fediverse/pleroma.png"
   },
   "misskey": {
     "shortname": ":misskey:",
-    "filepath": "icons/fediverse/misskey.gif"
+    "filepath": "icons/fediverse/misskey.png"
   },
   "diaspora": {
     "shortname": ":diaspora:",
@@ -625,11 +625,11 @@
   },
   "pixelfed": {
     "shortname": ":pixelfed:",
-    "filepath": "icons/fediverse/pixelfed.gif"
+    "filepath": "icons/fediverse/pixelfed.png"
   },
   "nextcloud": {
     "shortname": ":nextcloud:",
-    "filepath": "icons/fediverse/nextcloud.gif"
+    "filepath": "icons/fediverse/nextcloud.png"
   },
   "activitypub": {
     "shortname": ":activitypub:",
@@ -637,7 +637,7 @@
   },
   "peertube": {
     "shortname": ":peertube:",
-    "filepath": "icons/fediverse/peertube.gif"
+    "filepath": "icons/fediverse/peertube.png"
   },
   "ap": {
     "shortname": ":ap:",
@@ -681,7 +681,7 @@
   },
   "GNUsocial": {
     "shortname": ":GNUsocial:",
-    "filepath": "icons/fediverse/gnusocial.gif"
+    "filepath": "icons/fediverse/gnusocial.png"
   },
   "goToSocial": {
     "shortname": ":goToSocial:",
@@ -893,7 +893,7 @@
     },
   "facebook": {
     "shortname": ":facebook:",
-    "filepath": "icons/commercial/facebook.gif"
+    "filepath": "icons/commercial/facebook.png"
     },
   "github": {
     "shortname": ":github:",
@@ -901,23 +901,23 @@
     },
   "google": {
     "shortname": ":google:",
-    "filepath": "icons/commercial/google.gif"
+    "filepath": "icons/commercial/google.png"
     },
   "instagram": {
     "shortname": ":instagram:",
-    "filepath": "icons/commercial/instagram.gif"
+    "filepath": "icons/commercial/instagram.png"
     },
   "signal": {
     "shortname": ":signal:",
-    "filepath": "icons/commercial/signal.gif"
+    "filepath": "icons/commercial/signal.png"
     },
   "spotify": {
     "shortname": ":spotify:",
-    "filepath": "icons/commercial/spotify.gif"
+    "filepath": "icons/commercial/spotify.png"
     },
   "telegram": {
     "shortname": ":telegram:",
-    "filepath": "icons/commercial/telegram.gif"
+    "filepath": "icons/commercial/telegram.png"
     },
   "threads": {
     "shortname": ":threads:",
@@ -933,15 +933,15 @@
     },
   "twitch": {
     "shortname": ":twitch:",
-    "filepath": "icons/commercial/twitch.gif"
+    "filepath": "icons/commercial/twitch.png"
     },
   "twitter": {
     "shortname": ":twitter:",
-    "filepath": "icons/commercial/twitter.gif"
+    "filepath": "icons/commercial/twitter.png"
     },
   "whatsapp": {
     "shortname": ":whatsapp:",
-    "filepath": "icons/commercial/whatsapp.gif"
+    "filepath": "icons/commercial/whatsapp.png"
     },
   "windows": {
     "shortname": ":windows:",
@@ -949,7 +949,7 @@
     },
   "youtube": {
     "shortname": ":youtube:",
-    "filepath": "icons/commercial/youtube.gif"
+    "filepath": "icons/commercial/youtube.png"
   },
   "reader": {
     "shortname": ":reader:",
@@ -977,6 +977,6 @@
   },
   "ccc event": {
     "shortname": ":ccc event:",
-    "filepath": "icons/ccc/ccc.gif"
+    "filepath": "icons/ccc/ccc.png"
   }
 }
