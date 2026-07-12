@@ -8,7 +8,7 @@
 
 ## Description
 
-**RemoteEmoji Hybrid** is a Fediverse addon that combines local emoji packs with the dynamic integration of custom emojis through the standard Fediverse API (`/api/v1/custom_emojis`). It allows the use of custom emojis from remote Fediverse instances while continuing to support locally installed emoji packs.
+**RemoteEmoji Hybrid** is a Friendica addon that combines local emoji packs with the dynamic integration of custom emojis through the standard Fediverse API (`/api/v1/custom_emojis`). It allows the use of custom emojis from remote Fediverse instances while continuing to support locally installed emoji packs.
 
 ## Features
 
