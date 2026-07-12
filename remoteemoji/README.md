@@ -36,7 +36,7 @@
 ## Usage
 
 - **Local Emojis**: Use the shortcode (e.g. `:my_emoji:`) in posts or comments.
-- **Remote Emojis**: Are loaded automatically when the author of a post belongs to a remote Friendica instance that provides custom emojis via the API.
+- **Remote Emojis**: Are loaded automatically when the author of a post belongs to a remote Fediverse instance that provides custom emojis via the API.
 
 ---
 
