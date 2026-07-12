@@ -13,7 +13,7 @@
 ## Features
 
 - **Local Emojis**: Loads emojis from a local `emoji_pack.json` file and renders them in posts and comments.
-- **Remote Emojis**: Fetches custom emojis from remote Friendica instances via the API and inserts them dynamically.
+- **Remote Emojis**: Fetches custom emojis from remote Fediverse instances via the API and inserts them dynamically.
 - **Caching**: Caches remote emoji data for 12 hours to improve performance and reduce API requests.
 - **Conflict Prevention**: Prevents duplicate emojis when local and remote emojis share the same shortcode.
 - **Custom Rendering**: Displays emojis as 20×20 pixel images using `object-fit: contain` for consistent appearance.
