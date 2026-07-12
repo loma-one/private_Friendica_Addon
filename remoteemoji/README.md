@@ -2,19 +2,13 @@
 
 **Combines local emoji packs with dynamic custom emojis via the Friendica API.**
 
----
-
 ## Author
 
 - **Matthias Ebers** [Friendica Profile](https://loma.ml/profile/feb)
 
----
-
 ## Description
 
 **RemoteEmoji Hybrid** is a Friendica addon that combines local emoji packs with the dynamic integration of custom emojis through the standard Friendica API (`/api/v1/custom_emojis`). It allows the use of custom emojis from remote Friendica instances while continuing to support locally installed emoji packs.
-
----
 
 ## Features
 
@@ -23,8 +17,6 @@
 - **Caching**: Caches remote emoji data for 12 hours to improve performance and reduce API requests.
 - **Conflict Prevention**: Prevents duplicate emojis when local and remote emojis share the same shortcode.
 - **Custom Rendering**: Displays emojis as 20×20 pixel images using `object-fit: contain` for consistent appearance.
-
----
 
 ## Installation
 
@@ -36,14 +28,10 @@
    - Navigate to **Addons**.
    - Enable the **RemoteEmoji Hybrid** addon.
 
----
-
 ## Configuration
 
 - **Cache Duration**: Remote emojis are cached for **12 hours**. If fetching fails, an empty cache is stored for **1 hour** before another request is attempted.
 - **Emoji Size**: By default, emojis are rendered at **20×20 pixels**. This can be adjusted in the source code.
-
----
 
 ## Usage
 
