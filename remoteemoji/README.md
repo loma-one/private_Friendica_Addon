@@ -14,6 +14,7 @@
 
 - **Local Emojis**: Loads emojis from a local `emoji_pack.json` file and renders them in posts and comments.
 - **Remote Emojis**: Fetches custom emojis from remote Fediverse instances via the API and inserts them dynamically.
+- **JSON Generator**: Includes a built-in admin tool to automatically scan local image files and generate the required configuration file.
 - **Caching**: Caches remote emoji data for 12 hours to improve performance and reduce API requests.
 - **Conflict Prevention**: Prevents duplicate emojis when local and remote emojis share the same shortcode.
 - **Custom Rendering**: Displays emojis as 20×20 pixel images using `object-fit: contain` for consistent appearance.
@@ -32,11 +33,18 @@
 
 - **Cache Duration**: Remote emojis are cached for **12 hours**. If fetching fails, an empty cache is stored for **1 hour** before another request is attempted.
 - **Emoji Size**: By default, emojis are rendered at **20×20 pixels**. This can be adjusted in the source code.
+- **JSON Generation**: You can manage your local emojis directly via the Friendica Admin Panel (**Admin -> Addons -> RemoteEmoji Hybrid**).
 
 ## Usage
 
 - **Local Emojis**: Use the shortcode (e.g. `:my_emoji:`) in posts or comments.
 - **Remote Emojis**: Are loaded automatically when the author of a post belongs to a remote Fediverse instance that provides custom emojis via the API.
+
+### Managing Local Emojis (Generating the JSON)
+
+1. Upload your emoji image files (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webm`) via FTP/SSH into the `addon/remoteemoji/icons/` directory (subfolders are supported).
+2. Go to the Friendica Admin Panel under **Addons -> RemoteEmoji Hybrid**.
+3. Click the **"emoji_pack.json jetzt generieren / aktualisieren"** button. This will automatically scan the folder, register all icons, and build/update the `emoji_pack.json` file for you.
 
 ---
 
