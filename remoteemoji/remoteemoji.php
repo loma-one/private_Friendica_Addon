@@ -22,6 +22,10 @@ function remoteemoji_uninstall()
 
 function remoteemoji_smilies(array &$b)
 {
+    if (empty($b['text'])) {
+        return;
+    }
+
     static $local_cache = null;
     $registered_shortnames = [];
 
