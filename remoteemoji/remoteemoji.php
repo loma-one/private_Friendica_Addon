@@ -24,9 +24,6 @@ function remoteemoji_uninstall()
     Hook::unregister('plugin_admin_post', 'addon/remoteemoji/remoteemoji.php', 'remoteemoji_addon_admin_post');
 }
 
-/**
- * Generiert die emoji_pack.json basierend auf dem /icons Ordner
- */
 function remoteemoji_generate_pack()
 {
     $baseDir = __DIR__ . '/icons';
@@ -69,9 +66,6 @@ function remoteemoji_generate_pack()
     return ['error' => 'Datei emoji_pack.json konnte nicht geschrieben werden. Bitte Schreibrechte prüfen.'];
 }
 
-/**
- * Echte Admin-Oberfläche im Friendica Admin-Panel
- */
 function remoteemoji_addon_admin(&$o)
 {
     $jsonFile = __DIR__ . '/emoji_pack.json';
@@ -108,9 +102,6 @@ function remoteemoji_addon_admin(&$o)
     ';
 }
 
-/**
- * Verarbeitung des Admin-Formulars nach Button-Klick
- */
 function remoteemoji_addon_admin_post()
 {
     if (!empty($_POST['remoteemoji_rebuild'])) {
@@ -123,9 +114,6 @@ function remoteemoji_addon_admin_post()
     }
 }
 
-/**
- * Die korrigierte Smilie-Ersetzung (Kontextabhängige sichere Ersetzung)
- */
 function remoteemoji_smilies(array &$b)
 {
     static $local_cache = null;
@@ -139,7 +127,6 @@ function remoteemoji_smilies(array &$b)
     $baseUrl = DI::baseUrl() . '/addon/remoteemoji/';
     $local_img_style = 'display:inline-block !important;width:20px;height:20px;vertical-align:middle;object-fit:contain;border:0;margin-right:4px;';
 
-    // Kontext ermitteln: Haben wir einen echten Post-Text vorliegen?
     $hasText = !empty($b['text']);
 
     foreach ($local_cache as $emoji) {
@@ -154,13 +141,9 @@ function remoteemoji_smilies(array &$b)
         $imgHtml = '<img class="smiley remoteemoji-local" style="' . $local_img_style . '" src="' . $baseUrl . $emoji['filepath'] . '" alt="' . $display_name . '" title="' . $display_name . '" />';
 
         if (!$hasText) {
-            // KONTEXT 1: Kein Text vorhanden -> Aufruf durch Editor/Autocomplete.
-            // Wir fügen das Emoji bedingungslos hinzu, damit das Dropdown funktioniert.
             $b['texts'][] = $shortname;
             $b['icons'][] = $imgHtml;
         } else {
-            // KONTEXT 2: Echter Beitragstext vorhanden -> Anzeige/Rendern.
-            // Wir fügen das Emoji NUR hinzu, wenn es tatsächlich AUẞERHALB von HTML-Tags vorkommt.
             if (preg_match('/(?![^<]*>)' . preg_quote($shortname, '/') . '/', $b['text'])) {
                 $b['texts'][] = $shortname;
                 $b['icons'][] = $imgHtml;
@@ -169,7 +152,6 @@ function remoteemoji_smilies(array &$b)
         }
     }
 
-    // Wenn kein Text da ist oder Meta-Daten fehlen, können wir für Remote-Instanzen hier abbrechen
     if (!$hasText || empty($b['item']) || empty($b['item']['author-link'])) {
         return;
     }
@@ -213,7 +195,6 @@ function remoteemoji_smilies(array &$b)
 
         $shortname = ':' . $remote_code . ':';
 
-        // Auch hier: Remote-Ersetzung nur dann erlauben, wenn das Kürzel außerhalb von HTML-Tags steht
         if (preg_match('/(?![^<]*>)' . preg_quote($shortname, '/') . '/', $b['text'])) {
             $display_name = htmlspecialchars($remote_code, ENT_QUOTES, 'UTF-8');
             $img_url = htmlspecialchars($emoji['url'], ENT_QUOTES, 'UTF-8');
