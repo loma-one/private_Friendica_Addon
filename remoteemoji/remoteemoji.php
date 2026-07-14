@@ -2,7 +2,7 @@
 /**
  * Name: RemoteEmoji Hybrid
  * Description: Combines a local emoji package with the dynamic integration of custom emojis via the standard API (https://instanz.tld/api/v1/custom_emojis).
- * Version: 1.8.9
+ * Version: 1.9.2
  * Author: Matthias Ebers
  */
 
@@ -116,6 +116,10 @@ function remoteemoji_addon_admin_post()
 
 function remoteemoji_smilies(array &$b)
 {
+    if (empty($b['text'])) {
+        return;
+    }
+
     static $local_cache = null;
     $registered_shortnames = [];
 
@@ -127,32 +131,25 @@ function remoteemoji_smilies(array &$b)
     $baseUrl = DI::baseUrl() . '/addon/remoteemoji/';
     $local_img_style = 'display:inline-block !important;width:20px;height:20px;vertical-align:middle;object-fit:contain;border:0;margin-right:4px;';
 
-    $hasText = !empty($b['text']);
-
     foreach ($local_cache as $emoji) {
         if (empty($emoji['shortname']) || empty($emoji['filepath'])) {
             continue;
         }
 
         $shortname = $emoji['shortname'];
-        $display_name = htmlspecialchars(trim($shortname, ':'), ENT_QUOTES, 'UTF-8');
         $normalized_local_key = trim($shortname, ':');
 
-        $imgHtml = '<img class="smiley remoteemoji-local" style="' . $local_img_style . '" src="' . $baseUrl . $emoji['filepath'] . '" alt="' . $display_name . '" title="' . $display_name . '" />';
+        if (preg_match('/(?<![a-zA-Z0-9="\'\/])' . preg_quote($shortname, '/') . '(?![^<]*>)/', $b['text'])) {
+            $display_name = htmlspecialchars($normalized_local_key, ENT_QUOTES, 'UTF-8');
 
-        if (!$hasText) {
             $b['texts'][] = $shortname;
-            $b['icons'][] = $imgHtml;
-        } else {
-            if (preg_match('/(?![^<]*>)' . preg_quote($shortname, '/') . '/', $b['text'])) {
-                $b['texts'][] = $shortname;
-                $b['icons'][] = $imgHtml;
-                $registered_shortnames[$normalized_local_key] = true;
-            }
+            $b['icons'][] = '<img class="smiley remoteemoji-local" style="' . $local_img_style . '" src="' . $baseUrl . $emoji['filepath'] . '" alt="' . $display_name . '" title="' . $display_name . '" />';
+
+            $registered_shortnames[$normalized_local_key] = true;
         }
     }
 
-    if (!$hasText || empty($b['item']) || empty($b['item']['author-link'])) {
+    if (empty($b['item']) || empty($b['item']['author-link'])) {
         return;
     }
 
@@ -195,7 +192,7 @@ function remoteemoji_smilies(array &$b)
 
         $shortname = ':' . $remote_code . ':';
 
-        if (preg_match('/(?![^<]*>)' . preg_quote($shortname, '/') . '/', $b['text'])) {
+        if (preg_match('/(?<![a-zA-Z0-9="\'\/])' . preg_quote($shortname, '/') . '(?![^<]*>)/', $b['text'])) {
             $display_name = htmlspecialchars($remote_code, ENT_QUOTES, 'UTF-8');
             $img_url = htmlspecialchars($emoji['url'], ENT_QUOTES, 'UTF-8');
             $host = htmlspecialchars($url_parts['host'], ENT_QUOTES, 'UTF-8');
