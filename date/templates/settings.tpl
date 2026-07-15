@@ -1,24 +1,34 @@
-<div class="panel">
-    <div class="section-title-wrapper">
-        <h3 class="panel-title">{{$title}}</h3>
+<div id="date-network" class="widget">
+    <div class="pull-left">
+        <ul class="date-details">
+            <li>
+                <strong>{{$weekday}}, {{$currentDate}}</strong>
+            </li>
+
+            <li style="margin-top: 6px;">
+                <img src="{{$baseurl}}/addon/date/icon/calendar.png" width="20" height="20" alt="Calendar" style="margin-right: 8px; vertical-align: middle;">
+                {{$week_label}} {{$weekNumber}}
+            </li>
+
+            {{if $showTemperature && $temperature !== 'N/A'}}
+            <li style="margin-top: 6px;">
+                <span class="glyphicon glyphicon-cloud" style="margin-right: 8px; font-size: 16px; vertical-align: middle;"></span>
+                {{$temp_label}}: {{$temperature}} °C
+            </li>
+            {{/if}}
+
+            {{if $showSunriseSunset && $sunrise !== 'N/A' && $sunset !== 'N/A'}}
+            <li style="margin-top: 6px;">
+                <img src="{{$baseurl}}/addon/date/icon/sunrise.png" width="20" height="20" alt="Sunrise" style="margin-right: 8px; vertical-align: middle;">
+                {{$sunrise_label}} {{$sunrise}} h
+            </li>
+            <li style="margin-top: 6px;">
+                <img src="{{$baseurl}}/addon/date/icon/sunset.png" width="20" height="20" alt="Sunset" style="margin-right: 8px; vertical-align: middle;">
+                {{$sunset_label}} {{$sunset}} h
+            </li>
+            {{/if}}
+        </ul>
     </div>
-    <div class="panel-body">
-        <p class="description">{{$description}}</p>
-
-        <div class="settings-block">
-            {{include file="field_checkbox.tpl" field=$enabled}}
-
-            <hr>
-
-            {{include file="field_select.tpl"   field=$date_format}}
-            {{include file="field_select.tpl"   field=$timezone}}
-
-            <hr>
-
-            {{include file="field_checkbox.tpl" field=$show_temperature}}
-            {{include file="field_checkbox.tpl" field=$show_sunrise_sunset}}
-            {{include file="field_input.tpl"    field=$location}}
-            {{include file="field_input.tpl"    field=$api_key}}
-        </div>
-    </div>
+    <div class="clear"></div>
 </div>
+<div class="clear"></div>
