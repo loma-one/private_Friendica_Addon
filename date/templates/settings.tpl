@@ -11,9 +11,11 @@
             <hr>
 
             {{include file="field_select.tpl"   field=$date_format}}
+            {{include file="field_select.tpl"   field=$timezone}}
 
             <hr>
 
+            {{include file="field_checkbox.tpl" field=$show_temperature}}
             {{include file="field_checkbox.tpl" field=$show_sunrise_sunset}}
             {{include file="field_input.tpl"    field=$location}}
             {{include file="field_input.tpl"    field=$api_key}}
