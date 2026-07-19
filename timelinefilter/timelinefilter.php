@@ -4,7 +4,7 @@
  * Name: Timeline Filter
  * Description: Filters hashtags and words in personal timelines
  * Version: 1.2
- * Author: Matthias Ebers  <https://loma.ml/profile/feb>
+ * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
 use Friendica\Core\Hook;
@@ -25,7 +25,7 @@ function timelinefilter_addon_settings(array &$data)
     }
 
     $uid = DI::userSession()->getLocalUserId();
-    $enabled = !DI::pConfig()->get($uid, 'timelinefilter', 'disable');
+    $enabled = !DI::pConfig()->get($uid, 'timelinefilter', 'disable', 1);
 
     $rules_json = DI::pConfig()->get($uid, 'timelinefilter', 'rules', '[]');
     $rules = json_decode($rules_json, true) ?: [];
@@ -88,12 +88,13 @@ function timelinefilter_addon_settings_post(array &$b)
         $current_time = time();
 
         foreach ($keywords as $index => $keyword) {
+            // trim() entfernt Leerzeichen am Anfang und Ende
             $keyword = trim($keyword);
             if (!empty($keyword)) {
                 $duration = $durations[$index] ?? 'always';
                 $expire_timestamp = intval($expires[$index] ?? 0);
 
-                if ($expire_timestamp == 0 || (isset($b['tf-durations-changed']))) { // Fallback/Sicherheit
+                if ($expire_timestamp == 0) {
                     if ($duration === '1w') {
                         $expire_timestamp = $current_time + (7 * 24 * 60 * 60);
                     } elseif ($duration === '1m') {
@@ -120,7 +121,7 @@ function timelinefilter_addon_settings_post(array &$b)
 function timelinefilter_page_end(&$html)
 {
     $uid = DI::userSession()->getLocalUserId();
-    if (!$uid || empty($html) || DI::pConfig()->get($uid, 'timelinefilter', 'disable')) {
+    if (!$uid || empty($html) || DI::pConfig()->get($uid, 'timelinefilter', 'disable', 1)) {
         return;
     }
 
