@@ -35,7 +35,7 @@
 
     <div class="row" style="margin-top: 15px;">
         <div class="col-xs-12">
-            <button type="button" id="tf-add-row" class="btn btn-default btn-sm" style="border-radius: 20px; padding: 6px 15px;">+ Add a rule</button>
+            <button type="button" id="tf-add-row" class="btn btn-default btn-sm" style="border-radius: 5px; padding: 6px 15px;">+ Add a rule</button>
         </div>
     </div>
 </div>
