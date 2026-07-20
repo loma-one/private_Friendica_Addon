@@ -88,7 +88,6 @@ function timelinefilter_addon_settings_post(array &$b)
         $current_time = time();
 
         foreach ($keywords as $index => $keyword) {
-            // trim() entfernt Leerzeichen am Anfang und Ende
             $keyword = trim($keyword);
             if (!empty($keyword)) {
                 $duration = $durations[$index] ?? 'always';
