@@ -20,7 +20,7 @@
             </div>
             <div class="col-xs-3">
                 <select name="tf-durations[]" class="form-control">
-                    <option value="always" {{if $rule.duration == 'always'}}selected{{/if}}>Allways</option>
+                    <option value="always" {{if $rule.duration == 'always'}}selected{{/if}}>Always</option>
                     <option value="1w" {{if $rule.duration == '1w'}}selected{{/if}}>1 Week</option>
                     <option value="1m" {{if $rule.duration == '1m'}}selected{{/if}}>1 Month</option>
                 </select>
@@ -53,7 +53,7 @@
         </div>
         <div class="col-xs-3">
             <select name="tf-durations[]" class="form-control">
-                <option value="always">Allways</option>
+                <option value="always">Always</option>
                 <option value="1w">1 Week</option>
                 <option value="1m">1 Month</option>
             </select>
