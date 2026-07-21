@@ -3,7 +3,7 @@
 /**
  * Name: Timeline Filter
  * Description: Filters hashtags and words in personal timelines
- * Version: 1.2
+ * Version: 1.3
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -88,6 +88,7 @@ function timelinefilter_addon_settings_post(array &$b)
         $current_time = time();
 
         foreach ($keywords as $index => $keyword) {
+            // trim() entfernt Leerzeichen am Anfang und Ende
             $keyword = trim($keyword);
             if (!empty($keyword)) {
                 $duration = $durations[$index] ?? 'always';
@@ -163,54 +164,68 @@ function timelinefilter_page_end(&$html)
     $script = '
     <script>
     (function() {
+        "use strict";
+
         const hashtags = ' . json_encode($hashtag_filters) . ';
         const words = ' . json_encode($word_filters) . ';
 
-        function applyTimelineFilter() {
-            const posts = document.querySelectorAll("article, .thread-wrapper, .wall-item-container");
-
-            posts.forEach(post => {
-                if (post.style.display === "none") return;
-
-                const postText = post.textContent.toLowerCase();
-                let shouldHide = false;
-
-                for (const word of words) {
-                    if (postText.includes(word)) {
-                        shouldHide = true;
-                        break;
-                    }
-                }
-
-                if (!shouldHide && hashtags.length > 0) {
-                    for (const tag of hashtags) {
-                        if (postText.includes("#" + tag)) {
-                            shouldHide = true;
-                            break;
-                        }
-                    }
-
-                    if (!shouldHide) {
-                        const links = post.querySelectorAll("a");
-                        for (const link of links) {
-                            const href = link.getAttribute("href") || "";
-                            if (hashtags.some(tag => href.toLowerCase().includes("tag/" + tag) || href.toLowerCase().includes("tag=" + tag))) {
-                                shouldHide = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (shouldHide) {
-                    post.style.setProperty("display", "none", "important");
-                }
-            });
+        if (hashtags.length === 0 && words.length === 0) {
+            return;
         }
 
-        applyTimelineFilter();
-        const observer = new MutationObserver(applyTimelineFilter);
-        observer.observe(document.body, { childList: true, subtree: true });
+        const POST_SELECTOR = "article, .thread-wrapper, .wall-item-container";
+
+        function filterPost(post) {
+            if (!post || post.nodeType !== Node.ELEMENT_NODE || post.dataset.tfFiltered) {
+                return;
+            }
+
+            post.dataset.tfFiltered = "true";
+            const postText = post.textContent.toLowerCase();
+
+            const hasWord = words.some(word => postText.includes(word));
+            if (hasWord) {
+                post.style.setProperty("display", "none", "important");
+                return;
+            }
+
+            if (hashtags.length > 0) {
+                const hasTagInText = hashtags.some(tag => postText.includes("#" + tag));
+                if (hasTagInText) {
+                    post.style.setProperty("display", "none", "important");
+                    return;
+                }
+
+                const links = post.querySelectorAll("a[href]");
+                const hasTagInLink = Array.from(links).some(link => {
+                    const href = link.getAttribute("href").toLowerCase();
+                    return hashtags.some(tag => href.includes("tag/" + tag) || href.includes("tag=" + tag));
+                });
+
+                if (hasTagInLink) {
+                    post.style.setProperty("display", "none", "important");
+                }
+            }
+        }
+
+        document.querySelectorAll(POST_SELECTOR).forEach(filterPost);
+
+        const targetNode = document.getElementById("threads-location") || document.body;
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+                    if (node.matches && node.matches(POST_SELECTOR)) {
+                        filterPost(node);
+                    } else if (node.querySelectorAll) {
+                        node.querySelectorAll(POST_SELECTOR).forEach(filterPost);
+                    }
+                });
+            }
+        });
+
+        observer.observe(targetNode, { childList: true, subtree: true });
     })();
     </script>
     ';
