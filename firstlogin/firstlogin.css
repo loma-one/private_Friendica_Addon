@@ -1,0 +1,43 @@
+.firstlogin-alert {
+    margin-bottom: 20px;
+    padding-right: 35px;
+}
+
+
+@media (min-width: 768px) {
+    .firstlogin-row {
+        display: flex;
+        align-items: center;
+    }
+
+    .firstlogin-heading {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
+    .firstlogin-text {
+        margin-bottom: 0;
+    }
+
+    .firstlogin-btn-col {
+        text-align: right;
+    }
+}
+
+@media (max-width: 767px) {
+    .firstlogin-heading {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 16px;
+    }
+
+    .firstlogin-text {
+        margin-bottom: 12px;
+        font-size: 13px;
+    }
+
+    .firstlogin-btn {
+        width: 100%;
+        padding: 10px;
+    }
+}
