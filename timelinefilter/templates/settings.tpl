@@ -23,11 +23,17 @@
             </div>
             <div class="col-xs-3">
                 <select name="tf-durations[]" class="form-control">
-                    <option value="always" {{if $rule.duration == 'always'}}selected{{/if}}>Always</option>
-                    <option value="1w" {{if $rule.duration == '1w'}}selected{{/if}}>1 Week</option>
-                    <option value="1m" {{if $rule.duration == '1m'}}selected{{/if}}>1 Month</option>
+                    <option value="always" {{if $rule.duration == 'always'}}selected{{/if}}>{{$opt_always}}</option>
+                    <option value="1w" {{if $rule.duration == '1w'}}selected{{/if}}>{{$opt_1w}}</option>
+                    <option value="1m" {{if $rule.duration == '1m'}}selected{{/if}}>{{$opt_1m}}</option>
                 </select>
                 <input type="hidden" name="tf-expires[]" value="{{$rule.expires}}">
+
+                {{if $rule.days_left !== null}}
+                    <small class="help-block" style="margin-top: 4px; margin-bottom: 0;">
+                        {{$rule.days_left_text}}
+                    </small>
+                {{/if}}
             </div>
             <div class="col-xs-1 text-center">
                 <button type="button" class="btn btn-danger tf-remove-row" style="width: 28px; height: 28px; border-radius: 50%; padding: 0; line-height: 28px; text-align: center; font-weight: bold; border: none; font-size: 14px;" aria-label="Delete rule">✕</button>
