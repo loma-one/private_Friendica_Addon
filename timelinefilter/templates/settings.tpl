@@ -2,15 +2,18 @@
 
 {{include file="field_checkbox.tpl" field=$enabled}}
 
-<div class="form-group">
+<!-- Wichtig für die POST-Validierung in PHP -->
+<input type="hidden" name="timelinefilter-submit" value="1">
+
+<div class="form-group margin-top-sub">
     <label class="control-label">{{$words_label}}</label>
-    <div class="help-block">{{$words_help}}</div>
+    <div class="help-block" style="margin-bottom: 15px;">{{$words_help}}</div>
 
     <div id="tf-rules-container">
-        {{foreach $rules as $index => $rule}}
-        <div class="row tf-rule-row" style="margin-bottom: 10px; display: flex; align-items: center;">
+        {{foreach $rules as $rule}}
+        <div class="row tf-rule-row" style="margin-bottom: 12px; display: flex; align-items: center;">
             <div class="col-xs-5">
-                <input type="text" name="tf-keywords[]" class="form-control" value="{{$rule.keyword}}" placeholder="e. g. facebook">
+                <input type="text" name="tf-keywords[]" class="form-control" value="{{$rule.keyword}}" placeholder="z. B. facebook">
             </div>
             <div class="col-xs-3">
                 <select name="tf-types[]" class="form-control">
@@ -26,22 +29,25 @@
                 </select>
                 <input type="hidden" name="tf-expires[]" value="{{$rule.expires}}">
             </div>
-            <div class="col-xs-1" style="display: flex; justify-content: center;">
-                <button type="button" class="btn btn-danger tf-remove-row" style="width: 25px; height: 25px; border-radius: 50%; padding: 0; line-height: 25px; text-align: center; font-weight: bold; border: none; background-color: #d9534f; color: #fff;">✕</button>
+            <div class="col-xs-1 text-center">
+                <button type="button" class="btn btn-danger tf-remove-row" style="width: 28px; height: 28px; border-radius: 50%; padding: 0; line-height: 28px; text-align: center; font-weight: bold; border: none; font-size: 14px;" aria-label="Delete rule">✕</button>
             </div>
         </div>
         {{/foreach}}
     </div>
 
-    <div class="row" style="margin-top: 15px;">
+    <div class="row" style="margin-top: 20px;">
         <div class="col-xs-12">
-            <button type="button" id="tf-add-row" class="btn btn-default btn-sm" style="border-radius: 5px; padding: 6px 15px;">+ Add a rule</button>
+            <button type="button" id="tf-add-row" class="btn btn-default btn-sm" style="padding: 6px 16px;">
+                <i class="fa fa-plus"></i> Add a rule
+            </button>
         </div>
     </div>
 </div>
 
+<!-- Template für neue Zeilen -->
 <div id="tf-row-template" class="hidden">
-    <div class="row tf-rule-row" style="margin-bottom: 10px; display: flex; align-items: center;">
+    <div class="row tf-rule-row" style="margin-bottom: 12px; display: flex; align-items: center;">
         <div class="col-xs-5">
             <input type="text" name="tf-keywords[]" class="form-control" placeholder="Enter a term...">
         </div>
@@ -59,27 +65,26 @@
             </select>
             <input type="hidden" name="tf-expires[]" value="0">
         </div>
-        <div class="col-xs-1" style="display: flex; justify-content: center;">
-            <button type="button" class="btn btn-danger tf-remove-row" style="width: 25px; height: 25px; border-radius: 50%; padding: 0; line-height: 25px; text-align: center; font-weight: bold; border: none; background-color: #d9534f; color: #fff;">✕</button>
+        <div class="col-xs-1 text-center">
+            <button type="button" class="btn btn-danger tf-remove-row" style="width: 28px; height: 28px; border-radius: 50%; padding: 0; line-height: 28px; text-align: center; font-weight: bold; border: none; font-size: 14px;" aria-label="Delete rule">✕</button>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById('tf-rules-container');
     const addButton = document.getElementById('tf-add-row');
     const template = document.getElementById('tf-row-template').firstElementChild;
 
-    addButton.addEventListener('click', function() {
-        const newRow = template.cloneNode(true);
-        container.appendChild(newRow);
+    addButton?.addEventListener('click', () => {
+        container.appendChild(template.cloneNode(true));
     });
 
-    container.addEventListener('click', function(e) {
-        if (e.target.classList.contains('tf-remove-row') || e.target.closest('.tf-remove-row')) {
-            const row = e.target.closest('.tf-rule-row');
-            if (row) row.remove();
+    container?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tf-remove-row');
+        if (btn) {
+            btn.closest('.tf-rule-row')?.remove();
         }
     });
 });
