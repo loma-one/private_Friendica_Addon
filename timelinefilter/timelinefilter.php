@@ -2,8 +2,8 @@
 
 /**
  * Name: Timeline Filter
- * Description: Filters hashtags and words in personal timelines
- * Version: 1.4.1
+ * Description: Filters hashtags, words and accounts in personal timelines
+ * Version: 1.5.0
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -11,14 +11,14 @@ use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
-function timelinefilter_install()
+function timelinefilter_install(): void
 {
     Hook::register('page_end', 'addon/timelinefilter/timelinefilter.php', 'timelinefilter_page_end', 999);
     Hook::register('addon_settings', 'addon/timelinefilter/timelinefilter.php', 'timelinefilter_addon_settings');
     Hook::register('addon_settings_post', 'addon/timelinefilter/timelinefilter.php', 'timelinefilter_addon_settings_post');
 }
 
-function timelinefilter_addon_settings(&$data)
+function timelinefilter_addon_settings(array &$data): void
 {
     $uid = DI::userSession()->getLocalUserId();
     if (!$uid) {
@@ -30,11 +30,11 @@ function timelinefilter_addon_settings(&$data)
 
     if (empty($rules)) {
         $rules[] = [
-            'keyword' => '',
-            'type' => 'hashtag',
-            'duration' => 'always',
-            'expires' => 0,
-            'days_left' => null,
+            'keyword'        => '',
+            'type'           => 'hashtag',
+            'duration'       => 'always',
+            'expires'        => 0,
+            'days_left'      => null,
             'days_left_text' => ''
         ];
     } else {
@@ -43,7 +43,7 @@ function timelinefilter_addon_settings(&$data)
             if (!empty($rule['expires']) && $rule['expires'] > $now) {
                 $days = (int) ceil(($rule['expires'] - $now) / 86400);
                 $rule['days_left'] = $days;
-				$rule['days_left_text'] = sprintf(DI::l10n()->tt('%d day remaining', '%d days remaining', $days), $days);
+                $rule['days_left_text'] = sprintf(DI::l10n()->tt('%d day remaining', '%d days remaining', $days), $days);
             } else {
                 $rule['days_left'] = null;
                 $rule['days_left_text'] = '';
@@ -54,15 +54,16 @@ function timelinefilter_addon_settings(&$data)
 
     $t = Renderer::getMarkupTemplate('settings.tpl', 'addon/timelinefilter/');
     $html = Renderer::replaceMacros($t, [
-        '$info'         => DI::l10n()->t('Safe Filter: Define personal rules with optional expiration dates to hide posts.'),
-        '$enabled'      => ['timelinefilter-enable', DI::l10n()->t('Enable Filter'), $enabled],
-        '$words_label'  => DI::l10n()->t('Filter Rules'),
-        '$words_help'   => DI::l10n()->t('Add keywords, select type and specify how long the filter should remain active.'),
-        '$rules'        => $rules,
-        '$submit'       => DI::l10n()->t('Save Settings'),
-        '$opt_always'   => DI::l10n()->t('Always'),
-        '$opt_1w'       => DI::l10n()->t('1 Week'),
-        '$opt_1m'       => DI::l10n()->t('1 Month'),
+        '$info'        => DI::l10n()->t('Safe Filter: Define personal rules with optional expiration dates to hide posts.'),
+        '$enabled'     => ['timelinefilter-enable', DI::l10n()->t('Enable Filter'), $enabled],
+        '$words_label' => DI::l10n()->t('Filter Rules'),
+        '$words_help'  => DI::l10n()->t('Add keywords/accounts, select type and specify how long the filter should remain active.'),
+        '$rules'       => $rules,
+        '$submit'      => DI::l10n()->t('Save Settings'),
+        '$opt_always'  => DI::l10n()->t('Always'),
+        '$opt_1d'      => DI::l10n()->t('1 Day'),
+        '$opt_1w'      => DI::l10n()->t('1 Week'),
+        '$opt_1m'      => DI::l10n()->t('1 Month'),
     ]);
 
     $data = [
@@ -72,15 +73,14 @@ function timelinefilter_addon_settings(&$data)
     ];
 }
 
-function timelinefilter_addon_settings_post(&$b)
+function timelinefilter_addon_settings_post(array &$b): void
 {
     $uid = DI::userSession()->getLocalUserId();
     if (!$uid || empty($_POST['timelinefilter-submit'])) {
         return;
     }
 
-    $enable = isset($_POST['timelinefilter-enable']) ? intval($_POST['timelinefilter-enable']) : 0;
-    $disable = $enable ? 0 : 1;
+    $disable = !empty($_POST['timelinefilter-enable']) ? 0 : 1;
 
     $keywords  = $_POST['tf-keywords'] ?? [];
     $types     = $_POST['tf-types'] ?? [];
@@ -97,14 +97,15 @@ function timelinefilter_addon_settings_post(&$b)
         }
 
         $duration = $durations[$i] ?? 'always';
-        $exp = intval($expires[$i] ?? 0);
+        $exp = (int) ($expires[$i] ?? 0);
 
         if ($exp === 0) {
-            if ($duration === '1w') {
-                $exp = $now + (7 * 86400);
-            } elseif ($duration === '1m') {
-                $exp = $now + (30 * 86400);
-            }
+            $exp = match ($duration) {
+                '1d'    => $now + 86400,
+                '1w'    => $now + (7 * 86400),
+                '1m'    => $now + (30 * 86400),
+                default => 0,
+            };
         }
 
         $rules[] = [
@@ -119,7 +120,7 @@ function timelinefilter_addon_settings_post(&$b)
     DI::pConfig()->set($uid, 'timelinefilter', 'disable', $disable);
 }
 
-function timelinefilter_page_end(&$html)
+function timelinefilter_page_end(string &$html): void
 {
     $uid = DI::userSession()->getLocalUserId();
     if (!$uid || empty($html) || DI::pConfig()->get($uid, 'timelinefilter', 'disable', 1)) {
@@ -132,98 +133,105 @@ function timelinefilter_page_end(&$html)
     }
 
     $hashtags = [];
-    $words = [];
+    $words    = [];
+    $accounts = [];
 
     foreach ($rules as $r) {
         $kw = mb_strtolower($r['keyword']);
-        if ($r['type'] === 'hashtag') {
-            $hashtags[] = ltrim($kw, '#');
-        } else {
-            $words[] = $kw;
-        }
+        match ($r['type']) {
+            'hashtag' => $hashtags[] = ltrim($kw, '#'),
+            'account' => $accounts[] = ltrim($kw, '@'),
+            default   => $words[]    = $kw,
+        };
     }
 
-    if (empty($hashtags) && empty($words)) {
+    if (empty($hashtags) && empty($words) && empty($accounts)) {
         return;
     }
 
-    $jsonHashtags = json_encode($hashtags);
-    $jsonWords    = json_encode($words);
+    $script = sprintf(
+        '<script>
+        (() => {
+            "use strict";
+            const config = {
+                hashtags: %s,
+                words: %s,
+                accounts: %s,
+                selector: "article, .thread-wrapper, .wall-item-container"
+            };
 
-    $script = '<script>
-    (function() {
-        "use strict";
+            const filterPost = (post) => {
+                if (!post || post.nodeType !== 1 || post.dataset.tfFiltered) return;
+                post.dataset.tfFiltered = "true";
 
-        var hashtags = ' . $jsonHashtags . ';
-        var words = ' . $jsonWords . ';
-        var POST_SELECTOR = "article, .thread-wrapper, .wall-item-container";
+                const text = post.textContent.toLowerCase();
 
-        function filterPost(post) {
-            if (!post || post.nodeType !== 1 || post.dataset.tfFiltered) {
-                return;
-            }
-
-            post.dataset.tfFiltered = "true";
-            var text = post.textContent.toLowerCase();
-
-            for (var i = 0; i < words.length; i++) {
-                if (text.indexOf(words[i]) !== -1) {
+                if (config.words.some(w => text.includes(w))) {
                     post.style.setProperty("display", "none", "important");
                     return;
                 }
-            }
 
-            if (hashtags.length > 0) {
-                for (var j = 0; j < hashtags.length; j++) {
-                    if (text.indexOf("#" + hashtags[j]) !== -1) {
+                if (config.hashtags.some(h => text.includes("#" + h))) {
+                    post.style.setProperty("display", "none", "important");
+                    return;
+                }
+
+                const links = Array.from(post.querySelectorAll("a[href]"));
+                if (config.hashtags.length && links.some(a => {
+                    const href = a.getAttribute("href").toLowerCase();
+                    return config.hashtags.some(h => href.includes("tag/" + h) || href.includes("tag=" + h));
+                })) {
+                    post.style.setProperty("display", "none", "important");
+                    return;
+                }
+
+                if (config.accounts.length) {
+                    const hasAccount = config.accounts.some(acc => {
+                        if (text.includes("@" + acc) || text.includes(acc)) return true;
+
+                        const [uName, uDom] = acc.split("@");
+                        if (!uDom) return false;
+
+                        return links.some(a => {
+                            const href = a.getAttribute("href").toLowerCase();
+                            return href.includes(uDom) && (
+                                href.includes("/profile/" + uName) ||
+                                href.includes("/users/" + uName) ||
+                                href.includes("/@" + uName)
+                            );
+                        });
+                    });
+
+                    if (hasAccount) {
                         post.style.setProperty("display", "none", "important");
-                        return;
                     }
                 }
+            };
 
-                var links = post.querySelectorAll("a[href]");
-                for (var k = 0; k < links.length; k++) {
-                    var href = links[k].getAttribute("href").toLowerCase();
-                    for (var l = 0; l < hashtags.length; l++) {
-                        if (href.indexOf("tag/" + hashtags[l]) !== -1 || href.indexOf("tag=" + hashtags[l]) !== -1) {
-                            post.style.setProperty("display", "none", "important");
-                            return;
-                        }
-                    }
+            document.querySelectorAll(config.selector).forEach(filterPost);
+
+            // MutationObserver für dynamisch geladene Items
+            const target = document.getElementById("threads-location") || document.body;
+            new MutationObserver(mutations => {
+                for (const m of mutations) {
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType !== 1) return;
+                        if (node.matches?.(config.selector)) filterPost(node);
+                        else node.querySelectorAll?.(config.selector).forEach(filterPost);
+                    });
                 }
-            }
-        }
-
-        var posts = document.querySelectorAll(POST_SELECTOR);
-        for (var i = 0; i < posts.length; i++) {
-            filterPost(posts[i]);
-        }
-
-        var target = document.getElementById("threads-location") || document.body;
-        var observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(m) {
-                m.addedNodes.forEach(function(node) {
-                    if (node.nodeType !== 1) return;
-                    if (node.matches && node.matches(POST_SELECTOR)) {
-                        filterPost(node);
-                    } else if (node.querySelectorAll) {
-                        var subPosts = node.querySelectorAll(POST_SELECTOR);
-                        for (var x = 0; x < subPosts.length; x++) {
-                            filterPost(subPosts[x]);
-                        }
-                    }
-                });
-            });
-        });
-
-        observer.observe(target, { childList: true, subtree: true });
-    })();
-    </script>';
+            }).observe(target, { childList: true, subtree: true });
+        })();
+        </script>',
+        json_encode($hashtags),
+        json_encode($words),
+        json_encode($accounts)
+    );
 
     $html .= $script;
 }
 
-function timelinefilter_get_rules($uid)
+function timelinefilter_get_rules(int $uid): array
 {
     $json = DI::pConfig()->get($uid, 'timelinefilter', 'rules', '[]');
     $rules = json_decode($json, true);
@@ -232,20 +240,11 @@ function timelinefilter_get_rules($uid)
     }
 
     $now = time();
-    $clean = [];
-    $changed = false;
+    $clean = array_filter($rules, fn($r) => empty($r['expires']) || $r['expires'] <= 0 || $r['expires'] > $now);
 
-    foreach ($rules as $r) {
-        if (!empty($r['expires']) && $r['expires'] > 0 && $now > $r['expires']) {
-            $changed = true;
-            continue;
-        }
-        $clean[] = $r;
+    if (count($clean) !== count($rules)) {
+        DI::pConfig()->set($uid, 'timelinefilter', 'rules', json_encode(array_values($clean)));
     }
 
-    if ($changed) {
-        DI::pConfig()->set($uid, 'timelinefilter', 'rules', json_encode($clean));
-    }
-
-    return $clean;
+    return array_values($clean);
 }
