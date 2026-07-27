@@ -13,17 +13,19 @@
         {{foreach $rules as $rule}}
         <div class="row tf-rule-row" style="margin-bottom: 12px; display: flex; align-items: center;">
             <div class="col-xs-5">
-                <input type="text" name="tf-keywords[]" class="form-control" value="{{$rule.keyword}}" placeholder="z. B. facebook">
+                <input type="text" name="tf-keywords[]" class="form-control" value="{{$rule.keyword}}" placeholder="z. B. facebook oder @user@domain.ltd">
             </div>
             <div class="col-xs-3">
                 <select name="tf-types[]" class="form-control">
                     <option value="hashtag" {{if $rule.type == 'hashtag'}}selected{{/if}}>Hashtag</option>
                     <option value="word" {{if $rule.type == 'word'}}selected{{/if}}>Word</option>
+                    <option value="account" {{if $rule.type == 'account'}}selected{{/if}}>Account</option>
                 </select>
             </div>
             <div class="col-xs-3">
                 <select name="tf-durations[]" class="form-control">
                     <option value="always" {{if $rule.duration == 'always'}}selected{{/if}}>{{$opt_always}}</option>
+                    <option value="1d" {{if $rule.duration == '1d'}}selected{{/if}}>{{$opt_1d}}</option>
                     <option value="1w" {{if $rule.duration == '1w'}}selected{{/if}}>{{$opt_1w}}</option>
                     <option value="1m" {{if $rule.duration == '1m'}}selected{{/if}}>{{$opt_1m}}</option>
                 </select>
@@ -55,19 +57,21 @@
 <div id="tf-row-template" class="hidden">
     <div class="row tf-rule-row" style="margin-bottom: 12px; display: flex; align-items: center;">
         <div class="col-xs-5">
-            <input type="text" name="tf-keywords[]" class="form-control" placeholder="Enter a term...">
+            <input type="text" name="tf-keywords[]" class="form-control" placeholder="Enter a term or @user@domain...">
         </div>
         <div class="col-xs-3">
             <select name="tf-types[]" class="form-control">
                 <option value="hashtag">Hashtag</option>
                 <option value="word">Word</option>
+                <option value="account">Account</option>
             </select>
         </div>
         <div class="col-xs-3">
             <select name="tf-durations[]" class="form-control">
-                <option value="always">Always</option>
-                <option value="1w">1 Week</option>
-                <option value="1m">1 Month</option>
+                <option value="always">{{$opt_always}}</option>
+                <option value="1d">{{$opt_1d}}</option>
+                <option value="1w">{{$opt_1w}}</option>
+                <option value="1m">{{$opt_1m}}</option>
             </select>
             <input type="hidden" name="tf-expires[]" value="0">
         </div>
