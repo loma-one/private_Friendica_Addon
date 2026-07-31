@@ -36,8 +36,7 @@
                 <img class="qp-preview-thumb" src="" alt="Preview">
             </div>
             <div class="qp-input-wrapper">
-                <label class="qp-label">${i18nDesc}</label>
-                <input type="text" class="qp-alt-input" placeholder="...">
+                <input type="text" class="qp-alt-input" placeholder="${i18nDesc}">
             </div>
         `;
 
@@ -72,7 +71,7 @@
                     img.src = metadata.img;
 
                     if (document.activeElement !== input) {
-                        input.value = (currentDesc === i18nDesc) ? "" : currentDesc;
+                        input.value = (currentDesc === i18nDesc) ? '' : currentDesc;
                     }
 
                     input.onkeydown = (e) => {
@@ -113,7 +112,7 @@
             });
 
             let userDesc = existingDesc.trim();
-            if (userDesc === "" || userDesc === i18nDesc) userDesc = i18nDesc;
+            if (userDesc === '' || userDesc === i18nDesc) userDesc = i18nDesc;
 
             return `[img]${fileName}|${userDesc}[/img]`;
         });
@@ -127,11 +126,11 @@
     };
 
     const reconstruct = (textarea) => {
-        if (!textarea) return "";
+        if (!textarea) return '';
         return textarea.value.replace(shorthandPattern, (match, fileName, desc) => {
             const metadata = getMetadata(textarea, fileName);
             if (metadata) {
-                const finalDesc = (desc === i18nDesc) ? "" : desc;
+                const finalDesc = (desc === i18nDesc) ? '' : desc;
                 return `[url=${metadata.url}][img=${metadata.img}]${finalDesc}[/img][/url]`;
             }
             return match;
