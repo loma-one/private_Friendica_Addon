@@ -10,13 +10,16 @@
 use Friendica\Core\Hook;
 use Friendica\DI;
 
-function quickphoto_install() {
+function quickphoto_install()
+{
     Hook::register('page_header', 'addon/quickphoto/quickphoto.php', 'quickphoto_header');
     Hook::register('post_post', 'addon/quickphoto/quickphoto.php', 'quickphoto_post_hook');
 }
 
-function quickphoto_header(&$header) {
+function quickphoto_header(&$header)
+{
     $desc_label = DI::l10n()->t('Image description');
+
     $js_label = json_encode($desc_label);
 
     $addon_path = '/addon/quickphoto/';
@@ -35,7 +38,8 @@ function quickphoto_header(&$header) {
     }
 }
 
-function quickphoto_post_hook(&$item) {
+function quickphoto_post_hook(&$item)
+{
     if (strpos($item['body'], '[img]') === false || strpos($item['body'], '|') === false) {
         return;
     }
@@ -48,16 +52,16 @@ function quickphoto_post_hook(&$item) {
 
         $condition = [
             'resource-id' => $filename,
+            'uid' => DI::userSession()->getLocalUserId(),
             'imgscale'    => 0
         ];
 
-        $photo = DI::pStore()->getPhotoWithCondition($condition);
+        $photo = DI::dba()->selectFirst('photo', ['url'], $condition);
 
         if ($photo) {
             return '[url=' . $photo['url'] . '][img=' . $photo['src'] . ']' . $description . '[/img][/url]';
         }
 
         return '[img]' . $filename . '[/img]';
-
     }, $item['body']);
 }
