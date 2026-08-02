@@ -1,9 +1,10 @@
 <?php
 /**
  * Name: PictureLost
- * Description: Findet verwaiste Bilder, die in keinem Beitrag (Content) verwendet werden.
- * Version: 0.0.1
- * Author: Matthias Ebers
+ * Description: Findet verwaiste Bilder, die in keinem Beitrag (Content) verwendet werden (BETA).
+ * Version: 0.0.2
+ * Author: Matthias Ebers <https://loma.ml/profile/feb>
+ * Author: Matthias Eßmann <https://sekretaerbaer.de/profile/oldkid>
  */
 
 use Friendica\Core\Hook;
