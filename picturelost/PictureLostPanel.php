@@ -11,9 +11,9 @@ use Friendica\Util\DateTimeFormat;
 
 class PictureLostPanel
 {
-    private const GRACE_PERIOD = 'now - 1 day'; // 24h Frist
+    private const GRACE_PERIOD = 'now - 1 day'; // 24 Stunden Frist
     private const ITEMS_PER_PAGE = 50;
-    private const CACHE_TTL = 86400; // 24h Cache
+    private const CACHE_TTL = 86400; // 24 Stunden Cache
 
     public function getLostContent(): string
     {
@@ -35,13 +35,13 @@ class PictureLostPanel
         $user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
         $nickname = is_array($user) ? ($user['nickname'] ?? '') : '';
 
-        // Beim initialen Aufruf immer 'lost' setzen, damit die Checkbox nicht aktiv ist
+        // Beim ersten Aufruf standardmäßig 'lost' erzwingen, damit die Checkbox nicht aktiv ist
         $tab = isset($_GET['tab']) && $_GET['tab'] === 'used' ? 'used' : 'lost';
 
-        // 1. Verwendete Resource-IDs laden (Cache/DB)
+        // 1. Verwendete Resource-IDs aus Cache oder performanter Index-Suche abrufen
         $usedRids = $this->getUsedResourceIdsFromCacheOrDb($uid);
 
-        // 2. Alle Bild-Kandidaten abrufen
+        // 2. Alle Bild-Kandidaten des Benutzers laden
         $allCandidates = $this->fetchAllCandidates($uid);
 
         $lostPhotos = [];
@@ -68,9 +68,10 @@ class PictureLostPanel
             $pagedPhotos = $this->attachPostUrls($uid, $pagedPhotos);
         }
 
+        // Hinweistext
         $hintText = ($tab === 'lost')
-            ? DI::l10n()->t('Zeigt verwaiste Bilder (ohne Verwendung in Beiträgen, DM, Terminen oder Profiltexten). Klick auf das Bild öffnet die Galerie zum Löschen.')
-            : DI::l10n()->t('Zeigt verwendete Bilder an. Diese Bilder bitte nicht löschen, da sie in Beiträgen, DM, Terminen oder Profiltexten angezeigt werden');
+            ? DI::l10n()->t('Zeigt verwaiste Bilder (ohne Verwendung in Beiträgen, Terminen, Nachrichten oder Profiltexten). Klick auf das Bild öffnet die Galerie zum Löschen.')
+            : DI::l10n()->t('Zeigt verwendete Bilder an. Diese Bilder bitte nicht löschen, da sie in Beiträgen, Events oder Profilinformationen angezeigt werden');
 
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('picturelost.tpl', 'addon/picturelost'), [
             '$title'      => DI::l10n()->t('PictureLost - Verwaiste Bilder'),
@@ -93,12 +94,15 @@ class PictureLostPanel
             return $cachedRids;
         }
 
-        $usedRids = $this->collectUsedResourceIds($uid);
+        $usedRids = $this->collectUsedResourceIdsFast($uid);
         DI::cache()->set($cacheKey, $usedRids, self::CACHE_TTL);
 
         return $usedRids;
     }
 
+    /**
+     * Holt alle Hauptbilder des Benutzers (scale = 0, profil = 0, Alter > 24h, keine Systemalben).
+     */
     private function fetchAllCandidates(int $uid): array
     {
         $albums       = $this->getSystemAlbums();
@@ -129,6 +133,92 @@ class PictureLostPanel
         return DBA::toArray($stmt);
     }
 
+    /**
+     * Hochoptimierte Abfrage genutzter Resource-IDs über relationale Datenbank-Indizes.
+     */
+    private function collectUsedResourceIdsFast(int $uid): array
+    {
+        $rids = [];
+
+        // 1. Indizierte Suche über post-content (Friendica verknüpft Medien hier strukturiert)
+        $sqlPostContent = "SELECT DISTINCT `pc`.`resource-id`
+                           FROM `post-content` `pc`
+                           INNER JOIN `post-user` `pu` ON `pu`.`uri-id` = `pc`.`uri-id`
+                           WHERE `pu`.`uid` = ?";
+        $stmt = DBA::p($sqlPostContent, $uid);
+        if ($stmt) {
+            while ($row = DBA::fetch($stmt)) {
+                $cleanRid = ltrim($row['resource-id'], '0');
+                if ($cleanRid !== '') {
+                    $rids[$cleanRid] = true;
+                }
+            }
+            DBA::close($stmt);
+        }
+
+        // 2. Indizierte Suche über post-media
+        $sqlPostMedia = "SELECT DISTINCT `pm`.`url`, `pm`.`preview`
+                         FROM `post-media` `pm`
+                         INNER JOIN `post-user` `pu` ON `pu`.`uri-id` = `pm`.`uri-id`
+                         WHERE `pu`.`uid` = ?";
+        $stmt = DBA::p($sqlPostMedia, $uid);
+        if ($stmt) {
+            while ($row = DBA::fetch($stmt)) {
+                foreach ([$row['url'], $row['preview']] as $url) {
+                    if (is_string($url) && $url !== '') {
+                        foreach ($this->extractRids($url) as $rid) {
+                            $rids[$rid] = true;
+                        }
+                    }
+                }
+            }
+            DBA::close($stmt);
+        }
+
+        // 3. Suche in Mails
+        $sqlMail = "SELECT `body` FROM `mail` WHERE `uid` = ? AND `body` LIKE '%/photo%'";
+        $stmt = DBA::p($sqlMail, $uid);
+        if ($stmt) {
+            while ($row = DBA::fetch($stmt)) {
+                foreach ($this->extractRids($row['body']) as $rid) {
+                    $rids[$rid] = true;
+                }
+            }
+            DBA::close($stmt);
+        }
+
+        // 4. Suche in Events
+        $sqlEvent = "SELECT `summary`, `desc` FROM `event` WHERE `uid` = ? AND (`summary` LIKE '%/photo%' OR `desc` LIKE '%/photo%')";
+        $stmt = DBA::p($sqlEvent, $uid);
+        if ($stmt) {
+            while ($row = DBA::fetch($stmt)) {
+                foreach ([$row['summary'], $row['desc']] as $text) {
+                    foreach ($this->extractRids($text) as $rid) {
+                        $rids[$rid] = true;
+                    }
+                }
+            }
+            DBA::close($stmt);
+        }
+
+        // 5. Suche im Profiltext
+        $sqlProfile = "SELECT `about` FROM `profile` WHERE `uid` = ? AND `about` LIKE '%/photo%'";
+        $stmt = DBA::p($sqlProfile, $uid);
+        if ($stmt) {
+            while ($row = DBA::fetch($stmt)) {
+                foreach ($this->extractRids($row['about']) as $rid) {
+                    $rids[$rid] = true;
+                }
+            }
+            DBA::close($stmt);
+        }
+
+        return $rids;
+    }
+
+    /**
+     * Ermittelt für die aktuell angezeigten genutzten Bilder die URL des passenden Beitrags.
+     */
     private function attachPostUrls(int $uid, array $photos): array
     {
         $rids = array_column($photos, 'resource_id');
@@ -161,76 +251,6 @@ class PictureLostPanel
         }
 
         return $photos;
-    }
-
-    private function collectUsedResourceIds(int $uid): array
-    {
-        $rids = [];
-
-        // 1. Post Media
-        $this->addRidsFromQuery(
-            $rids,
-            "SELECT `pm`.`url`, `pm`.`preview`
-             FROM `post-user` `pu`
-             INNER JOIN `post-media` `pm` ON `pm`.`uri-id` = `pu`.`uri-id`
-             WHERE `pu`.`uid` = ? AND `pu`.`origin`
-               AND (`pm`.`url` LIKE ? OR `pm`.`preview` LIKE ?)",
-            [$uid, '%/photo%', '%/photo%']
-        );
-
-        // 2. Post Content
-        $this->addRidsFromQuery(
-            $rids,
-            "SELECT `pc`.`body`, `pc`.`raw-body`
-             FROM `post-user` `pu`
-             INNER JOIN `post-content` `pc` ON `pc`.`uri-id` = `pu`.`uri-id`
-             WHERE `pu`.`uid` = ? AND `pu`.`origin`
-               AND (`pc`.`body` LIKE ? OR `pc`.`raw-body` LIKE ?)",
-            [$uid, '%/photo%', '%/photo%']
-        );
-
-        // 3. Nachrichten
-        $this->addRidsFromQuery(
-            $rids,
-            "SELECT `body` FROM `mail` WHERE `uid` = ? AND `body` LIKE ?",
-            [$uid, '%/photo%']
-        );
-
-        // 4. Events
-        $this->addRidsFromQuery(
-            $rids,
-            "SELECT `summary`, `desc` FROM `event` WHERE `uid` = ? AND (`summary` LIKE ? OR `desc` LIKE ?)",
-            [$uid, '%/photo%', '%/photo%']
-        );
-
-        // 5. Profiltext
-        $this->addRidsFromQuery(
-            $rids,
-            "SELECT `about` FROM `profile` WHERE `uid` = ? AND `about` LIKE ?",
-            [$uid, '%/photo%']
-        );
-
-        return $rids;
-    }
-
-    private function addRidsFromQuery(array &$rids, string $sql, array $params): void
-    {
-        $stmt = DBA::p($sql, ...$params);
-        if (!$stmt) {
-            return;
-        }
-
-        while ($row = DBA::fetch($stmt)) {
-            foreach ($row as $value) {
-                if (is_string($value) && $value !== '') {
-                    foreach ($this->extractRids($value) as $rid) {
-                        $rids[$rid] = true;
-                    }
-                }
-            }
-        }
-
-        DBA::close($stmt);
     }
 
     private function extractRids(string $text): array
