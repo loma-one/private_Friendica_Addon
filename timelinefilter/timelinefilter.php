@@ -3,13 +3,15 @@
 /**
  * Name: Timeline Filter
  * Description: Filters hashtags, words and accounts in personal timelines
- * Version: 1.5.0
+ * Version: 1.5.1
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+
+const TIMELINEFILTER_DAY_SECONDS = 86400;
 
 function timelinefilter_install(): void
 {
@@ -35,13 +37,13 @@ function timelinefilter_addon_settings(array &$data): void
             'duration'       => 'always',
             'expires'        => 0,
             'days_left'      => null,
-            'days_left_text' => ''
+            'days_left_text' => '',
         ];
     } else {
         $now = time();
         foreach ($rules as &$rule) {
             if (!empty($rule['expires']) && $rule['expires'] > $now) {
-                $days = (int) ceil(($rule['expires'] - $now) / 86400);
+                $days = (int) ceil(($rule['expires'] - $now) / TIMELINEFILTER_DAY_SECONDS);
                 $rule['days_left'] = $days;
                 $rule['days_left_text'] = sprintf(DI::l10n()->tt('%d day remaining', '%d days remaining', $days), $days);
             } else {
@@ -52,8 +54,8 @@ function timelinefilter_addon_settings(array &$data): void
         unset($rule);
     }
 
-    $t = Renderer::getMarkupTemplate('settings.tpl', 'addon/timelinefilter/');
-    $html = Renderer::replaceMacros($t, [
+    $template = Renderer::getMarkupTemplate('settings.tpl', 'addon/timelinefilter/');
+    $html = Renderer::replaceMacros($template, [
         '$info'        => DI::l10n()->t('Safe Filter: Define personal rules with optional expiration dates to hide posts.'),
         '$enabled'     => ['timelinefilter-enable', DI::l10n()->t('Enable Filter'), $enabled],
         '$words_label' => DI::l10n()->t('Filter Rules'),
@@ -90,6 +92,12 @@ function timelinefilter_addon_settings_post(array &$b): void
     $rules = [];
     $now = time();
 
+    $durationOffsets = [
+        '1d' => TIMELINEFILTER_DAY_SECONDS,
+        '1w' => 7 * TIMELINEFILTER_DAY_SECONDS,
+        '1m' => 30 * TIMELINEFILTER_DAY_SECONDS,
+    ];
+
     foreach ($keywords as $i => $kw) {
         $kw = trim($kw);
         if ($kw === '') {
@@ -99,13 +107,8 @@ function timelinefilter_addon_settings_post(array &$b): void
         $duration = $durations[$i] ?? 'always';
         $exp = (int) ($expires[$i] ?? 0);
 
-        if ($exp === 0) {
-            $exp = match ($duration) {
-                '1d'    => $now + 86400,
-                '1w'    => $now + (7 * 86400),
-                '1m'    => $now + (30 * 86400),
-                default => 0,
-            };
+        if ($exp === 0 && isset($durationOffsets[$duration])) {
+            $exp = $now + $durationOffsets[$duration];
         }
 
         $rules[] = [
@@ -136,111 +139,118 @@ function timelinefilter_page_end(string &$html): void
     $words    = [];
     $accounts = [];
 
-    foreach ($rules as $r) {
-        $kw = mb_strtolower($r['keyword']);
-        match ($r['type']) {
-            'hashtag' => $hashtags[] = ltrim($kw, '#'),
-            'account' => $accounts[] = ltrim($kw, '@'),
-            default   => $words[]    = $kw,
-        };
+    foreach ($rules as $rule) {
+        $kw = mb_strtolower($rule['keyword']);
+        switch ($rule['type']) {
+            case 'hashtag':
+                $hashtags[] = ltrim($kw, '#');
+                break;
+            case 'account':
+                $accounts[] = ltrim($kw, '@');
+                break;
+            default:
+                $words[] = $kw;
+                break;
+        }
     }
 
     if (empty($hashtags) && empty($words) && empty($accounts)) {
         return;
     }
 
-    $script = sprintf(
-        '<script>
-        (() => {
-            "use strict";
-            const config = {
-                hashtags: %s,
-                words: %s,
-                accounts: %s,
-                selector: "article, .thread-wrapper, .wall-item-container"
-            };
+    $jsonHashtags = json_encode($hashtags);
+    $jsonWords    = json_encode($words);
+    $jsonAccounts = json_encode($accounts);
 
-            const filterPost = (post) => {
-                if (!post || post.nodeType !== 1 || post.dataset.tfFiltered) return;
-                post.dataset.tfFiltered = "true";
+    $html .= <<<HTML
+<script>
+(() => {
+    "use strict";
+    const config = {
+        hashtags: {$jsonHashtags},
+        words: {$jsonWords},
+        accounts: {$jsonAccounts},
+        selector: "article, .thread-wrapper, .wall-item-container"
+    };
 
-                const text = post.textContent.toLowerCase();
+    const filterPost = (post) => {
+        if (!post || post.nodeType !== 1 || post.dataset.tfFiltered) return;
+        post.dataset.tfFiltered = "true";
 
-                if (config.words.some(w => text.includes(w))) {
-                    post.style.setProperty("display", "none", "important");
-                    return;
-                }
+        const text = post.textContent.toLowerCase();
 
-                if (config.hashtags.some(h => text.includes("#" + h))) {
-                    post.style.setProperty("display", "none", "important");
-                    return;
-                }
+        if (config.words.some(w => text.includes(w))) {
+            post.style.setProperty("display", "none", "important");
+            return;
+        }
 
-                const links = Array.from(post.querySelectorAll("a[href]"));
-                if (config.hashtags.length && links.some(a => {
+        if (config.hashtags.some(h => text.includes("#" + h))) {
+            post.style.setProperty("display", "none", "important");
+            return;
+        }
+
+        const links = Array.from(post.querySelectorAll("a[href]"));
+        if (config.hashtags.length && links.some(a => {
+            const href = a.getAttribute("href").toLowerCase();
+            return config.hashtags.some(h => href.includes("tag/" + h) || href.includes("tag=" + h));
+        })) {
+            post.style.setProperty("display", "none", "important");
+            return;
+        }
+
+        if (config.accounts.length) {
+            const hasAccount = config.accounts.some(acc => {
+                if (text.includes("@" + acc) || text.includes(acc)) return true;
+
+                const [uName, uDom] = acc.split("@");
+                if (!uDom) return false;
+
+                return links.some(a => {
                     const href = a.getAttribute("href").toLowerCase();
-                    return config.hashtags.some(h => href.includes("tag/" + h) || href.includes("tag=" + h));
-                })) {
-                    post.style.setProperty("display", "none", "important");
-                    return;
-                }
+                    return href.includes(uDom) && (
+                        href.includes("/profile/" + uName) ||
+                        href.includes("/users/" + uName) ||
+                        href.includes("/@" + uName)
+                    );
+                });
+            });
 
-                if (config.accounts.length) {
-                    const hasAccount = config.accounts.some(acc => {
-                        if (text.includes("@" + acc) || text.includes(acc)) return true;
+            if (hasAccount) {
+                post.style.setProperty("display", "none", "important");
+            }
+        }
+    };
 
-                        const [uName, uDom] = acc.split("@");
-                        if (!uDom) return false;
+    document.querySelectorAll(config.selector).forEach(filterPost);
 
-                        return links.some(a => {
-                            const href = a.getAttribute("href").toLowerCase();
-                            return href.includes(uDom) && (
-                                href.includes("/profile/" + uName) ||
-                                href.includes("/users/" + uName) ||
-                                href.includes("/@" + uName)
-                            );
-                        });
-                    });
-
-                    if (hasAccount) {
-                        post.style.setProperty("display", "none", "important");
-                    }
-                }
-            };
-
-            document.querySelectorAll(config.selector).forEach(filterPost);
-
-            // MutationObserver für dynamisch geladene Items
-            const target = document.getElementById("threads-location") || document.body;
-            new MutationObserver(mutations => {
-                for (const m of mutations) {
-                    m.addedNodes.forEach(node => {
-                        if (node.nodeType !== 1) return;
-                        if (node.matches?.(config.selector)) filterPost(node);
-                        else node.querySelectorAll?.(config.selector).forEach(filterPost);
-                    });
-                }
-            }).observe(target, { childList: true, subtree: true });
-        })();
-        </script>',
-        json_encode($hashtags),
-        json_encode($words),
-        json_encode($accounts)
-    );
-
-    $html .= $script;
+    const target = document.getElementById("threads-location") || document.body;
+    new MutationObserver(mutations => {
+        for (const m of mutations) {
+            m.addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                if (node.matches?.(config.selector)) filterPost(node);
+                else node.querySelectorAll?.(config.selector).forEach(filterPost);
+            });
+        }
+    }).observe(target, { childList: true, subtree: true });
+})();
+</script>
+HTML;
 }
 
 function timelinefilter_get_rules(int $uid): array
 {
     $json = DI::pConfig()->get($uid, 'timelinefilter', 'rules', '[]');
     $rules = json_decode($json, true);
+
     if (!is_array($rules)) {
         return [];
     }
 
     $now = time();
-    $clean = array_filter($rules, fn($r) => empty($r['expires']) || $r['expires'] <= 0 || $r['expires'] > $now);
+    $clean = array_filter($rules, static function ($r) use ($now) {
+        return empty($r['expires']) || $r['expires'] <= 0 || $r['expires'] > $now;
+    });
 
     if (count($clean) !== count($rules)) {
         DI::pConfig()->set($uid, 'timelinefilter', 'rules', json_encode(array_values($clean)));
