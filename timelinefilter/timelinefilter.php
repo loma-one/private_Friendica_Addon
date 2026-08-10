@@ -3,15 +3,13 @@
 /**
  * Name: Timeline Filter
  * Description: Filters hashtags, words and accounts in personal timelines
- * Version: 1.5.1
+ * Version: 1.5.2
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-
-const TIMELINEFILTER_DAY_SECONDS = 86400;
 
 function timelinefilter_install(): void
 {
@@ -28,7 +26,7 @@ function timelinefilter_addon_settings(array &$data): void
     }
 
     $enabled = !DI::pConfig()->get($uid, 'timelinefilter', 'disable', 1);
-    $rules = timelinefilter_get_rules($uid);
+    $rules   = timelinefilter_get_rules($uid);
 
     if (empty($rules)) {
         $rules[] = [
@@ -43,11 +41,11 @@ function timelinefilter_addon_settings(array &$data): void
         $now = time();
         foreach ($rules as &$rule) {
             if (!empty($rule['expires']) && $rule['expires'] > $now) {
-                $days = (int) ceil(($rule['expires'] - $now) / TIMELINEFILTER_DAY_SECONDS);
-                $rule['days_left'] = $days;
+                $days                   = (int) ceil(($rule['expires'] - $now) / 86400);
+                $rule['days_left']      = $days;
                 $rule['days_left_text'] = sprintf(DI::l10n()->tt('%d day remaining', '%d days remaining', $days), $days);
             } else {
-                $rule['days_left'] = null;
+                $rule['days_left']      = null;
                 $rule['days_left_text'] = '';
             }
         }
@@ -55,7 +53,7 @@ function timelinefilter_addon_settings(array &$data): void
     }
 
     $template = Renderer::getMarkupTemplate('settings.tpl', 'addon/timelinefilter/');
-    $html = Renderer::replaceMacros($template, [
+    $html     = Renderer::replaceMacros($template, [
         '$info'        => DI::l10n()->t('Safe Filter: Define personal rules with optional expiration dates to hide posts.'),
         '$enabled'     => ['timelinefilter-enable', DI::l10n()->t('Enable Filter'), $enabled],
         '$words_label' => DI::l10n()->t('Filter Rules'),
@@ -82,21 +80,14 @@ function timelinefilter_addon_settings_post(array &$b): void
         return;
     }
 
-    $disable = !empty($_POST['timelinefilter-enable']) ? 0 : 1;
-
+    $disable   = !empty($_POST['timelinefilter-enable']) ? 0 : 1;
     $keywords  = $_POST['tf-keywords'] ?? [];
     $types     = $_POST['tf-types'] ?? [];
     $durations = $_POST['tf-durations'] ?? [];
     $expires   = $_POST['tf-expires'] ?? [];
 
     $rules = [];
-    $now = time();
-
-    $durationOffsets = [
-        '1d' => TIMELINEFILTER_DAY_SECONDS,
-        '1w' => 7 * TIMELINEFILTER_DAY_SECONDS,
-        '1m' => 30 * TIMELINEFILTER_DAY_SECONDS,
-    ];
+    $now   = time();
 
     foreach ($keywords as $i => $kw) {
         $kw = trim($kw);
@@ -105,10 +96,15 @@ function timelinefilter_addon_settings_post(array &$b): void
         }
 
         $duration = $durations[$i] ?? 'always';
-        $exp = (int) ($expires[$i] ?? 0);
+        $exp      = (int) ($expires[$i] ?? 0);
 
-        if ($exp === 0 && isset($durationOffsets[$duration])) {
-            $exp = $now + $durationOffsets[$duration];
+        if ($exp === 0) {
+            $exp = match ($duration) {
+                '1d'    => $now + 86400,
+                '1w'    => $now + (7 * 86400),
+                '1m'    => $now + (30 * 86400),
+                default => 0,
+            };
         }
 
         $rules[] = [
@@ -240,14 +236,14 @@ HTML;
 
 function timelinefilter_get_rules(int $uid): array
 {
-    $json = DI::pConfig()->get($uid, 'timelinefilter', 'rules', '[]');
+    $json  = DI::pConfig()->get($uid, 'timelinefilter', 'rules', '[]');
     $rules = json_decode($json, true);
 
     if (!is_array($rules)) {
         return [];
     }
 
-    $now = time();
+    $now   = time();
     $clean = array_filter($rules, static function ($r) use ($now) {
         return empty($r['expires']) || $r['expires'] <= 0 || $r['expires'] > $now;
     });
