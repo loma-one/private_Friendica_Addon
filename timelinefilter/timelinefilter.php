@@ -154,7 +154,6 @@ function timelinefilter_page_end(string &$html): void
         return;
     }
 
-    // XSS-sichere Enkodierung für Inline-Skripte
     $configJson = json_encode([
         'hashtags' => $hashtags,
         'words'    => $words,
@@ -162,7 +161,6 @@ function timelinefilter_page_end(string &$html): void
         'selector' => 'article, .thread-wrapper, .wall-item-container',
     ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    // Dynamic Cache Busting über Dateimodifikationszeit
     $jsPath = 'addon/timelinefilter/timelinefilter.js';
     $v      = file_exists($jsPath) ? filemtime($jsPath) : '2.0.0';
     $jsUrl  = DI::baseUrl() . '/' . $jsPath . '?v=' . $v;
