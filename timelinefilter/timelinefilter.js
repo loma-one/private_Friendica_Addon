@@ -15,7 +15,6 @@
 
         const text = post.textContent;
 
-        // 1. Begriffe & Hashtags im Fließtext
         if (wordRx.some(rx => rx.test(text)) || hashRx.some(rx => rx.test(text))) {
             post.style.setProperty("display", "none", "important");
             return;
@@ -23,7 +22,6 @@
 
         const links = Array.from(post.querySelectorAll("a[href]"));
 
-        // 2. Hashtags in Links
         if (config.hashtags.length && links.some(a => {
             const href = a.getAttribute("href").toLowerCase();
             return config.hashtags.some(h => new RegExp('tag[/=]' + escapeRx(h) + '(?![\\p{L}\\p{N}_])', 'i').test(href));
@@ -32,16 +30,13 @@
             return;
         }
 
-        // 3. Accounts (Text & Profillinks)
         if (config.accounts.length) {
             const hasAccount = config.accounts.some(acc => {
                 const accLower = acc.toLowerCase();
 
-                // Direct Mention im Fließtext
                 if (text.toLowerCase().includes("@" + accLower)) return true;
 
                 if (accLower.includes("@")) {
-                    // Handle mit Domain (z. B. "user@domain.tld")
                     const [uName, uDom] = accLower.split("@");
                     return links.some(a => {
                         const href = a.getAttribute("href").toLowerCase();
@@ -53,7 +48,6 @@
                         );
                     });
                 } else {
-                    // Handle ohne Domain (z. B. "bcwhs")
                     return links.some(a => {
                         const href = a.getAttribute("href").toLowerCase();
                         return href.includes("/profile/" + accLower) ||
