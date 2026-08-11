@@ -3,7 +3,7 @@
 /**
  * Name: Timeline Filter
  * Description: Filters hashtags, words and accounts in personal timelines
- * Version: 1.5.3
+ * Version: 1.5.4
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -136,7 +136,7 @@ function timelinefilter_page_end(string &$html): void
     $accounts = [];
 
     foreach ($rules as $rule) {
-        $kw = mb_strtolower($rule['keyword']);
+        $kw = mb_strtolower(trim($rule['keyword']));
         switch ($rule['type']) {
             case 'hashtag':
                 $hashtags[] = ltrim($kw, '#');
@@ -154,113 +154,35 @@ function timelinefilter_page_end(string &$html): void
         return;
     }
 
-    $jsTemplate = <<<'JS'
-<script>
-(() => {
-    "use strict";
-    const config = {
-        hashtags: {{HASHTAGS}},
-        words: {{WORDS}},
-        accounts: {{ACCOUNTS}},
-        selector: "article, .thread-wrapper, .wall-item-container"
-    };
+    // XSS-sichere Enkodierung für Inline-Skripte
+    $configJson = json_encode([
+        'hashtags' => $hashtags,
+        'words'    => $words,
+        'accounts' => $accounts,
+        'selector' => 'article, .thread-wrapper, .wall-item-container',
+    ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Dynamic Cache Busting über Dateimodifikationszeit
+    $jsPath = 'addon/timelinefilter/timelinefilter.js';
+    $v      = file_exists($jsPath) ? filemtime($jsPath) : '2.0.0';
+    $jsUrl  = DI::baseUrl() . '/' . $jsPath . '?v=' . $v;
 
-    // Unicode Boundary Matching (\p{L} = Buchstaben, \p{N} = Zahlen)
-    const wordRegexes = config.words.map(w =>
-        new RegExp('(?<![\\p{L}\\p{N}])' + escapeRegExp(w) + '(?![\\p{L}\\p{N}])', 'ui')
-    );
-
-    const hashtagRegexes = config.hashtags.map(h =>
-        new RegExp('(?<![\\p{L}\\p{N}_])#' + escapeRegExp(h) + '(?![\\p{L}\\p{N}_])', 'ui')
-    );
-
-    const filterPost = (post) => {
-        if (!post || post.nodeType !== 1 || post.dataset.tfFiltered) return;
-        post.dataset.tfFiltered = "true";
-
-        const text = post.textContent;
-
-        // 1. Exakter Wortfilter (Filtert "Blume", lässt "Blumenmeer" unangetastet)
-        if (wordRegexes.some(rx => rx.test(text))) {
-            post.style.setProperty("display", "none", "important");
-            return;
-        }
-
-        // 2. Exakter Hashtagfilter
-        if (hashtagRegexes.some(rx => rx.test(text))) {
-            post.style.setProperty("display", "none", "important");
-            return;
-        }
-
-        // 3. Hashtags in Link-Hrefs prüfen
-        const links = Array.from(post.querySelectorAll("a[href]"));
-        if (config.hashtags.length && links.some(a => {
-            const href = a.getAttribute("href").toLowerCase();
-            return config.hashtags.some(h => {
-                const rx = new RegExp('tag[/=]' + escapeRegExp(h) + '(?![\\p{L}\\p{N}_])', 'i');
-                return rx.test(href);
-            });
-        })) {
-            post.style.setProperty("display", "none", "important");
-            return;
-        }
-
-        // 4. Accounts filtern
-        if (config.accounts.length) {
-            const hasAccount = config.accounts.some(acc => {
-                if (text.toLowerCase().includes("@" + acc.toLowerCase())) return true;
-
-                const [uName, uDom] = acc.split("@");
-                if (!uDom) return false;
-
-                return links.some(a => {
-                    const href = a.getAttribute("href").toLowerCase();
-                    return href.includes(uDom) && (
-                        href.includes("/profile/" + uName) ||
-                        href.includes("/users/" + uName) ||
-                        href.includes("/@" + uName)
-                    );
-                });
-            });
-
-            if (hasAccount) {
-                post.style.setProperty("display", "none", "important");
-            }
-        }
-    };
-
-    document.querySelectorAll(config.selector).forEach(filterPost);
-
-    const target = document.getElementById("threads-location") || document.body;
-    new MutationObserver(mutations => {
-        for (const m of mutations) {
-            m.addedNodes.forEach(node => {
-                if (node.nodeType !== 1) return;
-                if (node.matches?.(config.selector)) filterPost(node);
-                else node.querySelectorAll?.(config.selector).forEach(filterPost);
-            });
-        }
-    }).observe(target, { childList: true, subtree: true });
-})();
-</script>
-JS;
-
-    $html .= str_replace(
-        ['{{HASHTAGS}}', '{{WORDS}}', '{{ACCOUNTS}}'],
-        [json_encode($hashtags), json_encode($words), json_encode($accounts)],
-        $jsTemplate
-    );
+    $html .= '<script>window.timelinefilterConfig = ' . $configJson . ';</script>';
+    $html .= '<script src="' . $jsUrl . '"></script>';
 }
 
 function timelinefilter_get_rules(int $uid): array
 {
+    static $cache = [];
+    if (array_key_exists($uid, $cache)) {
+        return $cache[$uid];
+    }
+
     $json  = DI::pConfig()->get($uid, 'timelinefilter', 'rules', '[]');
     $rules = json_decode($json, true);
 
     if (!is_array($rules)) {
-        return [];
+        return $cache[$uid] = [];
     }
 
     $now   = time();
@@ -272,5 +194,5 @@ function timelinefilter_get_rules(int $uid): array
         DI::pConfig()->set($uid, 'timelinefilter', 'rules', json_encode(array_values($clean)));
     }
 
-    return array_values($clean);
+    return $cache[$uid] = array_values($clean);
 }
