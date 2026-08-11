@@ -3,7 +3,7 @@
 /**
  * Name: Timeline Filter
  * Description: Filters hashtags, words and accounts in personal timelines
- * Version: 1.5.2
+ * Version: 1.5.3
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -154,49 +154,63 @@ function timelinefilter_page_end(string &$html): void
         return;
     }
 
-    $jsonHashtags = json_encode($hashtags);
-    $jsonWords    = json_encode($words);
-    $jsonAccounts = json_encode($accounts);
-
-    $html .= <<<HTML
+    $jsTemplate = <<<'JS'
 <script>
 (() => {
     "use strict";
     const config = {
-        hashtags: {$jsonHashtags},
-        words: {$jsonWords},
-        accounts: {$jsonAccounts},
+        hashtags: {{HASHTAGS}},
+        words: {{WORDS}},
+        accounts: {{ACCOUNTS}},
         selector: "article, .thread-wrapper, .wall-item-container"
     };
+
+    const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Unicode Boundary Matching (\p{L} = Buchstaben, \p{N} = Zahlen)
+    const wordRegexes = config.words.map(w =>
+        new RegExp('(?<![\\p{L}\\p{N}])' + escapeRegExp(w) + '(?![\\p{L}\\p{N}])', 'ui')
+    );
+
+    const hashtagRegexes = config.hashtags.map(h =>
+        new RegExp('(?<![\\p{L}\\p{N}_])#' + escapeRegExp(h) + '(?![\\p{L}\\p{N}_])', 'ui')
+    );
 
     const filterPost = (post) => {
         if (!post || post.nodeType !== 1 || post.dataset.tfFiltered) return;
         post.dataset.tfFiltered = "true";
 
-        const text = post.textContent.toLowerCase();
+        const text = post.textContent;
 
-        if (config.words.some(w => text.includes(w))) {
+        // 1. Exakter Wortfilter (Filtert "Blume", lässt "Blumenmeer" unangetastet)
+        if (wordRegexes.some(rx => rx.test(text))) {
             post.style.setProperty("display", "none", "important");
             return;
         }
 
-        if (config.hashtags.some(h => text.includes("#" + h))) {
+        // 2. Exakter Hashtagfilter
+        if (hashtagRegexes.some(rx => rx.test(text))) {
             post.style.setProperty("display", "none", "important");
             return;
         }
 
+        // 3. Hashtags in Link-Hrefs prüfen
         const links = Array.from(post.querySelectorAll("a[href]"));
         if (config.hashtags.length && links.some(a => {
             const href = a.getAttribute("href").toLowerCase();
-            return config.hashtags.some(h => href.includes("tag/" + h) || href.includes("tag=" + h));
+            return config.hashtags.some(h => {
+                const rx = new RegExp('tag[/=]' + escapeRegExp(h) + '(?![\\p{L}\\p{N}_])', 'i');
+                return rx.test(href);
+            });
         })) {
             post.style.setProperty("display", "none", "important");
             return;
         }
 
+        // 4. Accounts filtern
         if (config.accounts.length) {
             const hasAccount = config.accounts.some(acc => {
-                if (text.includes("@" + acc) || text.includes(acc)) return true;
+                if (text.toLowerCase().includes("@" + acc.toLowerCase())) return true;
 
                 const [uName, uDom] = acc.split("@");
                 if (!uDom) return false;
@@ -231,7 +245,13 @@ function timelinefilter_page_end(string &$html): void
     }).observe(target, { childList: true, subtree: true });
 })();
 </script>
-HTML;
+JS;
+
+    $html .= str_replace(
+        ['{{HASHTAGS}}', '{{WORDS}}', '{{ACCOUNTS}}'],
+        [json_encode($hashtags), json_encode($words), json_encode($accounts)],
+        $jsTemplate
+    );
 }
 
 function timelinefilter_get_rules(int $uid): array
