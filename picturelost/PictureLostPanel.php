@@ -11,9 +11,9 @@ use Friendica\Util\DateTimeFormat;
 
 class PictureLostPanel
 {
-    private const GRACE_PERIOD = 'now - 1 day'; // 24 Stunden Frist
+    private const GRACE_PERIOD = 'now - 1 day';
     private const ITEMS_PER_PAGE = 50;
-    private const CACHE_TTL = 86400; // 24 Stunden Cache
+    private const CACHE_TTL = 86400;
 
     public function getLostContent(): string
     {
@@ -28,20 +28,36 @@ class PictureLostPanel
         $isEnabled = DI::pConfig()->get($uid, 'picturelost', 'enabled', 0);
         if (!$isEnabled) {
             return '<div class="generic-page-wrapper"><div class="panel-body">'
-                   . DI::l10n()->t('Dieses Addon ist in deinen Einstellungen nicht aktiviert.')
-                   . '</div></div>';
+                . DI::l10n()->t('Dieses Addon ist in deinen Einstellungen nicht aktiviert.')
+                . '</div></div>';
         }
 
         $user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
         $nickname = is_array($user) ? ($user['nickname'] ?? '') : '';
 
-        // Beim ersten Aufruf standardmäßig 'lost' erzwingen, damit die Checkbox nicht aktiv ist
         $tab = isset($_GET['tab']) && $_GET['tab'] === 'used' ? 'used' : 'lost';
 
-        // 1. Verwendete Resource-IDs aus Cache oder performanter Index-Suche abrufen
-        $usedRids = $this->getUsedResourceIdsFromCacheOrDb($uid);
+        $run = isset($_GET['run']) && $_GET['run'] === '1';
 
-        // 2. Alle Bild-Kandidaten des Benutzers laden
+        $hintText = ($tab === 'lost')
+            ? DI::l10n()->t('Zeigt verwaiste Bilder (ohne Verwendung in Beiträgen, Terminen, Nachrichten oder Profiltexten). Klick auf das Bild öffnet die Galerie zum Löschen.')
+            : DI::l10n()->t('Zeigt verwendete Bilder an. Diese Bilder bitte nicht löschen, da sie in Beiträgen, Events oder Profilinformationen angezeigt werden');
+
+        if (!$run) {
+            return Renderer::replaceMacros(Renderer::getMarkupTemplate('picturelost.tpl', 'addon/picturelost'), [
+                '$title'      => DI::l10n()->t('PictureLost - Verwaiste Bilder'),
+                '$hint'       => $hintText,
+                '$base_url'   => DI::baseUrl(),
+                '$nickname'   => $nickname,
+                '$tab'        => $tab,
+                '$count'      => 0,
+                '$photos'     => [],
+                '$pager'      => '',
+                '$is_loading' => true,
+            ]);
+        }
+
+        $usedRids = $this->getUsedResourceIdsFromCacheOrDb($uid);
         $allCandidates = $this->fetchAllCandidates($uid);
 
         $lostPhotos = [];
@@ -59,19 +75,12 @@ class PictureLostPanel
         $activeList = ($tab === 'lost') ? $lostPhotos : $usedPhotos;
         $totalCount = count($activeList);
 
-        // 3. Pagination anwenden
         $pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
         $pagedPhotos = array_slice($activeList, $pager->getStart(), $pager->getItemsPerPage());
 
-        // 4. Nur im "used"-Modus Beitrags-URLs für die aktuell sichtbaren 50 Bilder ermitteln
         if ($tab === 'used' && !empty($pagedPhotos)) {
             $pagedPhotos = $this->attachPostUrls($uid, $pagedPhotos);
         }
-
-        // Hinweistext
-        $hintText = ($tab === 'lost')
-            ? DI::l10n()->t('Zeigt verwaiste Bilder (ohne Verwendung in Beiträgen, Terminen, Nachrichten oder Profiltexten). Klick auf das Bild öffnet die Galerie zum Löschen.')
-            : DI::l10n()->t('Zeigt verwendete Bilder an. Diese Bilder bitte nicht löschen, da sie in Beiträgen, Events oder Profilinformationen angezeigt werden');
 
         return Renderer::replaceMacros(Renderer::getMarkupTemplate('picturelost.tpl', 'addon/picturelost'), [
             '$title'      => DI::l10n()->t('PictureLost - Verwaiste Bilder'),
@@ -82,6 +91,7 @@ class PictureLostPanel
             '$count'      => $totalCount,
             '$photos'     => $pagedPhotos,
             '$pager'      => $pager->renderFull($totalCount),
+            '$is_loading' => false,
         ]);
     }
 
@@ -100,9 +110,6 @@ class PictureLostPanel
         return $usedRids;
     }
 
-    /**
-     * Holt alle Hauptbilder des Benutzers (scale = 0, profil = 0, Alter > 24h, keine Systemalben).
-     */
     private function fetchAllCandidates(int $uid): array
     {
         $albums       = $this->getSystemAlbums();
@@ -133,14 +140,10 @@ class PictureLostPanel
         return DBA::toArray($stmt);
     }
 
-    /**
-     * Hochoptimierte Abfrage genutzter Resource-IDs über relationale Datenbank-Indizes.
-     */
     private function collectUsedResourceIdsFast(int $uid): array
     {
         $rids = [];
 
-        // 1. Indizierte Suche über post-content (Friendica verknüpft Medien hier strukturiert)
         $sqlPostContent = "SELECT DISTINCT `pc`.`resource-id`
                            FROM `post-content` `pc`
                            INNER JOIN `post-user` `pu` ON `pu`.`uri-id` = `pc`.`uri-id`
@@ -156,7 +159,6 @@ class PictureLostPanel
             DBA::close($stmt);
         }
 
-        // 2. Indizierte Suche über post-media
         $sqlPostMedia = "SELECT DISTINCT `pm`.`url`, `pm`.`preview`
                          FROM `post-media` `pm`
                          INNER JOIN `post-user` `pu` ON `pu`.`uri-id` = `pm`.`uri-id`
@@ -175,7 +177,6 @@ class PictureLostPanel
             DBA::close($stmt);
         }
 
-        // 3. Suche in Mails
         $sqlMail = "SELECT `body` FROM `mail` WHERE `uid` = ? AND `body` LIKE '%/photo%'";
         $stmt = DBA::p($sqlMail, $uid);
         if ($stmt) {
@@ -187,7 +188,6 @@ class PictureLostPanel
             DBA::close($stmt);
         }
 
-        // 4. Suche in Events
         $sqlEvent = "SELECT `summary`, `desc` FROM `event` WHERE `uid` = ? AND (`summary` LIKE '%/photo%' OR `desc` LIKE '%/photo%')";
         $stmt = DBA::p($sqlEvent, $uid);
         if ($stmt) {
@@ -201,7 +201,6 @@ class PictureLostPanel
             DBA::close($stmt);
         }
 
-        // 5. Suche im Profiltext
         $sqlProfile = "SELECT `about` FROM `profile` WHERE `uid` = ? AND `about` LIKE '%/photo%'";
         $stmt = DBA::p($sqlProfile, $uid);
         if ($stmt) {
@@ -216,9 +215,6 @@ class PictureLostPanel
         return $rids;
     }
 
-    /**
-     * Ermittelt für die aktuell angezeigten genutzten Bilder die URL des passenden Beitrags.
-     */
     private function attachPostUrls(int $uid, array $photos): array
     {
         $rids = array_column($photos, 'resource_id');
