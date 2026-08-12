@@ -2,7 +2,7 @@
 /**
  * Name: PictureLost
  * Description: Findet verwaiste Bilder, die in keinem Beitrag (Content) verwendet werden (BETA).
- * Version: 0.0.2
+ * Version: 0.0.3
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  * Author: Matthias Eßmann <https://sekretaerbaer.de/profile/oldkid>
  */
@@ -46,6 +46,8 @@ function picturelost_content()
         return '';
     }
 
+    DI::page()->registerStylesheet('addon/picturelost/style.css');
+
     $classFile = __DIR__ . '/PictureLostPanel.php';
     if (file_exists($classFile)) {
         require_once($classFile);
@@ -69,6 +71,8 @@ function picturelost_addon_settings(array &$data)
     if (!DI::userSession()->getLocalUserId()) {
         return;
     }
+
+    DI::page()->registerStylesheet('addon/picturelost/style.css');
 
     $enabled = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'picturelost', 'enabled', 0);
 
