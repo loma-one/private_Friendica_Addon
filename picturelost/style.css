@@ -1,0 +1,59 @@
+.picturelost-loading-box {
+    display: none;
+    padding: 40px 15px;
+}
+
+.picturelost-loading-box h4 {
+    margin-top: 15px;
+}
+
+.picturelost-settings-btn {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.picturelost-header-right {
+    margin-top: 5px;
+}
+
+.picturelost-toggle-label {
+    cursor: pointer;
+    font-weight: normal;
+    user-select: none;
+}
+
+.picturelost-hint {
+    padding: 15px 15px 0 15px;
+}
+
+.picturelost-table-wrapper {
+    padding: 15px 15px 0 15px;
+}
+
+.picturelost-thumb-col {
+    width: 80px;
+}
+
+.picturelost-thumbnail {
+    max-width: 70px;
+    max-height: 70px;
+    object-fit: cover;
+}
+
+.picturelost-filename-link {
+    font-weight: bold;
+    color: #333;
+    text-decoration: underline;
+}
+
+.picturelost-valign-middle {
+    vertical-align: middle;
+}
+
+.picturelost-action-danger {
+    text-decoration: underline;
+}
+
+.picturelost-empty-state {
+    padding: 30px;
+}
