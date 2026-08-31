@@ -24,3 +24,4 @@ $streams = [
     ['name' => 'WDR2', 'url' => '[https://wdr-wdr2-rheinland.icecast.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3](https://wdr-wdr2-rheinland.icecast.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3)'],
     // ...
 ];
+```
