@@ -1,7 +1,7 @@
 <?php
 /**
  * Name: RadioPlayer
- * Description: Adds a persistent web radio player above the timeline.
+ * Description: (POC SPA Modus) Adds a persistent web radio player above the timeline.
  * Version: 1.0
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
