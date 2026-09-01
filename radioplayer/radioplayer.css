@@ -1,0 +1,38 @@
+#friendica-radio-player {
+    margin-bottom: 15px;
+}
+
+#friendica-radio-player .panel-body {
+    padding: 10px 15px;
+}
+
+.radio-player-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.radio-col {
+    margin-bottom: 5px;
+}
+
+.radio-volume-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px;
+}
+
+.radio-volume-icon {
+    font-size: 1.2em;
+    opacity: 0.7;
+}
+
+#radio-volume {
+    width: 100%;
+    cursor: pointer;
+}
+
+#radio-status-msg {
+    margin-top: 5px;
+}
