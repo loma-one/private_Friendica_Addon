@@ -2,7 +2,7 @@
 /**
  * Name: Follow Suggestions
  * Description: Onboarding widget for local Friendica/Fediverse contacts
- * Version: 4.5.2
+ * Version: 4.5.3
  * Author: Matthias Ebers <feb@loma.ml>
  */
 
@@ -113,21 +113,22 @@ function follow_network_mod_init()
     $excludedUrls = [];
     $urlToContactId = [];
 
-    $r = DBA::select('contact', ['id', 'url', 'rel', 'blocked', 'ignored'], [
-            'uid' => $userId,
-            'url' => $urls
-        ]);
+    $r = DBA::select('contact', ['id', 'url', 'rel', 'blocked'], [
+        'uid' => $userId,
+        'url' => $urls
+    ]);
 
-        if (DBA::isResult($r)) {
-            // Nutze foreach statt while(DBA::fetch), um maximale Kompatibilität zu gewährleisten
-            foreach ($r as $row) {
-                if ($row['rel'] != Contact::NOTHING || $row['blocked'] || $row['ignored']) {
-                    $excludedUrls[] = $row['url'];
-                } else {
-                    $urlToContactId[$row['url']] = $row['id'];
-                }
+    if (DBA::isResult($r)) {
+        foreach ($r as $row) {
+            $isIgnored = isset($row['ignored']) ? $row['ignored'] : false;
+
+            if ($row['rel'] != Contact::NOTHING || $row['blocked'] || $isIgnored) {
+                $excludedUrls[] = $row['url'];
+            } else {
+                $urlToContactId[$row['url']] = $row['id'];
             }
         }
+    }
 
     $finalSuggestions = [];
     foreach ($externalItems as $item) {
