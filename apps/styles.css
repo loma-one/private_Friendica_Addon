@@ -1,0 +1,77 @@
+:root {
+    --sidebar-bg-color: rgba(221, 221, 221, 0.2);
+    --icon-hover-bg-color: rgba(0, 0, 0, 0.1);
+    --box-shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+#icon_wrapper {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 50px;
+    background-color: var(--sidebar-bg-color);
+    padding: 10px 0;
+    box-shadow: -2px 0 5px var(--box-shadow-color);
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px 0 0 10px;
+    z-index: 1000;
+}
+
+#icon_wrapper.apps-sidebar-left {
+    right: auto;
+    left: 0;
+    border-left: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0 10px 10px 0;
+    box-shadow: 2px 0 5px var(--box-shadow-color);
+}
+
+#icon_wrapper a {
+    display: block;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#icon_wrapper img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    #icon_wrapper {
+        display: none;
+    }
+}
+
+.btn-delete-row {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 50px;
+    color: #fff;
+    background-color: #d9534f;
+    border: 1px solid #d43f3a;
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.btn-delete-row:hover,
+.btn-delete-row:focus {
+    color: #fff;
+    background-color: #c9302c;
+    border-color: #ac2925;
+    text-decoration: none;
+}
+
+.btn-delete-row:active {
+    background-color: #ac2925;
+    border-color: #7b1f1c;
+}

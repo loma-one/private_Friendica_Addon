@@ -1,55 +1,64 @@
 # Friendica Apps Addon
 
-## Beschreibung
+## Description
 
-Das **Friendica Apps Addon** ermöglicht es Nutzenden, Links zu verschiedenen Apps und Diensten auf der rechten Seite der Seite anzuzeigen. Jeder Link kann mit einem benutzerdefinierten Label und einem Icon versehen werden. Zusätzlich können Nutzende festlegen, ob ein Link in einem neuen Tab oder Fenster geöffnet werden soll.
+The **Friendica Apps Addon** allows users to display links to various apps and services on the right side of the page. Each link can be customized with a label and an icon. Users can also specify whether a link should open in a new tab or window.
 
-## Funktionen
+---
 
-- **Anzeige von App-Links**: Zeigt Links zu verschiedenen Apps und Diensten auf der rechten Seite der Seite an.
-- **Benutzerdefinierte Labels**: Ermöglicht das Hinzufügen benutzerdefinierter Labels für jeden Link.
-- **Icons**: Zeigt Icons für jeden Link an, basierend auf der Domain des Links.
-- **Neuer Tab/Fenster**: Ermöglicht das Festlegen, ob ein Link in einem neuen Tab oder Fenster geöffnet werden soll.
-- **Benutzerdefinierte Einstellungen**: Nutzende können ihre Links und Einstellungen über die Addon-Einstellungsseite verwalten.
+## Features
+
+- **Display App Links**: Shows links to various apps and services on the right side of the page.
+- **Custom Labels**: Allows users to add custom labels for each link.
+- **Icons**: Displays icons for each link based on the domain of the link.
+- **New Tab/Window**: Allows users to specify if a link should open in a new tab or window.
+- **Custom Settings**: Users can manage their links and settings via the addon settings page.
+- **SPA Modus**: SPA mode is supported
+
+---
 
 ## Installation
 
-1. **Addon herunterladen**: Laden Sie das Addon herunter und entpacken Sie es in das `addon` Verzeichnis Ihrer Friendica-Installation.
-2. **Addon aktivieren**: Gehen Sie zu Ihrer Friendica-Admin-Seite und aktivieren Sie das Addon unter "Addon-Verwaltung".
+1. **Download the Addon**: Download the addon and extract it into the `addon` directory of your Friendica installation.
+2. **Activate the Addon**: Go to your Friendica admin page and enable the addon under "Addon Management."
 
-## Konfiguration
+---
 
-1. **Einstellungen aufrufen**: Gehen Sie zu Ihrer Friendica-Einstellungsseite und wählen Sie das "Apps" Addon aus.
-2. **Links hinzufügen**: Fügen Sie Ihre App-Links hinzu, indem Sie die URL und das Label für jeden Link eingeben.
-3. **Neuer Tab/Fenster**: Aktivieren Sie die Option "New Tab", wenn der Link in einem neuen Tab oder Fenster geöffnet werden soll.
-4. **Speichern**: Speichern Sie Ihre Einstellungen.
+## Configuration
 
-## Beispiel
+1. **Access Settings**: Navigate to your Friendica settings page and select the "Apps" addon.
+2. **Add Links**: Add your app links by entering the URL and label for each link.
+3. **New Tab/Window**: Enable the "New Tab" option if the link should open in a new tab or window.
+4. **Save**: Save your settings.
 
-Hier ist ein Beispiel, wie Sie einen Link zu einer App hinzufügen können:
+---
+
+## Example
+
+Here is an example of how to add a link to an app:
 
 1. **URL**: `https://example.com`
 2. **Label**: `Example App`
-3. **New Tab**: Aktivieren Sie die Checkbox, wenn der Link in einem neuen Tab geöffnet werden soll.
+3. **New Tab**: Check the box if the link should open in a new tab.
 
-## Entwicklung
+---
 
-### Voraussetzungen
+## Development
 
-- PHP 8.2 oder höher
-- Friendica 2026.01 oder höher
+### Contributing
 
-### Beitragen
+We welcome contributions to improve this addon. If you find a bug or want to suggest a new feature, please create an issue or pull request on GitHub.
 
-Wir freuen uns über Beiträge zur Weiterentwicklung dieses Addons. Wenn Sie einen Fehler gefunden haben oder eine neue Funktion vorschlagen möchten, erstellen Sie bitte ein Issue oder einen Pull Request auf GitHub.
+### License
 
-### Lizenz
+This addon is released under the **MIT License**. For more information, see the [LICENSE](https://mit-license.org/) file.
 
-Dieses Addon wird unter der MIT-Lizenz veröffentlicht. Weitere Informationen finden Sie in der ([LICENSE](https://mit-license.org/)) Datei.
+---
 
-## Kontakt
+## Contact
 
-Für Fragen oder Unterstützung können Sie sich an den Autor wenden:
+For questions or support, you can reach out to the author:
 
-- **Autor**: Matthias Ebers
+- **Author**: Matthias Ebers
 - **Website**: [https://loma.ml/profile/feb](https://loma.ml/profile/feb)
+
