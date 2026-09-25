@@ -1,47 +1,64 @@
 (function() {
+    if (window._qpInitialized) return;
+    window._qpInitialized = true;
+
     const BBCodePattern = /\[url=(.*?)\]\[img=(.*?)\](.*?)\[\/img\]\[\/url\]/gi;
     const shorthandPattern = /\[img\](.*?)\|([\s\S]*?)\[\/img\]/gi;
     let throttleTimer;
     let isSubmitting = false;
 
     window._qpMetadataCache = window._qpMetadataCache || {};
-
     const i18nDesc = window.qp_i18n?.imageDesc || "Image description";
 
-    const resetSPAState = () => {
-        isSubmitting = false;
-        window._qpMetadataCache = {};
-        document.querySelectorAll('.qp-edit-bar').forEach(bar => {
-            if (bar.previousElementSibling?.tagName !== 'TEXTAREA') bar.remove();
+    ['pjax:end', 'page-changed', 'popstate'].forEach(evt => {
+        document.addEventListener(evt, () => {
+            isSubmitting = false;
+            window._qpMetadataCache = {};
+            document.querySelectorAll('.qp-edit-bar').forEach(bar => {
+                if (bar.previousElementSibling?.tagName !== 'TEXTAREA') bar.remove();
+            });
         });
-    };
-
-    ['pjax:end', 'page-changed', 'popstate'].forEach(evt =>
-        document.addEventListener(evt, resetSPAState)
-    );
-
-    const storeMetadata = (imgPath, data) => { window._qpMetadataCache[imgPath] = data; };
-    const getMetadata = (imgPath) => window._qpMetadataCache[imgPath] || null;
+    });
 
     const getOrCreateEditBar = (textarea) => {
-
         let bar = textarea.parentNode.querySelector('.qp-edit-bar');
-
         if (!bar) {
             bar = document.createElement('div');
             bar.className = 'qp-edit-bar';
-
-            // Ensures that the CSS Flexbox layout works correctly in SPA mode and Darkmode
             bar.style.cssText = 'display:none; align-items:center; gap:10px; margin-top:8px; padding:8px; width:100%; box-sizing:border-box; border:1px solid var(--border-color, #ccc); border-radius:4px;';
-
             bar.innerHTML = `
-                <div class="qp-thumb-container" style="flex-shrink:0; width:48px; height:48px; min-width:48px; min-height:48px; max-width:48px; max-height:48px; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--border-color, #ddd); border-radius:4px;">
-                    <img class="qp-preview-thumb" src="" alt="Preview" style="width:100% !important; height:100% !important; max-width:48px !important; max-height:48px !important; object-fit:cover !important; display:block;">
+                <div style="flex-shrink:0; width:48px; height:48px; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--border-color, #ddd); border-radius:4px;">
+                    <img class="qp-preview-thumb" src="" alt="Preview" style="width:48px; height:48px; object-fit:cover; display:block;">
                 </div>
-                <div class="qp-input-wrapper" style="flex-grow:1;">
+                <div style="flex-grow:1;">
                     <input type="text" class="qp-alt-input" placeholder="${i18nDesc}" style="width:100%; padding:6px 10px; border:1px solid var(--border-color, #ccc); border-radius:4px; box-sizing:border-box; color:inherit;">
                 </div>`;
             textarea.parentNode.insertBefore(bar, textarea.nextSibling);
+
+            const input = bar.querySelector('.qp-alt-input');
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    textarea.focus();
+                    bar.style.display = 'none';
+                }
+            });
+
+            input.addEventListener('input', (e) => {
+                const { imgPath, openTag, closeTag } = bar.dataset;
+                if (!imgPath) return;
+
+                const text = textarea.value;
+                const newDesc = e.target.value.replace(/[\[\]]/g, '');
+                const newTag = `[img]${imgPath}|${newDesc || i18nDesc}[/img]`;
+
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+
+                textarea.value = text.substring(0, parseInt(openTag, 10)) + newTag + text.substring(parseInt(closeTag, 10) + 6);
+                textarea.setSelectionRange(start, end);
+            });
         }
         return bar;
     };
@@ -68,44 +85,19 @@
                 const [imgPath, ...descParts] = tagContent.split('|');
                 const currentDesc = descParts.join('|');
                 const editBar = getOrCreateEditBar(textarea);
-
                 const img = editBar.querySelector('.qp-preview-thumb');
-                const thumbContainer = editBar.querySelector('.qp-thumb-container');
                 const input = editBar.querySelector('.qp-alt-input');
 
+                Object.assign(editBar.dataset, { imgPath, openTag, closeTag });
                 editBar.style.display = 'flex';
 
                 const isValidUrl = /^(https?:\/\/|\/|data:)/i.test(imgPath.trim());
-                if (isValidUrl) {
-                    img.src = imgPath.trim();
-                    if (thumbContainer) thumbContainer.style.display = 'flex';
-                } else {
-                    img.src = '';
-                    if (thumbContainer) thumbContainer.style.display = 'none';
-                }
+                img.src = isValidUrl ? imgPath.trim() : '';
+                img.parentElement.style.display = isValidUrl ? 'flex' : 'none';
 
                 if (document.activeElement !== input) {
                     input.value = (currentDesc === i18nDesc) ? '' : currentDesc;
                 }
-
-                input.onkeydown = (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        textarea.focus();
-                        editBar.style.display = 'none';
-                    }
-                };
-
-                input.oninput = (e) => {
-                    const newDesc = e.target.value.replace(/[\[\]]/g, '');
-                    const newTag = `[img]${imgPath}|${newDesc || i18nDesc}[/img]`;
-
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-
-                    textarea.value = text.substring(0, openTag) + newTag + text.substring(closeTag + 6);
-                    textarea.setSelectionRange(start, end);
-                };
                 return;
             }
         }
@@ -114,14 +106,13 @@
     };
 
     const simplify = (textarea) => {
-        if (!textarea.value.includes('[url=')) return;
+        if (isSubmitting || !textarea.value.includes('[url=')) return;
 
         const current = textarea.value;
         const simple = current.replace(BBCodePattern, (match, urlPart, imgPart, existingDesc) => {
-            storeMetadata(imgPart, { url: urlPart, img: imgPart });
-            let userDesc = existingDesc.trim();
-            if (!userDesc || userDesc === i18nDesc) userDesc = i18nDesc;
-            return `[img]${imgPart}|${userDesc}[/img]`;
+            window._qpMetadataCache[imgPart] = { url: urlPart, img: imgPart };
+            const userDesc = existingDesc.trim();
+            return `[img]${imgPart}|${userDesc && userDesc !== i18nDesc ? userDesc : i18nDesc}[/img]`;
         });
 
         if (current !== simple) {
@@ -132,23 +123,17 @@
     };
 
     const reconstruct = (textarea) => {
-        if (!textarea) return '';
         return textarea.value.replace(shorthandPattern, (match, imgPath, desc) => {
-            const metadata = getMetadata(imgPath);
+            const metadata = window._qpMetadataCache[imgPath];
             if (metadata) {
-                const finalDesc = (desc === i18nDesc) ? '' : desc;
-                return `[url=${metadata.url}][img=${metadata.img}]${finalDesc}[/img][/url]`;
+                return `[url=${metadata.url}][img=${metadata.img}]${desc === i18nDesc ? '' : desc}[/img][/url]`;
             }
             return match;
         });
     };
 
-    const applySimplify = (textarea) => {
-        if (!isSubmitting) simplify(textarea);
-    };
-
     document.addEventListener('focusin', (e) => {
-        if (e.target.tagName === 'TEXTAREA') applySimplify(e.target);
+        if (e.target.tagName === 'TEXTAREA') simplify(e.target);
     });
 
     document.addEventListener('submit', (e) => {
@@ -163,50 +148,16 @@
     });
 
     document.addEventListener('click', (e) => {
-        if (e.target.tagName === 'TEXTAREA') {
-            checkCursorContext(e.target);
-            return;
-        }
-
-        const btn = e.target.closest('#wall-submit-preview, [id^="comment-edit-preview-link-"]');
-        if (btn) {
-            document.querySelectorAll('textarea').forEach(textarea => {
-                setTimeout(() => {
-                    isSubmitting = false;
-                    applySimplify(textarea);
-                }, 1000);
-            });
-        }
-    }, true);
-
-    if (typeof jQuery !== 'undefined') {
-        const originalVal = jQuery.fn.val;
-        jQuery.fn.val = function(value) {
-            if (!this.is('textarea')) return originalVal.apply(this, arguments);
-
-            if (arguments.length === 0) {
-                return reconstruct(this[0]);
-            }
-            const result = originalVal.call(this, value);
-            if (this[0]) simplify(this[0]);
-            return result;
-        };
-    }
+        if (e.target.tagName === 'TEXTAREA') checkCursorContext(e.target);
+    });
 
     document.addEventListener('input', (e) => {
         if (e.target.tagName === 'TEXTAREA') {
             clearTimeout(throttleTimer);
             throttleTimer = setTimeout(() => {
-                applySimplify(e.target);
+                simplify(e.target);
                 checkCursorContext(e.target);
-            }, 500);
+            }, 250);
         }
     });
-
-    setInterval(() => {
-        if (document.hidden || isSubmitting) return;
-        document.querySelectorAll('textarea').forEach(textarea => {
-            if (textarea.offsetParent !== null) applySimplify(textarea);
-        });
-    }, 2500);
 })();
