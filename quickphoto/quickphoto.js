@@ -157,7 +157,7 @@
             throttleTimer = setTimeout(() => {
                 simplify(e.target);
                 checkCursorContext(e.target);
-            }, 250);
+            }, 500);
         }
     });
 })();
