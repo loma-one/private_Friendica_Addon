@@ -38,7 +38,7 @@ function quickphoto_post_hook(&$item)
         return;
     }
 
-    $pattern = '/\\[img\\](.*?)\\|(.*?)\\[\\/img\\]/i';
+    $pattern = '/\\[img\\](.*?)\\|([^\\[]*?)\\[\\/img\\]/i';
 
     $item['body'] = preg_replace_callback($pattern, function($matches) {
         $filename = $matches[1];
