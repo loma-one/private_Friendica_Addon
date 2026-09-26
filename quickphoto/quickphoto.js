@@ -46,7 +46,7 @@
             });
 
             input.addEventListener('input', (e) => {
-                const { imgPath, openTag, closeTag } = bar.dataset;
+                const { imgPath } = bar.dataset;
                 if (!imgPath) return;
 
                 const text = textarea.value;
@@ -56,7 +56,11 @@
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
 
-                textarea.value = text.substring(0, parseInt(openTag, 10)) + newTag + text.substring(parseInt(closeTag, 10) + 6);
+                const escapedPath = imgPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+                const regex = new RegExp(`\\[img\\]` + escapedPath + `\\|[\\s\\S]*?\\[\\/img\\]`, 'gi');
+
+                textarea.value = text.replace(regex, newTag);
                 textarea.setSelectionRange(start, end);
             });
         }
