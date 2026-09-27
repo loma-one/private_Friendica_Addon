@@ -2,8 +2,8 @@
 
 /**
  * Name: Wikipedia Link
- * Description: Replaces [wiki]terms[/wiki] with Wikipedia links (Fediverse-compatible).
- * Version: 1.2
+ * Description: Replaces [wiki]terms[/wiki] with Wikipedia links and provides autocomplete suggestions.
+ * Version: 1.3
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -77,44 +77,13 @@ function wikipedia_prepare_body(array &$data): void
     $data['html'] = wikipedia_parse_tag($data['html'], true);
 }
 
-function wikipedia_page_end(&$html): void
+function wikipedia_page_end(string &$html): void
 {
-    $html .= <<<'JS'
-    <script>
-    (() => {
-        'use strict';
+    $base = function_exists('baseUrl') ? baseUrl() : '';
 
-        document.addEventListener('input', (event) => {
-            const el = event.target;
+    $cssUrl = rtrim($base, '/') . '/addon/wikipedia/wikipedia.css';
+    $jsUrl  = rtrim($base, '/') . '/addon/wikipedia/wikipedia.js';
 
-            if (!el.matches('#profile-jot-text, textarea[name="body"], .comment-box textarea')) {
-                return;
-            }
-
-            if (document.querySelector('.textcomplete-dropdown:not([style*="display: none"]), .tribute-container:not([style*="display: none"])')) {
-                return;
-            }
-
-            const pos = el.selectionStart;
-            const val = el.value;
-
-            if (pos >= 2 && val.substring(pos - 2, pos).toLowerCase() === '[w') {
-                if (val.substring(pos, pos + 11) === 'iki][/wiki]') {
-                    return;
-                }
-
-                el.setSelectionRange(pos - 1, pos);
-
-                const success = document.execCommand('insertText', false, 'wiki][/wiki]');
-                if (!success && typeof el.setRangeText === 'function') {
-                    el.setRangeText('wiki][/wiki]', pos - 1, pos, 'end');
-                }
-
-                const targetPos = pos + 4;
-                el.setSelectionRange(targetPos, targetPos);
-            }
-        });
-    })();
-    </script>
-    JS;
+    $html .= '<link rel="stylesheet" type="text/css" href="' . $cssUrl . '">' . "\n";
+    $html .= '<script src="' . $jsUrl . '" defer></script>' . "\n";
 }
