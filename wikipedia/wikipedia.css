@@ -1,0 +1,23 @@
+.wiki-ac-menu {
+    position: absolute;
+    z-index: 9999;
+    background: var(--body-bg, #ffffff);
+    color: var(--body-color, #333333);
+    border: 1px solid var(--border-color, #cccccc);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    max-height: 180px;
+    overflow-y: auto;
+    display: none;
+}
+
+.wiki-ac-item {
+    padding: 6px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.wiki-ac-item:hover {
+    background: var(--nav-hover-bg, var(--body-bg, #f0f0f0));
+    color: #007bff;
+}
