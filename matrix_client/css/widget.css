@@ -33,7 +33,7 @@
     align-items: center;
 
     padding: 0 15px;
-    background: #0dbd8b;
+    background: var(--link-color) !Important;
     color: #fff;
 
     font-family: sans-serif;
