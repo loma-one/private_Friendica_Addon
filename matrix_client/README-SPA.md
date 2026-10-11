@@ -1,6 +1,6 @@
 # Matrix Client für Friendica
 
-Das Addon bindet Hydrogen als lokal gehosteten Matrix-Client ein.
+Das Addon bindet Hydrogen als lokal gehosteten Matrix-Client ein. ACHTUNG: PROTOTYP
 
 ## Einbindung im SPA-Modus
 
