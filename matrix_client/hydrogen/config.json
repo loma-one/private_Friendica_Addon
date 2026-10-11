@@ -1,0 +1,8 @@
+{
+    "defaultHomeServer": "matrix.org",
+    "brand": "Hydrogen",
+    "bugReportEndpointUrl": null,
+    "themeManifests": [
+            "/addon/matrix_client/hydrogen/assets/theme-element.json"
+    ]
+}
