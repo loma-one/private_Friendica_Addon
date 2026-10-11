@@ -1,0 +1,98 @@
+#matrix-chat-container {
+    position: fixed;
+    right: 60px;
+    bottom: 20px;
+    width: 330px;
+    height: 580px;
+
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    background: #fff;
+    border: 1px solid #2e3644;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 99999;
+
+    transition:
+        transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        height 0.3s ease;
+}
+
+#matrix-chat-container.collapsed {
+    height: 45px;
+}
+
+#matrix-chat-trigger-header {
+    flex: 0 0 45px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 15px;
+    background: #0dbd8b;
+    color: #fff;
+
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+#matrix-chat-iframe-wrapper {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    height: auto;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: #fff;
+}
+
+#matrix-chat-iframe-wrapper iframe {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: auto !important;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: #fff;
+}
+
+#matrix-chat-trigger-header .toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+#matrix-chat-container.collapsed #matrix-chat-trigger-header .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Keep the widget usable on narrow screens. */
+@media (max-width: 380px) {
+    #matrix-chat-container {
+        right: 10px;
+        bottom: 10px;
+        width: calc(100vw - 20px);
+        max-width: 330px;
+    }
+}
+
+@media (max-height: 520px) {
+    #matrix-chat-container:not(.collapsed) {
+        height: calc(100dvh - 40px);
+        max-height: 480px;
+    }
+}
+
+@media (max-width: 767px) {
+    #matrix-chat-container {
+        display: none !important;
+    }
+}
