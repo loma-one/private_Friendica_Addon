@@ -11,8 +11,7 @@
     overflow: hidden;
 
     background: #fff;
-    border: 1px solid #2e3644;
-    border-radius: 12px;
+    border-radius: 15px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     z-index: 99999;
 
@@ -96,3 +95,36 @@
         display: none !important;
     }
 }
+
+/* Minimiertes Widget: schmale Icon-Ansicht */
+#matrix-chat-container.collapsed {
+    width: 110px;
+    height: 45px;
+    transition:
+        width 0.3s ease,
+        height 0.3s ease;
+}
+
+#matrix-chat-container.collapsed #matrix-chat-trigger-header {
+    justify-content: center;
+    padding: 0;
+}
+
+#matrix-chat-container.collapsed #matrix-chat-trigger-header span:first-child {
+    font-size: 0;
+}
+
+#matrix-chat-container.collapsed #matrix-chat-trigger-header span:first-child::before {
+    content: "💬";
+    font-size: 22px;
+}
+
+#matrix-chat-container.collapsed .toggle-icon {
+    display: none;
+}
+
+#matrix-chat-container:not(.collapsed) {
+    width: 330px;
+    height: 580px;
+}
+
