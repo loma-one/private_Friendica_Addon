@@ -115,8 +115,16 @@
 }
 
 #matrix-chat-container.collapsed #matrix-chat-trigger-header span:first-child::before {
-    content: "💬";
-    font-size: 22px;
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-image: url("/addon/matrix_client/hydrogen/assets/element-logo-703176763.fc54fc8d.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+    margin-right: 6px;
 }
 
 #matrix-chat-container.collapsed .toggle-icon {
