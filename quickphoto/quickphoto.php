@@ -41,21 +41,25 @@ function quickphoto_post_hook(&$item)
     $pattern = '/\\[img\\](.*?)\\|([^\\[]*?)\\[\\/img\\]/i';
 
     $item['body'] = preg_replace_callback($pattern, function($matches) {
-        $filename = $matches[1];
+        $imgPath = $matches[1];
         $description = $matches[2];
 
-        $condition = [
-            'resource-id' => $filename,
-            'uid' => DI::userSession()->getLocalUserId(),
-            'imgscale'    => 0
-        ];
+        if (preg_match('/\/photo\/([a-f0-9]+)/i', $imgPath, $idMatches)) {
+            $resourceId = $idMatches[1];
 
-        $photo = DI::dba()->selectFirst('photo', ['url'], $condition);
+            $condition = [
+                'resource-id' => $resourceId,
+                'uid'         => DI::userSession()->getLocalUserId(),
+                'imgscale'    => 0
+            ];
 
-        if ($photo) {
-            return '[url=' . $photo['url'] . '][img=' . $photo['src'] . ']' . $description . '[/img][/url]';
+            $photo = DI::dba()->selectFirst('photo', ['url'], $condition);
+
+            if ($photo && !empty($photo['url'])) {
+                return '[url=' . $photo['url'] . '][img=' . $imgPath . ']' . $description . '[/img][/url]';
+            }
         }
 
-        return '[img]' . $filename . '[/img]';
+        return '[img]' . $imgPath . '[/img]';
     }, $item['body']);
 }
