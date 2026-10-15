@@ -8,6 +8,7 @@
     let isSubmitting = false;
 
     window._qpMetadataCache = window._qpMetadataCache || {};
+
     const i18nDesc = window.qp_i18n?.imageDesc || "Image description";
 
     ['pjax:end', 'page-changed', 'popstate'].forEach(evt => {
@@ -128,13 +129,38 @@
 
     const reconstruct = (textarea) => {
         return textarea.value.replace(shorthandPattern, (match, imgPath, desc) => {
-            const metadata = window._qpMetadataCache[imgPath];
+            const trimmedPath = imgPath.trim();
+
+            const matchId = trimmedPath.match(/\/photo\/([a-f0-9]+)(?:-\d+)?/i);
+
+            if (matchId && matchId[1]) {
+                const photoId = matchId[1];
+                try {
+                    const urlObj = new URL(trimmedPath);
+                    const photoUrl = `${urlObj.origin}/photo/${photoId}`;
+                    const cleanDesc = (desc === i18nDesc) ? '' : desc;
+                    return `[url=${photoUrl}][img=${trimmedPath}]${cleanDesc}[/img][/url]`;
+                } catch (e) {
+                }
+            }
+
+            const metadata = window._qpMetadataCache[trimmedPath];
             if (metadata) {
                 return `[url=${metadata.url}][img=${metadata.img}]${desc === i18nDesc ? '' : desc}[/img][/url]`;
             }
+
             return match;
         });
     };
+
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target && (target.id === 'preview' || target.name === 'preview' || target.classList.contains('preview') || target.matches('[id*="preview"], [name*="preview"], button[type="submit"], input[type="submit"]'))) {
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.value = reconstruct(textarea);
+            });
+        }
+    }, true);
 
     document.addEventListener('focusin', (e) => {
         if (e.target.tagName === 'TEXTAREA') simplify(e.target);
