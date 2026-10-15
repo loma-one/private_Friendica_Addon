@@ -3,7 +3,7 @@
 /**
  * Name: QuickPhoto
  * Description: Easily edit an image description by replacing the BBCode
- * Version: 1.8.1
+ * Version: 1.8
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -19,6 +19,7 @@ function quickphoto_install()
 function quickphoto_header(&$header)
 {
     $desc_label = DI::l10n()->t('Image description');
+
     $js_label = json_encode($desc_label);
 
     $addon_path = '/addon/quickphoto/';
@@ -34,32 +35,28 @@ function quickphoto_header(&$header)
 
 function quickphoto_post_hook(&$item)
 {
-    if (empty($item['body']) || strpos($item['body'], '[img]') === false || strpos($item['body'], '|') === false) {
+    if (strpos($item['body'], '[img]') === false || strpos($item['body'], '|') === false) {
         return;
     }
 
-    $pattern = '/\\[img\\](.*?)\\|([^\\[]*?)\\[\\/img\\]/i';
+    $pattern = '/\\[img\\](.*?)\\|(.*?)\\[\\/img\\]/i';
 
     $item['body'] = preg_replace_callback($pattern, function($matches) {
-        $imgPath = $matches[1];
+        $filename = $matches[1];
         $description = $matches[2];
 
-        if (preg_match('/\/photo\/([a-f0-9]+)/i', $imgPath, $idMatches)) {
-            $resourceId = $idMatches[1];
+        $condition = [
+            'resource-id' => $filename,
+            'uid' => DI::userSession()->getLocalUserId(),
+            'imgscale'    => 0
+        ];
 
-            $condition = [
-                'resource-id' => $resourceId,
-                'uid'         => DI::userSession()->getLocalUserId(),
-                'imgscale'    => 0
-            ];
+        $photo = DI::dba()->selectFirst('photo', ['url'], $condition);
 
-            $photo = DI::dba()->selectFirst('photo', ['url'], $condition);
-
-            if ($photo && !empty($photo['url'])) {
-                return '[url=' . $photo['url'] . '][img=' . $imgPath . ']' . $description . '[/img][/url]';
-            }
+        if ($photo) {
+            return '[url=' . $photo['url'] . '][img=' . $photo['src'] . ']' . $description . '[/img][/url]';
         }
 
-        return '[img]' . $imgPath . '[/img]';
+        return '[img]' . $filename . '[/img]';
     }, $item['body']);
 }
