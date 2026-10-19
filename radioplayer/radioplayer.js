@@ -1,11 +1,22 @@
 (function() {
     'use strict';
 
-    window.RadioPlayer = window.RadioPlayer || {};
+    var isStopping = false;
+    var currentAbortController = null;
+
+    function cleanupPlayerUI() {
+        if (currentAbortController) {
+            currentAbortController.abort();
+            currentAbortController = null;
+        }
+    }
 
     window.RadioPlayerInit = function() {
         var container = document.getElementById('friendica-radio-player');
-        if (!container) return;
+        if (!container) {
+            cleanupPlayerUI();
+            return;
+        }
 
         var playBtn = document.getElementById('radio-play-btn');
         var streamSelect = document.getElementById('radio-stream-select');
@@ -14,10 +25,15 @@
         var playIcon = document.getElementById('radio-play-icon');
         var playText = document.getElementById('radio-play-text');
 
-        if (!playBtn || playBtn.dataset.bound) return;
-        playBtn.dataset.bound = 'true';
+        if (!playBtn) return;
 
-        // Audio Engine (Global Singleton)
+         if (container.dataset.initialized === 'true') return;
+        container.dataset.initialized = 'true';
+
+        cleanupPlayerUI();
+        currentAbortController = new AbortController();
+        var signal = currentAbortController.signal;
+
         var audio = document.getElementById('global-radio-audio');
         if (!audio) {
             audio = document.createElement('audio');
@@ -28,39 +44,44 @@
             document.body.appendChild(audio);
         }
 
-        // State & Storage
         var storedStream = localStorage.getItem('radioplayer_stream');
-        if (storedStream) streamSelect.value = storedStream;
+        if (storedStream && streamSelect) {
+            streamSelect.value = storedStream;
+        }
 
         var storedVolume = localStorage.getItem('radioplayer_volume');
-        if (storedVolume !== null) {
+        if (storedVolume !== null && volumeSlider) {
             volumeSlider.value = storedVolume;
             audio.volume = storedVolume;
         }
 
         function setPlayingState(playing) {
+            if (!playBtn || !playIcon || !playText) return;
             playBtn.className = playing ? 'btn btn-danger btn-block' : 'btn btn-success btn-block';
             playIcon.className = playing ? 'ri-stop-fill' : 'ri-play-fill';
-            playText.textContent = ' ' + (playing ? playBtn.dataset.labelStop : playBtn.dataset.labelPlay);
+            playText.textContent = playing ? playBtn.dataset.labelStop : playBtn.dataset.labelPlay;
         }
 
         function setStatus(msg) {
+            if (!statusMsg) return;
             statusMsg.textContent = msg || '';
             statusMsg.style.display = msg ? 'block' : 'none';
         }
 
-        setPlayingState(!audio.paused && audio.src);
+        var isPlaying = !audio.paused && audio.src && audio.src !== '' && audio.src !== window.location.href;
+        setPlayingState(isPlaying);
 
-        // Play / Stop Controls
         playBtn.addEventListener('click', function() {
-            if (audio.paused) {
+            var currentlyPlaying = !audio.paused && audio.src && audio.src !== '' && audio.src !== window.location.href;
+
+            if (!currentlyPlaying) {
                 var url = streamSelect.value;
                 if (!url) {
                     setStatus(statusMsg.dataset.msgSelect);
                     return;
                 }
 
-                window.RadioPlayer.stopping = false;
+                isStopping = false;
                 setStatus(statusMsg.dataset.msgLoading);
 
                 var handleCanPlay = function() {
@@ -78,71 +99,86 @@
                 audio.src = url;
                 audio.load();
             } else {
-                window.RadioPlayer.stopping = true;
+                isStopping = true;
                 audio.pause();
                 audio.removeAttribute('src');
                 audio.load();
                 setPlayingState(false);
                 setStatus();
             }
-        });
+        }, { signal: signal });
 
-        // Station Selector
-        streamSelect.addEventListener('change', function() {
-            localStorage.setItem('radioplayer_stream', this.value);
-            var wasPlaying = !audio.paused;
+        if (streamSelect) {
+            streamSelect.addEventListener('change', function() {
+                localStorage.setItem('radioplayer_stream', this.value);
+                var wasPlaying = !audio.paused && audio.src && audio.src !== '' && audio.src !== window.location.href;
 
-            window.RadioPlayer.stopping = true;
-            audio.pause();
-            audio.src = this.value;
-            audio.load();
+                isStopping = true;
+                audio.pause();
+                audio.src = this.value;
+                audio.load();
 
-            if (wasPlaying) {
-                window.RadioPlayer.stopping = false;
-                setStatus(statusMsg.dataset.msgNew);
+                if (wasPlaying) {
+                    isStopping = false;
+                    setStatus(statusMsg.dataset.msgNew);
 
-                var handleSwitch = function() {
-                    audio.removeEventListener('canplay', handleSwitch);
-                    audio.removeEventListener('playing', handleSwitch);
+                    var handleSwitch = function() {
+                        audio.removeEventListener('canplay', handleSwitch);
+                        audio.play().then(function() {
+                            setPlayingState(true);
+                            setStatus();
+                        }).catch(function() {
+                            setPlayingState(false);
+                            setStatus(statusMsg.dataset.msgLoadError);
+                        });
+                    };
 
-                    audio.play().then(function() {
-                        setPlayingState(true);
-                        setStatus();
-                    }).catch(function() {
-                        setPlayingState(false);
-                        setStatus(statusMsg.dataset.msgLoadError);
-                    });
-                };
+                    audio.addEventListener('canplay', handleSwitch);
+                } else {
+                    setStatus();
+                }
+            }, { signal: signal });
+        }
 
-                audio.addEventListener('canplay', handleSwitch);
-                audio.addEventListener('playing', handleSwitch);
-            } else {
-                setStatus();
-            }
-        });
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', function() {
+                audio.volume = this.value;
+                localStorage.setItem('radioplayer_volume', this.value);
+            }, { signal: signal });
+        }
 
-        // Volume Control
-        volumeSlider.addEventListener('input', function() {
-            audio.volume = this.value;
-            localStorage.setItem('radioplayer_volume', this.value);
-        });
-
-        // Error Handling
         if (!audio.dataset.hasErrorListener) {
             audio.addEventListener('error', function() {
-                if (window.RadioPlayer.stopping || !audio.src || audio.src === window.location.href || audio.networkState === 3) {
+                if (isStopping || !audio.src || audio.src === window.location.href || audio.networkState === 3) {
                     return;
                 }
                 setPlayingState(false);
-                setStatus(statusMsg.dataset.msgConnError);
+                setStatus(statusMsg ? statusMsg.dataset.msgConnError : '');
             });
             audio.dataset.hasErrorListener = 'true';
         }
     };
 
+    var spaObserver = new MutationObserver(function() {
+        if (document.getElementById('friendica-radio-player')) {
+            window.RadioPlayerInit();
+        } else {
+            cleanupPlayerUI();
+        }
+    });
+
+    function startSPAObserver() {
+        var mainContent = document.getElementById('region_2') || document.body;
+        spaObserver.observe(mainContent, { childList: true, subtree: true });
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', window.RadioPlayerInit);
+        document.addEventListener('DOMContentLoaded', function() {
+            window.RadioPlayerInit();
+            startSPAObserver();
+        });
     } else {
         window.RadioPlayerInit();
+        startSPAObserver();
     }
 })();
