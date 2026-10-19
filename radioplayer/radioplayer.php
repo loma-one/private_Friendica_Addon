@@ -1,7 +1,8 @@
 <?php
 /**
  * Name: RadioPlayer
- * Version: 1.2
+ * Version: 1.8.1
+ * Description: Radio-Player für Friendica
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
