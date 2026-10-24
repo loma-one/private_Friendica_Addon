@@ -1,6 +1,6 @@
 #matrix-chat-container {
     position: fixed;
-    right: 90px;
+    left: 20px;
     bottom: 20px;
     width: 330px;
     height: 580px;
