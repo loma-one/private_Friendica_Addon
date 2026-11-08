@@ -1,6 +1,6 @@
 Friendica Addon on loma.ml
 =============
 
-Friendica has an addon system with which extensions can be created easily and simply. Read the documentation here https://github.com/friendica/friendica/blob/stable/doc/Addons.md
+Friendica has an addon system with which extensions can be created easily and simply. Read the documentation here [https://github.com/friendica/friendica/blob/stable/doc/Addons.md](https://github.com/friendica/friendica/blob/stable/doc/en/developer/addon-development.md)
 
 These addons are not intended to be used on productive systems. The use of these addons is at your own risk.
