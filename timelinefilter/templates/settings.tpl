@@ -1,17 +1,21 @@
-<div class="panel panel-default">
-	<div class="panel-heading">
-		<h3>{{$title}}</h3>
+<div class="generic-page-wrapper">
+
+	<div class="section-title-wrapper">
+		<h2>{{$title}}</h2>
+		<div class="clear"></div>
 	</div>
-	<div class="panel-body">
 
-		<p>
-			<a href="settings/addons" class="btn btn-default btn-sm">
-				<i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
-				{{$back}}
-			</a>
-		</p>
+	<p>
+		<a href="settings/addons" class="btn btn-default btn-sm">
+			<i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+			{{$back}}
+		</a>
+	</p>
 
-		<p>{{$info}}</p>
+	<div class="panel panel-default">
+		<div class="panel-body">
+
+			<p>{{$info}}</p>
 
 		<form action="timelinefilter" method="post">
 			{{include file="field_checkbox.tpl" field=$enabled}}
@@ -96,7 +100,9 @@
 			</div>
 		</div>
 
+		</div>
 	</div>
+
 </div>
 
 <script>
@@ -109,7 +115,6 @@ if (!window.__timelinefilterSettingsBound) {
 			return;
 		}
 
-		// Vorfahren eines Elements nach einer Klasse durchsuchen
 		var findAncestor = function (el, className) {
 			while (el && el !== document) {
 				if (el.classList && el.classList.contains(className)) {
@@ -120,7 +125,6 @@ if (!window.__timelinefilterSettingsBound) {
 			return null;
 		};
 
-		// Klick auf "Add a rule": Button selbst oder Inhalt getroffen
 		var el = target;
 		while (el && el !== document) {
 			if (el.id === "tf-add-row") {
@@ -135,7 +139,6 @@ if (!window.__timelinefilterSettingsBound) {
 			el = el.parentNode;
 		}
 
-		// Klick auf den Loeschen-Button einer Regel
 		var removeBtn = findAncestor(target, "tf-remove-row");
 		if (removeBtn) {
 			var row = findAncestor(removeBtn, "tf-rule-row");
