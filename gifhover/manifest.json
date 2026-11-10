@@ -1,0 +1,11 @@
+{
+    "name": "Gifhover für Friendica",
+    "description": "Eingebettete animierte GIFs in Beiträgen werden angehalten. Angezeigt wird der erste Frame als Standbild mit einem kleinen „GIF“-Badge; das GIF läuft nur, solange der Mauszeiger über dem Bild steht. Auf Touch-Geräten spielen GIFs wie gewohnt ab.",
+    "status": "stable",
+    "version": "1.0",
+    "friendicaVersion": ["2026.11"], [2026.08"], ["2026.05"],
+    "license": "AGPL-3.0-or-later",
+    "tags": ["Gif", "ux", "UI"],
+    "screenshot": "",
+    "website": ""
+}
