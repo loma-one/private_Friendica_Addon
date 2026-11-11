@@ -1,9 +1,10 @@
 <?php
 /**
  * Name: RadioPlayer
- * Version: 1.8.1
+ * Version: 1.9
  * Description: Radio-Player für Friendica
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
+ *
  */
 
 use Friendica\Core\Hook;
@@ -22,6 +23,15 @@ function radioplayer_uninstall()
     Hook::unregister('page_content_top', 'addon/radioplayer/radioplayer.php', 'radioplayer_page_header');
     Hook::unregister('addon_settings', 'addon/radioplayer/radioplayer.php', 'radioplayer_settings');
     Hook::unregister('addon_settings_post', 'addon/radioplayer/radioplayer.php', 'radioplayer_settings_post');
+}
+
+function radioplayer_is_deck_view(): bool
+{
+    if (($_GET['mode'] ?? '') === 'column') {
+        return true;
+    }
+
+    return DI::args()->get(0) === 'deck';
 }
 
 function radioplayer_settings(array &$data)
@@ -141,6 +151,10 @@ function radioplayer_page_header(&$b)
     }
 
     if (DI::mode()->isAjax()) {
+        return;
+    }
+
+    if (radioplayer_is_deck_view()) {
         return;
     }
 
