@@ -5,7 +5,7 @@
     "version": "1.0",
     "friendicaVersion": ["2026.11", "2026.08", "2026.05"],
     "license": "AGPL-3.0-or-later",
-    "tags": ["Gif", "ux", "ui", "test"],
+    "tags": ["gif", "ux", "ui"],
     "screenshot": "",
     "website": ""
 }
