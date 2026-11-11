@@ -1,7 +1,32 @@
+function usernoticeIsColumnView()
+{
+    if (new URLSearchParams(window.location.search).get('mode') === 'column') {
+        return true;
+    }
+
+    return document.body.classList.contains('column-view');
+}
+
 function usernoticeInit()
 {
-    var modal = document.getElementById('usernotice-modal');
-    if (!modal || modal.dataset.usernoticeInit === '1') {
+    var modals = document.querySelectorAll('.usernotice-modal');
+    if (modals.length === 0) {
+        return;
+    }
+
+    if (usernoticeIsColumnView()) {
+        for (var d = 0; d < modals.length; d++) {
+            modals[d].parentNode.removeChild(modals[d]);
+        }
+        return;
+    }
+
+    for (var r = 1; r < modals.length; r++) {
+        modals[r].parentNode.removeChild(modals[r]);
+    }
+
+    var modal = modals[0];
+    if (modal.dataset.usernoticeInit === '1') {
         return;
     }
     modal.dataset.usernoticeInit = '1';
@@ -12,7 +37,6 @@ function usernoticeInit()
         modal.style.display = 'block';
     }
 
-    // Alle Links im Modal in neuem Tab öffnen
     var links = modal.getElementsByTagName('a');
     for (var i = 0; i < links.length; i++) {
         links[i].setAttribute('target', '_blank');
