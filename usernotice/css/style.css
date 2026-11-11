@@ -4,7 +4,7 @@
     position: fixed;
     z-index: 1999;
     left: 52.5%;
-    top: 10%;
+    top: 5%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 650px;
@@ -18,7 +18,7 @@
     color: white;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    /*box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);*/
     margin: 0 auto;
     width: 100%;
     max-width: 650px;
