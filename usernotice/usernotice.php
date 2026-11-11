@@ -2,7 +2,7 @@
 /**
  * Name: User Notice
  * Description: Displays a one-time notification in a modal for logged-in users. Supports BBCode for links.
- * Version: 1.5
+ * Version: 1.6
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  */
 
@@ -91,6 +91,11 @@ function usernotice_addon_admin_post()
 function usernotice_fetch(string &$b)
 {
     if (!DI::userSession()->getLocalUserId()) {
+        return;
+    }
+
+    // Deck-Spalten (iframe, mode=column): keine Notice ausgeben
+    if (($_GET['mode'] ?? '') === 'column') {
         return;
     }
 
