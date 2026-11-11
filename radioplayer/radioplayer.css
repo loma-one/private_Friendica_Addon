@@ -36,3 +36,7 @@
 #radio-status-msg {
     margin-top: 5px;
 }
+
+body.column-view #friendica-radio-player {
+    display: none !important;
+}
