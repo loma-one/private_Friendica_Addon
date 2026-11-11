@@ -18,6 +18,11 @@
             return;
         }
 
+    if (window.location.search.indexOf('mode=column') !== -1 ||
+        document.body.classList.contains('column-view')) {
+        return;
+    }
+
         var playBtn = document.getElementById('radio-play-btn');
         var streamSelect = document.getElementById('radio-stream-select');
         var volumeSlider = document.getElementById('radio-volume');
@@ -27,7 +32,7 @@
 
         if (!playBtn) return;
 
-         if (container.dataset.initialized === 'true') return;
+        if (container.dataset.initialized === 'true') return;
         container.dataset.initialized = 'true';
 
         cleanupPlayerUI();
