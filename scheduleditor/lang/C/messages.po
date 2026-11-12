@@ -1,0 +1,198 @@
+# ADDON scheduleditor
+# Copyright (C) 
+# This file is distributed under the same license as the Friendica scheduleditor addon package.
+# 
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-08 18:48+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: scheduleditor.php:58 scheduleditor.php:299
+msgid "Edit scheduled posts"
+msgstr ""
+
+#: scheduleditor.php:60
+msgid "Edit or remove your scheduled posts"
+msgstr ""
+
+#: scheduleditor.php:88 scheduleditor.php:111
+msgid "Permission denied."
+msgstr ""
+
+#: scheduleditor.php:125 scheduleditor.php:326
+msgid "Entry not found."
+msgstr ""
+
+#: scheduleditor.php:131
+msgid "Scheduled post removed."
+msgstr ""
+
+#: scheduleditor.php:141 scheduleditor.php:332
+msgid "This post cannot be edited. It may already have been published."
+msgstr ""
+
+#: scheduleditor.php:152 scheduleditor.php:206
+msgid "You cannot schedule an empty post."
+msgstr ""
+
+#: scheduleditor.php:161 scheduleditor.php:218
+msgid "Invalid date."
+msgstr ""
+
+#: scheduleditor.php:166 scheduleditor.php:223
+msgid "Scheduled time must be in the future."
+msgstr ""
+
+#: scheduleditor.php:184
+msgid "Scheduled post updated."
+msgstr ""
+
+#: scheduleditor.php:188
+msgid "The post could not be rescheduled to the desired time and was queued for the next possible time instead."
+msgstr ""
+
+#: scheduleditor.php:189
+msgid "Error while rescheduling the post."
+msgstr ""
+
+#: scheduleditor.php:211
+msgid "Please provide a publish date."
+msgstr ""
+
+#: scheduleditor.php:256
+msgid "New post scheduled."
+msgstr ""
+
+#: scheduleditor.php:258
+msgid "Error while scheduling the post."
+msgstr ""
+
+#: scheduleditor.php:301
+msgid "Scheduled"
+msgstr ""
+
+#: scheduleditor.php:302
+msgid "Content"
+msgstr ""
+
+#: scheduleditor.php:303
+msgid "Edit"
+msgstr ""
+
+#: scheduleditor.php:304
+msgid "Remove post"
+msgstr ""
+
+#: scheduleditor.php:305
+msgid "Private Message"
+msgstr ""
+
+#: scheduleditor.php:306
+msgid "No scheduled posts."
+msgstr ""
+
+#: scheduleditor.php:307 scheduleditor.php:364 scheduleditor.php:369
+msgid "New scheduled post"
+msgstr ""
+
+#: scheduleditor.php:308
+msgid "Open the core scheduled posts overview"
+msgstr ""
+
+#: scheduleditor.php:351
+msgid "The full editor functionality (formatting, images) is only available with the frio theme."
+msgstr ""
+
+#: scheduleditor.php:365
+msgid "Edit scheduled post"
+msgstr ""
+
+#: scheduleditor.php:372
+msgid "Title"
+msgstr ""
+
+#: scheduleditor.php:373
+msgid "Summary (abstract)"
+msgstr ""
+
+#: scheduleditor.php:374
+msgid "Body"
+msgstr ""
+
+#: scheduleditor.php:375
+msgid "Publish date"
+msgstr ""
+
+#: scheduleditor.php:382
+msgid "This post has privacy settings. They are kept unchanged."
+msgstr ""
+
+#: scheduleditor.php:383
+msgid "Save"
+msgstr ""
+
+#: scheduleditor.php:384
+msgid "Cancel"
+msgstr ""
+
+#: scheduleditor.php:386
+msgid "Insert image"
+msgstr ""
+
+#: scheduleditor.php:387
+msgid "Insert Link or Media"
+msgstr ""
+
+#: scheduleditor.php:388
+msgid "Add emojis"
+msgstr ""
+
+#: scheduleditor.php:389
+msgid "Link"
+msgstr ""
+
+#: scheduleditor.php:390
+msgid "Underline"
+msgstr ""
+
+#: scheduleditor.php:391
+msgid "Italic"
+msgstr ""
+
+#: scheduleditor.php:392
+msgid "Bold"
+msgstr ""
+
+#: scheduleditor.php:393
+msgid "Quote"
+msgstr ""
+
+#: scheduleditor.php:394
+msgid "Content warning"
+msgstr ""
+
+#: scheduleditor.php:395
+msgid "Code"
+msgstr ""
+
+#: scheduleditor.php:396
+msgid "Please enter a link URL or media URL:"
+msgstr ""
+
+#: scheduleditor.php:397
+msgid "Preview"
+msgstr ""
+
+#: scheduleditor.php:398
+msgid "Close preview"
+msgstr ""
