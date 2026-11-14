@@ -1,0 +1,39 @@
+.quicktag-wrapper {
+	position: relative;
+	display: inline-block;
+}
+
+.quicktag-popover {
+	top: auto;
+	bottom: 100%;
+	left: 0;
+	margin: 0 0 5px 0;
+	min-width: 200px;
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+}
+
+.quicktag-popover[hidden] {
+	display: none;
+}
+
+.quicktag-header {
+	font-weight: bold;
+	font-size: 12px;
+	margin-bottom: 6px;
+	border-bottom: 1px solid currentColor;
+	padding-bottom: 3px;
+	opacity: 0.6;
+}
+
+.quicktag-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.quicktag-chip {
+	border-radius: 12px;
+	margin: 0;
+}
