@@ -132,6 +132,11 @@
 					return;
 				}
 
+				if (e.target.closest('.quicktag-popover')) {
+					closeAll();
+					return;
+				}
+
 				if (!e.target.closest('.quicktag-wrapper')) {
 					closeAll();
 				}
