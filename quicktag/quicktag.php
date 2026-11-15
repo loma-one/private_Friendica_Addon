@@ -28,11 +28,6 @@ function quicktag_uninstall()
 	Hook::unregister('jot_tool', __FILE__, 'quicktag_jot_tool');
 }
 
-/**
- * Provides the addon settings form.
- *
- * @param array &$data The addon settings hook data ('addon', 'title', 'html')
- */
 function quicktag_addon_settings(array &$data)
 {
 	$uid = DI::userSession()->getLocalUserId();
@@ -55,11 +50,6 @@ function quicktag_addon_settings(array &$data)
 	];
 }
 
-/**
- * Saves the submitted addon settings.
- *
- * @param array &$b The addon settings post hook data
- */
 function quicktag_addon_settings_post(array &$b)
 {
 	$uid = DI::userSession()->getLocalUserId();
@@ -72,14 +62,6 @@ function quicktag_addon_settings_post(array &$b)
 	}
 }
 
-/**
- * Injects the hashtag popover into the post editor toolbar.
- *
- * The template ships markup, CSS and JS in one piece, so the popover works
- * after full page loads, SPA fragment swaps and in modal editors alike.
- *
- * @param string &$html The toolbar HTML the rendered popover gets appended to
- */
 function quicktag_jot_tool(string &$html)
 {
 	$uid = DI::userSession()->getLocalUserId();
@@ -97,15 +79,11 @@ function quicktag_jot_tool(string &$html)
 		'$title' => DI::l10n()->t('Quick Hashtags'),
 		'$tags'  => $tags,
 	]);
+
+	DI::page()->registerFooterScript('addon/quicktag/quicktag.js');
+	DI::page()->registerStylesheet('addon/quicktag/quicktag.css');
 }
 
-/**
- * Splits the stored tag list on whitespace and normalizes every entry to start with "#".
- *
- * @param string $rawTags The stored user input
- *
- * @return array<string> The list of normalized hashtags, may be empty
- */
 function quicktag_split_tags(string $rawTags): array
 {
 	$tags = [];
