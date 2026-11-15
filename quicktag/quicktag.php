@@ -2,7 +2,7 @@
 /**
  * Name: Quick Hashtag
  * Description: Inserts personal favorite hashtags into the post editor via a toolbar icon.
- * Version: 1.1
+ * Version: 1.2
  * Author: Matthias Ebers <https://loma.ml/profile/feb>
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
