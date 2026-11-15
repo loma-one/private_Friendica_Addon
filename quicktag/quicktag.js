@@ -4,6 +4,43 @@
 	}
 	window.quicktagInitialized = true;
 
+	function relocate(wrapper)
+	{
+		if (wrapper.dataset.quicktagRelocated) {
+			return;
+		}
+
+		if (!wrapper.closest('#profile-jot-plugin-wrapper') && !wrapper.closest('.jotplugins')) {
+			return;
+		}
+
+		var attach = document.querySelector('#profile-jot-submit-wrapper #profile-attach');
+		if (attach) {
+			var li = attach.closest('li');
+			if (li && li.parentNode) {
+				var item = document.createElement('li');
+				item.appendChild(wrapper);
+				li.parentNode.insertBefore(item, li);
+				wrapper.dataset.quicktagRelocated = '1';
+			}
+			return;
+		}
+
+		var bbAttach = document.querySelector('.btn-toolbar .bb-attach');
+		if (bbAttach) {
+			var group = bbAttach.closest('.btn-group') || bbAttach;
+			if (group && group.parentNode) {
+				group.parentNode.insertBefore(wrapper, group);
+				wrapper.dataset.quicktagRelocated = '1';
+			}
+		}
+	}
+
+	function relocateAll()
+	{
+		document.querySelectorAll('.quicktag-wrapper').forEach(relocate);
+	}
+
 	function getPopover(button)
 	{
 		const wrapper = button.closest('.quicktag-wrapper');
@@ -36,9 +73,7 @@
 		const cursorPos = textarea.selectionStart ?? currentText.length;
 
 		const prefix = (cursorPos > 0 && currentText[cursorPos - 1] !== ' ') ? ' ' : '';
-		const suffix = ' '; // Leerzeichen nach dem Hashtag für den folgenden Text
-
-		const insertion = prefix + tag + suffix;
+		const insertion = prefix + tag + ' ';
 
 		textarea.value = currentText.substring(0, cursorPos) + insertion + currentText.substring(cursorPos);
 
@@ -76,4 +111,12 @@
 			closeAll();
 		}
 	});
+
+	relocateAll();
+	if (typeof MutationObserver === 'function') {
+		new MutationObserver(relocateAll).observe(document.body, {
+			childList: true,
+			subtree: true
+		});
+	}
 })();
